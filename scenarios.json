@@ -27,7 +27,7 @@
         }
       ],
       "safe_signals": [],
-      "tip": "Never pay fees or provide banking details to claim unsolicited sweepstakes prizes."
+      "tip": "Never enter your bank details or personal information to claim unsolicited sweepstakes prizes."
     },
     {
       "id": "L1-02",
@@ -67,8 +67,8 @@
       "is_phishing": false,
       "red_flags": [],
       "safe_signals": [
-        "Sent from an authentic internal operations subdomain ops.internal.example matching company naming standards.",
-        "Provides clear maintenance window times and directs inquiries to existing internal dispatch channels without asking for credentials or action."
+        "Provides clear maintenance window times and directs inquiries to existing internal dispatch channels without asking for credentials or action.",
+        "Sender address matches the organization's usual domain ops.internal.example."
       ],
       "tip": "Confirm scheduled operational maintenance windows against the internal company maintenance calendar."
     },
@@ -141,7 +141,7 @@
         {
           "quote": "streamplay-cancel.example",
           "category": "fake_domain",
-          "explanation": "The domain streamplay-cancel.example is a typo-squatted lookalike crafted to harvest credit card details."
+          "explanation": "The domain streamplay-cancel.example is a lookalike domain crafted to harvest credit card details."
         },
         {
           "quote": "statement closes in 24 hours",
@@ -186,14 +186,14 @@
       "channel": "email",
       "sender": "Elena Rostova <elena-rostova@partner-audit.example>",
       "subject": "Signed mutual nondisclosure agreement for Q3 joint review",
-      "body": "Hello team, following up on yesterday's vendor risk assessment call, I have attached our signed bilateral agreement mutual-nda-q3.pdf. Please review section 4 regarding data retention periods. Let us know if your legal team requires any amendments before Friday's executive sync.",
+      "body": "Hello team, following up on our vendor risk assessment, our signed bilateral agreement has been uploaded to the shared contract workspace both teams already use. Please log in there as usual and review section 4 on data retention periods. Let us know if your legal team requires any amendments before Friday's executive sync.",
       "is_phishing": false,
       "red_flags": [],
       "safe_signals": [
-        "Sent from an established partner domain partner-audit.example consistent with prior vendor risk discussions.",
-        "Follows up on an expected business interaction without urgent pressure, credential requests, or suspicious links."
+        "Does not contain any attachments or links, directing the recipient instead to open the document directly inside the existing shared contract workspace.",
+        "Sender address matches the organization's usual domain partner-audit.example and follows an expected business workflow without urgent pressure."
       ],
-      "tip": "When contracts arrive, check that the sender matches the partner contact from prior verified meetings."
+      "tip": "Verify unexpected or sensitive documents by accessing them through an existing, trusted channel you already know rather than email links or attachments."
     },
     {
       "id": "L2-04",
@@ -276,8 +276,8 @@
       "is_phishing": false,
       "red_flags": [],
       "safe_signals": [
-        "Sent from the authentic primary domain cloudsync.example without suspicious subdomains.",
-        "Proactively instructs the user to navigate to their own saved browser bookmark rather than providing any links."
+        "Proactively instructs the user to navigate to their own saved browser bookmark rather than providing any links.",
+        "Sender address matches the organization's usual domain cloudsync.example without suspicious subdomains."
       ],
       "tip": "Legitimate security alerts often urge you to visit the service using your own trusted bookmarks."
     },
@@ -315,7 +315,7 @@
       "channel": "email",
       "sender": "Global Talents Recruiting <hr-outreach@career-scout.example>",
       "subject": "Urgent: Remote Data Reviewer role offer ($45/hr) - Immediate placement",
-      "body": "Dear Candidate, We have reviewed your profile and are pleased of making you an immediate appointment for the position of Remote Operations Reviewer. Pay is $45 per hour plus home equipment stipend. Kindly confirm your placement by sending your national identity number and banking swift code to talent-onboarding.test within 48 hours to process advance stipend payment.",
+      "body": "Dear Candidate, We have reviewed your profile and are pleased of making you an immediate appointment for the position of Remote Operations Reviewer. Pay is $45 per hour plus home equipment stipend. Kindly confirm your placement by sending your national identity number and bank account number to talent-onboarding.test within 48 hours to process advance stipend payment.",
       "is_phishing": true,
       "red_flags": [
         {
@@ -324,9 +324,9 @@
           "explanation": "Awkward grammatical phrasing and abrupt hiring decisions without interviews indicate recruitment fraud."
         },
         {
-          "quote": "sending your national identity number and banking swift code",
+          "quote": "sending your national identity number and bank account number",
           "category": "sensitive_data",
-          "explanation": "Legitimate employers never solicit sensitive national IDs and bank SWIFT codes prior to formal onboarding."
+          "explanation": "Legitimate employers never solicit sensitive national IDs and bank account numbers prior to formal onboarding."
         },
         {
           "quote": "talent-onboarding.test",
@@ -362,8 +362,8 @@
       "is_phishing": false,
       "red_flags": [],
       "safe_signals": [
-        "Originates from authenticated internal corporate identity domain corp.internal.example.",
-        "Explicitly reminds employees that IT never emails password reset links and directs to the corporate SSO bookmark."
+        "Explicitly reminds employees that IT never emails password reset links and directs to the corporate SSO bookmark.",
+        "Sender address matches the organization's usual domain corp.internal.example."
       ],
       "tip": "Trustworthy password expiration notices direct employees to existing SSO bookmarks rather than embedded links."
     },
