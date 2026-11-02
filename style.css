@@ -52,7 +52,7 @@ body {
   color: var(--text-main);
   font-family: var(--font-sans);
   line-height: 1.55;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .sr-only {
@@ -124,6 +124,7 @@ body {
   flex-wrap: wrap;
   align-items: center;
   gap: 14px;
+  margin-left: auto;
 }
 
 .nav-link {
@@ -148,8 +149,9 @@ body {
   gap: 10px;
 }
 
-.btn-mobile-menu {
-  display: none;
+.site-nav .btn-mobile-menu,
+#mobile-menu-toggle {
+  display: none !important;
 }
 
 .btn-nav-play {
@@ -1640,6 +1642,7 @@ mark.quote-highlight {
   font-size: 0.94rem;
   color: var(--text-main);
   flex: 1 1 300px;
+  min-width: 0;
 }
 
 /* Reduced Motion Support */
@@ -1693,10 +1696,12 @@ mark.quote-highlight {
     display: flex;
     align-items: center;
     gap: 6px;
+    margin-left: auto;
   }
 
-  .btn-mobile-menu {
-    display: inline-flex;
+  .site-nav .btn-mobile-menu,
+  #mobile-menu-toggle {
+    display: inline-flex !important;
     padding: 5px 9px;
     font-size: 0.74rem;
     white-space: nowrap;
@@ -1710,6 +1715,7 @@ mark.quote-highlight {
 
   .site-nav-links {
     display: none;
+    margin-left: 0;
   }
 
   .site-nav-links.is-open {
