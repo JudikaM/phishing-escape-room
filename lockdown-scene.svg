@@ -1,0 +1,241 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#020409"/>
+      <stop offset="35%" stop-color="#060c18"/>
+      <stop offset="100%" stop-color="#010307"/>
+    </linearGradient>
+
+    <!-- Emergency red light radiating from ceiling fixture -->
+    <radialGradient id="emergencyGlow" cx="50%" cy="2%" r="55%">
+      <stop offset="0%" stop-color="#ff1444" stop-opacity="0.8"/>
+      <stop offset="20%" stop-color="#ff1444" stop-opacity="0.38"/>
+      <stop offset="55%" stop-color="#ff1444" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ff1444" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Steel door gradients -->
+    <linearGradient id="doorPlate" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#182a44"/>
+      <stop offset="50%" stop-color="#101c2e"/>
+      <stop offset="100%" stop-color="#0a121e"/>
+    </linearGradient>
+
+    <linearGradient id="rackGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0d1b30"/>
+      <stop offset="50%" stop-color="#142846"/>
+      <stop offset="100%" stop-color="#08111e"/>
+    </linearGradient>
+
+    <linearGradient id="rackGradR" x1="1" y1="0" x2="0" y2="0">
+      <stop offset="0%" stop-color="#0d1b30"/>
+      <stop offset="50%" stop-color="#142846"/>
+      <stop offset="100%" stop-color="#08111e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Deep background -->
+  <rect width="1440" height="800" fill="url(#bgGrad)"/>
+
+  <!-- ==================== FLOOR GRID (BELOW Y=220: CLEAN PERSPECTIVE BEHIND MENU) ==================== -->
+  <g stroke="#1a3458" stroke-width="1.3" opacity="0.75">
+    <line x1="720" y1="220" x2="-220" y2="800"/>
+    <line x1="720" y1="220" x2="120" y2="800"/>
+    <line x1="720" y1="220" x2="380" y2="800"/>
+    <line x1="720" y1="220" x2="590" y2="800"/>
+    <line x1="720" y1="220" x2="850" y2="800"/>
+    <line x1="720" y1="220" x2="1060" y2="800"/>
+    <line x1="720" y1="220" x2="1320" y2="800"/>
+    <line x1="720" y1="220" x2="1660" y2="800"/>
+
+    <!-- Perspective floor tile lines -->
+    <line x1="450" y1="260" x2="990" y2="260"/>
+    <line x1="380" y1="315" x2="1060" y2="315"/>
+    <line x1="290" y1="385" x2="1150" y2="385"/>
+    <line x1="190" y1="475" x2="1250" y2="475"/>
+    <line x1="70" y1="585" x2="1370" y2="585"/>
+    <line x1="-70" y1="715" x2="1510" y2="715"/>
+  </g>
+
+  <!-- ==================== STEEL SECURITY DOOR FRAMING THE TITLE (Y=10 TO Y=210) ==================== -->
+  <g id="security-blast-door">
+    <!-- Reinforced outer arch & bulkhead frame -->
+    <polygon points="440,0 1000,0 1025,205 415,205" fill="#070f1a" stroke="#254774" stroke-width="2.5"/>
+
+    <!-- Inner recessed blast door panel -->
+    <rect x="455" y="10" width="530" height="185" fill="url(#doorPlate)" stroke="#00e5ff" stroke-width="1.5" stroke-opacity="0.6"/>
+
+    <!-- Warning hazard stripes along top header -->
+    <g opacity="0.45">
+      <polygon points="465,14 495,14 480,30 455,30" fill="#ffb800"/>
+      <polygon points="515,14 545,14 530,30 500,30" fill="#ffb800"/>
+      <polygon points="565,14 595,14 580,30 550,30" fill="#ffb800"/>
+      <polygon points="615,14 645,14 630,30 600,30" fill="#ffb800"/>
+      <polygon points="795,14 825,14 810,30 780,30" fill="#ffb800"/>
+      <polygon points="845,14 875,14 860,30 830,30" fill="#ffb800"/>
+      <polygon points="895,14 925,14 910,30 880,30" fill="#ffb800"/>
+      <polygon points="945,14 975,14 960,30 930,30" fill="#ffb800"/>
+    </g>
+
+    <!-- Horizontal structural beams -->
+    <rect x="455" y="44" width="530" height="8" fill="#091424" stroke="#1d385e" stroke-width="1"/>
+    <rect x="455" y="152" width="530" height="8" fill="#091424" stroke="#1d385e" stroke-width="1"/>
+
+    <!-- Center vertical split seam -->
+    <line x1="720" y1="10" x2="720" y2="195" stroke="#03060c" stroke-width="4"/>
+    <line x1="720" y1="10" x2="720" y2="195" stroke="#00e5ff" stroke-width="1.2" stroke-opacity="0.7"/>
+
+    <!-- Circular Lock Mechanism placed at Y=95 (Directly behind the title area, framing the header!) -->
+    <circle cx="720" cy="95" r="36" fill="#060c16" stroke="#254a79" stroke-width="3"/>
+    <circle cx="720" cy="95" r="26" fill="#0b172a" stroke="#00e5ff" stroke-width="1.5" stroke-opacity="0.85"/>
+    <line x1="690" y1="95" x2="750" y2="95" stroke="#00e5ff" stroke-width="2" stroke-opacity="0.8"/>
+    <line x1="720" y1="65" x2="720" y2="125" stroke="#00e5ff" stroke-width="2" stroke-opacity="0.8"/>
+    <circle cx="720" cy="95" r="11" fill="#040810" stroke="#ff2952" stroke-width="2"/>
+    <circle cx="720" cy="95" r="4" fill="#ff2952"/>
+  </g>
+
+  <!-- ==================== BOLD LEFT SERVER RACKS ==================== -->
+  <g id="left-server-racks">
+    <!-- Outer rack bank -->
+    <polygon points="15,0 215,45 215,745 15,795" fill="url(#rackGrad)" stroke="#2b5387" stroke-width="2.5"/>
+    <!-- Inner rack bank -->
+    <polygon points="230,50 415,95 415,695 230,735" fill="url(#rackGrad)" stroke="#315f9b" stroke-width="2.5"/>
+
+    <!-- Chassis dividers -->
+    <g stroke="#1d3d66" stroke-width="2">
+      <!-- Outer rack lines -->
+      <line x1="30" y1="85" x2="200" y2="115"/>
+      <line x1="30" y1="140" x2="200" y2="165"/>
+      <line x1="30" y1="195" x2="200" y2="215"/>
+      <line x1="30" y1="250" x2="200" y2="265"/>
+      <line x1="30" y1="305" x2="200" y2="315"/>
+      <line x1="30" y1="360" x2="200" y2="365"/>
+      <line x1="30" y1="415" x2="200" y2="415"/>
+      <line x1="30" y1="470" x2="200" y2="465"/>
+      <line x1="30" y1="525" x2="200" y2="515"/>
+      <line x1="30" y1="580" x2="200" y2="565"/>
+      <line x1="30" y1="635" x2="200" y2="615"/>
+      <line x1="30" y1="690" x2="200" y2="665"/>
+
+      <!-- Inner rack lines -->
+      <line x1="245" y1="125" x2="400" y2="155"/>
+      <line x1="245" y1="175" x2="400" y2="200"/>
+      <line x1="245" y1="225" x2="400" y2="245"/>
+      <line x1="245" y1="275" x2="400" y2="290"/>
+      <line x1="245" y1="325" x2="400" y2="335"/>
+      <line x1="245" y1="375" x2="400" y2="380"/>
+      <line x1="245" y1="425" x2="400" y2="425"/>
+      <line x1="245" y1="475" x2="400" y2="470"/>
+      <line x1="245" y1="525" x2="400" y2="515"/>
+      <line x1="245" y1="575" x2="400" y2="560"/>
+      <line x1="245" y1="625" x2="400" y2="605"/>
+    </g>
+
+    <!-- Glowing Cyan LEDs -->
+    <g fill="#00f5ff">
+      <rect x="42" y="96" width="18" height="4.5" rx="1"/>
+      <rect x="66" y="99" width="10" height="4.5" rx="1"/>
+      <rect x="42" y="151" width="24" height="4.5" rx="1"/>
+      <rect x="42" y="261" width="20" height="4.5" rx="1"/>
+      <rect x="42" y="371" width="22" height="4.5" rx="1"/>
+      <rect x="42" y="481" width="18" height="4.5" rx="1"/>
+      <rect x="42" y="591" width="24" height="4.5" rx="1"/>
+
+      <rect x="256" y="137" width="18" height="4.5" rx="1"/>
+      <rect x="280" y="140" width="10" height="4.5" rx="1"/>
+      <rect x="256" y="237" width="24" height="4.5" rx="1"/>
+      <rect x="256" y="337" width="20" height="4.5" rx="1"/>
+      <rect x="256" y="437" width="26" height="4.5" rx="1"/>
+      <rect x="256" y="537" width="18" height="4.5" rx="1"/>
+    </g>
+
+    <!-- Glowing Alert Red LEDs -->
+    <g fill="#ff204e">
+      <rect x="42" y="206" width="16" height="4.5" rx="1"/>
+      <rect x="42" y="426" width="16" height="4.5" rx="1"/>
+      <rect x="42" y="536" width="14" height="4.5" rx="1"/>
+
+      <rect x="256" y="187" width="16" height="4.5" rx="1"/>
+      <rect x="256" y="387" width="18" height="4.5" rx="1"/>
+      <rect x="256" y="587" width="16" height="4.5" rx="1"/>
+    </g>
+  </g>
+
+  <!-- ==================== BOLD RIGHT SERVER RACKS ==================== -->
+  <g id="right-server-racks">
+    <!-- Outer rack bank -->
+    <polygon points="1425,0 1225,45 1225,745 1425,795" fill="url(#rackGradR)" stroke="#2b5387" stroke-width="2.5"/>
+    <!-- Inner rack bank -->
+    <polygon points="1210,50 1025,95 1025,695 1210,735" fill="url(#rackGradR)" stroke="#315f9b" stroke-width="2.5"/>
+
+    <!-- Chassis dividers -->
+    <g stroke="#1d3d66" stroke-width="2">
+      <!-- Outer rack lines -->
+      <line x1="1410" y1="85" x2="1240" y2="115"/>
+      <line x1="1410" y1="140" x2="1240" y2="165"/>
+      <line x1="1410" y1="195" x2="1240" y2="215"/>
+      <line x1="1410" y1="250" x2="1240" y2="265"/>
+      <line x1="1410" y1="305" x2="1240" y2="315"/>
+      <line x1="1410" y1="360" x2="1240" y2="365"/>
+      <line x1="1410" y1="415" x2="1240" y2="415"/>
+      <line x1="1410" y1="470" x2="1240" y2="465"/>
+      <line x1="1410" y1="525" x2="1240" y2="515"/>
+      <line x1="1410" y1="580" x2="1240" y2="565"/>
+      <line x1="1410" y1="635" x2="1240" y2="615"/>
+      <line x1="1410" y1="690" x2="1240" y2="665"/>
+
+      <!-- Inner rack lines -->
+      <line x1="1195" y1="125" x2="1040" y2="155"/>
+      <line x1="1195" y1="175" x2="1040" y2="200"/>
+      <line x1="1195" y1="225" x2="1040" y2="245"/>
+      <line x1="1195" y1="275" x2="1040" y2="290"/>
+      <line x1="1195" y1="325" x2="1040" y2="335"/>
+      <line x1="1195" y1="375" x2="1040" y2="380"/>
+      <line x1="1195" y1="425" x2="1040" y2="425"/>
+      <line x1="1195" y1="475" x2="1040" y2="470"/>
+      <line x1="1195" y1="525" x2="1040" y2="515"/>
+      <line x1="1195" y1="575" x2="1040" y2="560"/>
+      <line x1="1195" y1="625" x2="1040" y2="605"/>
+    </g>
+
+    <!-- Glowing Cyan LEDs -->
+    <g fill="#00f5ff">
+      <rect x="1380" y="96" width="18" height="4.5" rx="1"/>
+      <rect x="1364" y="99" width="10" height="4.5" rx="1"/>
+      <rect x="1374" y="151" width="24" height="4.5" rx="1"/>
+      <rect x="1378" y="261" width="20" height="4.5" rx="1"/>
+      <rect x="1376" y="371" width="22" height="4.5" rx="1"/>
+      <rect x="1380" y="481" width="18" height="4.5" rx="1"/>
+      <rect x="1374" y="591" width="24" height="4.5" rx="1"/>
+
+      <rect x="1166" y="137" width="18" height="4.5" rx="1"/>
+      <rect x="1150" y="140" width="10" height="4.5" rx="1"/>
+      <rect x="1160" y="237" width="24" height="4.5" rx="1"/>
+      <rect x="1164" y="337" width="20" height="4.5" rx="1"/>
+      <rect x="1158" y="437" width="26" height="4.5" rx="1"/>
+      <rect x="1166" y="537" width="18" height="4.5" rx="1"/>
+    </g>
+
+    <!-- Glowing Alert Red LEDs -->
+    <g fill="#ff204e">
+      <rect x="1382" y="206" width="16" height="4.5" rx="1"/>
+      <rect x="1382" y="426" width="16" height="4.5" rx="1"/>
+      <rect x="1384" y="536" width="14" height="4.5" rx="1"/>
+
+      <rect x="1168" y="187" width="16" height="4.5" rx="1"/>
+      <rect x="1166" y="387" width="18" height="4.5" rx="1"/>
+      <rect x="1168" y="587" width="16" height="4.5" rx="1"/>
+    </g>
+  </g>
+
+  <!-- ==================== RADIANT EMERGENCY RED LIGHT OVERLAY ==================== -->
+  <rect width="1440" height="800" fill="url(#emergencyGlow)"/>
+
+  <!-- Overhead industrial beacon lamp -->
+  <g id="emergency-lamp" transform="translate(660, 0)">
+    <polygon points="25,0 95,0 105,22 15,22" fill="#08101e" stroke="#2a4773" stroke-width="2"/>
+    <rect x="35" y="18" width="50" height="18" rx="4" fill="#20040a" stroke="#ff204e" stroke-width="2"/>
+    <circle cx="60" cy="27" r="14" fill="#ff1444"/>
+    <circle cx="60" cy="27" r="6" fill="#ffffff"/>
+  </g>
+</svg>

@@ -7,11 +7,7 @@
   var POINTS_PER_CORRECT = 100;
   var BEST_SCORE_KEY = "phishing_escape_room_best_score";
   var PROGRESS_KEY = "phishing_escape_room_cleared_doors";
-
-  // AGENTS.md currently allows only the best score in localStorage.
-  // Door progress is kept in memory for the current session. Set this flag
-  // to true only after the project owner approves saving door progress too.
-  var PERSIST_PROGRESS = false;
+  var PERSIST_PROGRESS = true;
 
   var CATEGORY_LABELS = {
     fake_domain: "Fake Domain",
@@ -36,20 +32,27 @@
     levelStartScore: 0,
     lives: INITIAL_LIVES,
     timeLeft: LEVEL_DURATION_SECONDS,
+    timeLeftMs: LEVEL_DURATION_SECONDS * 1000,
+    lastTickTime: null,
     hintAvailable: true,
     hintUsedOnCurrent: false,
     timerId: null,
     missedCategories: {},
     clearedDoors: 0,
-    sessionBest: 0
+    sessionBest: 0,
+    selectedMenuIndex: 0,
+    currentDoorAnswers: [],
+    committedRunAnswers: {}
   };
 
   function byId(id) {
     return document.getElementById(id);
   }
 
+  var elWebsiteView = byId("website-view");
+  var elTerminalView = byId("terminal-view");
+
   var screens = {
-    menu: byId("menu-screen"),
     howto: byId("howto-screen"),
     select: byId("select-screen"),
     game: byId("game-screen"),
@@ -63,15 +66,31 @@
   var elStatusBanner = byId("status-banner");
   var elDoorBadges = [byId("door-1"), byId("door-2"), byId("door-3")];
 
-  // Main menu
+  // Website & Title Menu
+  var elNavPlayBtn = byId("nav-play-btn");
+  var elBottomPlayBtn = byId("bottom-play-btn");
+  var elMobileMenuToggle = byId("mobile-menu-toggle");
+  var elSiteNavLinks = byId("site-nav-links");
   var elMenuStart = byId("menu-start-btn");
+  var elMenuContinueItem = byId("menu-continue-item");
   var elMenuContinue = byId("menu-continue-btn");
+  var elMenuContinueLabel = byId("menu-continue-label");
+  var elMenuContinueMeta = byId("menu-continue-meta");
   var elMenuSelect = byId("menu-select-btn");
   var elMenuHowto = byId("menu-howto-btn");
+  var elMenuAbout = byId("menu-about-btn");
   var elMenuBest = byId("menu-best-score");
   var elMenuProgress = byId("menu-progress");
   var elMenuStatus = byId("menu-status");
   var elMenuStorageNote = byId("menu-storage-note");
+
+  var allTitleMenuButtons = [
+    elMenuStart,
+    elMenuContinue,
+    elMenuSelect,
+    elMenuHowto,
+    elMenuAbout
+  ];
 
   // How to play and select door
   var elHowtoBack = byId("howto-back-btn");
@@ -138,6 +157,18 @@
   var elEndTotalScore = byId("end-total-score");
   var elEndBestScore = byId("end-best-score");
   var elEndMissedCategory = byId("end-missed-category");
+  var elEndFalseAlarms = byId("end-false-alarms");
+  var elEndCategoryAccuracy = byId("end-category-accuracy");
+  var elEndWrongList = byId("end-wrong-list");
+  var elEndDetailView = byId("end-detail-view");
+  var elReviewDetailTitle = byId("review-detail-title");
+  var elReviewDetailClose = byId("review-detail-close");
+  var elReviewDetailMeta = byId("review-detail-meta");
+  var elReviewDetailBody = byId("review-detail-body");
+  var elReviewDetailSignalsTitle = byId("review-detail-signals-title");
+  var elReviewDetailSignalsList = byId("review-detail-signals-list");
+  var elReviewDetailTip = byId("review-detail-tip");
+  var elEndViewFellBtn = byId("end-view-fell-btn");
   var elBtnRestart = byId("btn-restart");
   var elEndMenu = byId("end-menu-btn");
 
@@ -348,6 +379,10 @@
 
   function setScreen(name) {
     state.screen = name;
+    var isMenu = name === "menu";
+    elWebsiteView.classList.toggle("hidden", !isMenu);
+    elTerminalView.classList.toggle("hidden", isMenu);
+
     var keys = Object.keys(screens);
     for (var i = 0; i < keys.length; i += 1) {
       screens[keys[i]].classList.toggle("hidden", keys[i] !== name);
@@ -366,21 +401,37 @@
       window.clearInterval(state.timerId);
       state.timerId = null;
     }
+    if (state.lastTickTime !== null) {
+      var now = Date.now();
+      var elapsed = now - state.lastTickTime;
+      state.timeLeftMs = Math.max(0, state.timeLeftMs - elapsed);
+      state.timeLeft = Math.max(0, Math.ceil(state.timeLeftMs / 1000));
+      state.lastTickTime = null;
+      updateHud();
+    }
   }
 
   function startTimer() {
     stopTimer();
+    state.lastTickTime = Date.now();
     state.timerId = window.setInterval(function () {
       if (state.screen !== "game" || state.phase !== "question") {
         return;
       }
-      state.timeLeft = Math.max(0, state.timeLeft - 1);
-      updateHud();
-      if (state.timeLeft <= 0) {
+      var now = Date.now();
+      var elapsed = now - state.lastTickTime;
+      state.lastTickTime = now;
+      state.timeLeftMs = Math.max(0, state.timeLeftMs - elapsed);
+      var prevSec = state.timeLeft;
+      state.timeLeft = Math.max(0, Math.ceil(state.timeLeftMs / 1000));
+      if (state.timeLeft !== prevSec) {
+        updateHud();
+      }
+      if (state.timeLeftMs <= 0) {
         stopTimer();
         failLevel("time");
       }
-    }, 1000);
+    }, 100);
   }
 
   /* ---------- HUD ---------- */
@@ -408,7 +459,7 @@
       state.phase !== "question" || !state.hintAvailable || state.hintUsedOnCurrent;
   }
 
-  /* ---------- Main menu, how to play, select door ---------- */
+  /* ---------- Title Menu & Website Navigation ---------- */
 
   function getContinueDoor() {
     if (state.clearedDoors >= 1 && state.clearedDoors < LEVEL_COUNT) {
@@ -421,31 +472,79 @@
     return Math.min(LEVEL_COUNT, state.clearedDoors + 1);
   }
 
+  function getActiveTitleMenuButtons() {
+    var list = [];
+    for (var i = 0; i < allTitleMenuButtons.length; i += 1) {
+      var btn = allTitleMenuButtons[i];
+      if (!btn || btn.disabled) {
+        continue;
+      }
+      var parentLi = btn.parentElement;
+      if (parentLi && parentLi.classList.contains("hidden")) {
+        continue;
+      }
+      list.push(btn);
+    }
+    return list;
+  }
+
+  function setSelectedMenuButton(targetBtn, shouldFocus) {
+    var activeButtons = getActiveTitleMenuButtons();
+    if (activeButtons.length === 0) {
+      return;
+    }
+    var idx = activeButtons.indexOf(targetBtn);
+    if (idx === -1) {
+      idx = 0;
+    }
+    state.selectedMenuIndex = idx;
+
+    for (var i = 0; i < allTitleMenuButtons.length; i += 1) {
+      var btn = allTitleMenuButtons[i];
+      if (btn) {
+        btn.classList.toggle("is-selected", btn === activeButtons[idx]);
+      }
+    }
+    if (shouldFocus) {
+      focusElement(activeButtons[idx]);
+    }
+  }
+
+  function moveMenuSelection(delta) {
+    var activeButtons = getActiveTitleMenuButtons();
+    if (activeButtons.length === 0) {
+      return;
+    }
+    var count = activeButtons.length;
+    var nextIndex = (state.selectedMenuIndex + delta + count) % count;
+    setSelectedMenuButton(activeButtons[nextIndex], true);
+  }
+
   function renderMenu() {
     elMenuBest.textContent = String(getBestScore());
     elMenuProgress.textContent = state.clearedDoors + " / " + LEVEL_COUNT;
 
     var continueDoor = getContinueDoor();
-    elMenuContinue.classList.toggle("hidden", continueDoor === 0);
+    elMenuContinueItem.classList.toggle("hidden", continueDoor === 0);
     if (continueDoor) {
-      elMenuContinue.textContent = "CONTINUE · DOOR " + continueDoor;
+      elMenuContinueLabel.textContent = "CONTINUE";
+      elMenuContinueMeta.textContent = "DOOR 0" + continueDoor;
     }
 
     elMenuStart.disabled = !state.loaded;
     elMenuContinue.disabled = !state.loaded;
     elMenuSelect.disabled = !state.loaded;
     elMenuStorageNote.classList.toggle("hidden", isStorageAvailable());
-  }
 
-  function getMenuPrimaryButton() {
-    if (!state.loaded) {
-      return elMenuHowto;
-    }
-    return getContinueDoor() ? elMenuContinue : elMenuStart;
+    var defaultBtn = !state.loaded
+      ? elMenuHowto
+      : continueDoor
+      ? elMenuContinue
+      : elMenuStart;
+    setSelectedMenuButton(defaultBtn, false);
   }
 
   function showMenu() {
-    // Leaving a door in progress discards that door's points.
     if (state.screen === "game" || state.screen === "pause" || state.screen === "failed") {
       state.score = state.levelStartScore;
     }
@@ -454,8 +553,26 @@
     setScreen("menu");
     renderMenu();
     scrollToTop();
-    focusElement(getMenuPrimaryButton());
-    announce("Main menu.");
+    var activeButtons = getActiveTitleMenuButtons();
+    if (activeButtons[state.selectedMenuIndex]) {
+      focusElement(activeButtons[state.selectedMenuIndex]);
+    }
+    announce("Title screen.");
+  }
+
+  function scrollToSiteSection(sectionId, announcement) {
+    if (state.screen !== "menu") {
+      setScreen("menu");
+      renderMenu();
+    }
+    var section = byId(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+      focusElement(section);
+    }
+    if (announcement) {
+      announce(announcement);
+    }
   }
 
   function showHowTo() {
@@ -545,7 +662,6 @@
     elBtnSafe.disabled = false;
     updateHud();
 
-    // Focus the message itself so a stray Enter press never submits an answer.
     focusElement(elMessageTerminal);
   }
 
@@ -555,9 +671,12 @@
     state.levelStartScore = state.score;
     state.lives = INITIAL_LIVES;
     state.timeLeft = LEVEL_DURATION_SECONDS;
+    state.timeLeftMs = LEVEL_DURATION_SECONDS * 1000;
+    state.lastTickTime = null;
     state.hintAvailable = true;
     state.hintUsedOnCurrent = false;
     state.currentIndex = 0;
+    state.currentDoorAnswers = [];
 
     var levelMessages = state.allMessages.filter(function (m) {
       return m.level === levelNumber;
@@ -580,6 +699,8 @@
     state.score = 0;
     state.levelStartScore = 0;
     state.missedCategories = {};
+    state.currentDoorAnswers = [];
+    state.committedRunAnswers = {};
     startLevel(door, "");
   }
 
@@ -591,14 +712,28 @@
     startLevel(door, "");
   }
 
+  function launchQuickPlay() {
+    if (!state.loaded) {
+      return;
+    }
+    var continueDoor = getContinueDoor();
+    if (continueDoor) {
+      continueRun();
+    } else {
+      startNewRun(1);
+    }
+  }
+
   function retryDoor() {
     state.score = state.levelStartScore;
+    state.currentDoorAnswers = [];
     startLevel(state.level, "Door " + state.level + " restarted from the beginning.");
   }
 
   function failLevel(reason) {
     stopTimer();
     state.phase = "failed";
+    state.currentDoorAnswers = [];
 
     var reasonText =
       reason === "time"
@@ -625,6 +760,9 @@
   function completeLevel() {
     stopTimer();
     state.phase = "idle";
+
+    state.committedRunAnswers[state.level] = state.currentDoorAnswers.slice();
+    state.currentDoorAnswers = [];
 
     var levelPoints = state.score - state.levelStartScore;
     var timeBonus = state.timeLeft;
@@ -781,6 +919,13 @@
     var msg = getCurrentMessage();
     var isCorrect = chosePhishing === msg.is_phishing;
 
+    state.currentDoorAnswers.push({
+      message: msg,
+      userDecision: chosePhishing,
+      isCorrect: isCorrect,
+      level: state.level
+    });
+
     if (isCorrect) {
       state.score += POINTS_PER_CORRECT;
     } else {
@@ -913,6 +1058,8 @@
     elEndBestScore.textContent = String(best);
     elEndMissedCategory.textContent = mostMissed;
 
+    renderRunReview();
+
     setScreen("end");
     scrollToTop();
     focusElement(elBtnRestart);
@@ -926,19 +1073,251 @@
     );
   }
 
+  function openWrongAnswerDetail(item) {
+    var msg = item.message;
+    elEndDetailView.classList.remove("hidden");
+
+    elReviewDetailTitle.textContent =
+      "INSPECTION: DOOR " + item.level + " · " + msg.channel.toUpperCase();
+
+    clearChildren(elReviewDetailMeta);
+    var senderLine = document.createElement("div");
+    senderLine.className = "detail-meta-line";
+    var senderPrefix = document.createElement("span");
+    senderPrefix.className = "meta-prefix";
+    senderPrefix.textContent =
+      msg.channel === "email" ? "From: " : msg.channel === "sms" ? "SMS: " : "Sender: ";
+    senderLine.appendChild(senderPrefix);
+    var senderText = document.createElement("span");
+    senderLine.appendChild(senderText);
+    elReviewDetailMeta.appendChild(senderLine);
+
+    var allQuotes = msg.red_flags
+      ? msg.red_flags.map(function (f) {
+          return f.quote;
+        })
+      : [];
+    renderTextWithHighlights(senderText, msg.sender, allQuotes);
+
+    if (msg.channel === "email" && msg.subject) {
+      var subjectLine = document.createElement("div");
+      subjectLine.className = "detail-meta-line";
+      var subjPrefix = document.createElement("span");
+      subjPrefix.className = "meta-prefix";
+      subjPrefix.textContent = "Subject: ";
+      subjectLine.appendChild(subjPrefix);
+      var subjText = document.createElement("span");
+      subjectLine.appendChild(subjText);
+      elReviewDetailMeta.appendChild(subjectLine);
+      renderTextWithHighlights(subjText, msg.subject, allQuotes);
+    }
+
+    renderTextWithHighlights(elReviewDetailBody, msg.body, allQuotes);
+
+    clearChildren(elReviewDetailSignalsList);
+    if (msg.is_phishing) {
+      elReviewDetailSignalsTitle.textContent = "// red flags present in this message";
+      for (var f = 0; f < msg.red_flags.length; f += 1) {
+        var flag = msg.red_flags[f];
+        var li = document.createElement("li");
+
+        var catTag = document.createElement("span");
+        catTag.className = "flag-category-tag";
+        catTag.textContent = formatCategory(flag.category);
+        li.appendChild(catTag);
+
+        var qSpan = document.createElement("span");
+        qSpan.className = "flag-quote-ref";
+        qSpan.textContent = '"' + flag.quote + '"';
+        li.appendChild(qSpan);
+
+        li.appendChild(document.createTextNode(" — " + flag.explanation));
+        elReviewDetailSignalsList.appendChild(li);
+      }
+    } else {
+      elReviewDetailSignalsTitle.textContent = "// safe signals present in this message";
+      for (var s = 0; s < msg.safe_signals.length; s += 1) {
+        var safeLi = document.createElement("li");
+        safeLi.textContent = msg.safe_signals[s];
+        elReviewDetailSignalsList.appendChild(safeLi);
+      }
+    }
+
+    elReviewDetailTip.textContent = msg.tip;
+
+    elEndDetailView.scrollIntoView({ behavior: "smooth" });
+    focusElement(elReviewDetailClose);
+  }
+
+  function renderRunReview() {
+    var allAnswers = [];
+    var doorKeys = Object.keys(state.committedRunAnswers);
+    doorKeys.sort(function (a, b) {
+      return Number(a) - Number(b);
+    });
+    for (var d = 0; d < doorKeys.length; d += 1) {
+      allAnswers = allAnswers.concat(state.committedRunAnswers[doorKeys[d]]);
+    }
+
+    var falseAlarmsCount = 0;
+    var wrongAnswers = [];
+    for (var a = 0; a < allAnswers.length; a += 1) {
+      var item = allAnswers[a];
+      if (!item.isCorrect) {
+        wrongAnswers.push(item);
+        if (!item.message.is_phishing && item.userDecision === true) {
+          falseAlarmsCount += 1;
+        }
+      }
+    }
+    elEndFalseAlarms.textContent = String(falseAlarmsCount);
+
+    var catStats = {};
+    var catKeys = Object.keys(CATEGORY_LABELS);
+    for (var c = 0; c < catKeys.length; c += 1) {
+      catStats[catKeys[c]] = { caught: 0, missed: 0, total: 0 };
+    }
+
+    for (var i = 0; i < allAnswers.length; i += 1) {
+      var ans = allAnswers[i];
+      if (ans.message.is_phishing && Array.isArray(ans.message.red_flags)) {
+        var seenInMsg = {};
+        for (var r = 0; r < ans.message.red_flags.length; r += 1) {
+          var flagCategory = ans.message.red_flags[r].category;
+          if (catStats[flagCategory] && !seenInMsg[flagCategory]) {
+            seenInMsg[flagCategory] = true;
+            catStats[flagCategory].total += 1;
+            if (ans.isCorrect) {
+              catStats[flagCategory].caught += 1;
+            } else {
+              catStats[flagCategory].missed += 1;
+            }
+          }
+        }
+      }
+    }
+
+    clearChildren(elEndCategoryAccuracy);
+    for (var k = 0; k < catKeys.length; k += 1) {
+      var catKey = catKeys[k];
+      var stats = catStats[catKey];
+      var card = document.createElement("div");
+      card.className = "category-accuracy-card";
+
+      var titleDiv = document.createElement("div");
+      titleDiv.className = "cat-card-header";
+      var nameSpan = document.createElement("span");
+      nameSpan.className = "cat-card-name";
+      nameSpan.textContent = CATEGORY_LABELS[catKey];
+      titleDiv.appendChild(nameSpan);
+
+      var badgeSpan = document.createElement("span");
+      badgeSpan.className = "cat-card-badge";
+
+      if (stats.total === 0) {
+        badgeSpan.textContent = "0 TESTED";
+        badgeSpan.classList.add("badge-neutral");
+      } else {
+        var pct = Math.round((stats.caught / stats.total) * 100);
+        badgeSpan.textContent = pct + "% (" + stats.caught + "/" + stats.total + ")";
+        if (pct === 100) {
+          badgeSpan.classList.add("badge-safe");
+        } else if (pct >= 50) {
+          badgeSpan.classList.add("badge-warn");
+        } else {
+          badgeSpan.classList.add("badge-danger");
+        }
+      }
+      titleDiv.appendChild(badgeSpan);
+      card.appendChild(titleDiv);
+
+      var detailP = document.createElement("p");
+      detailP.className = "cat-card-detail";
+      if (stats.total === 0) {
+        detailP.textContent = "No messages with this pattern appeared in this run.";
+      } else {
+        detailP.textContent =
+          stats.caught + " caught · " + stats.missed + " missed";
+      }
+      card.appendChild(detailP);
+
+      elEndCategoryAccuracy.appendChild(card);
+    }
+
+    clearChildren(elEndWrongList);
+    if (wrongAnswers.length === 0) {
+      var perfectDiv = document.createElement("div");
+      perfectDiv.className = "callout-safe";
+      var strongP = document.createElement("strong");
+      strongP.textContent = "// flawless triage:";
+      perfectDiv.appendChild(strongP);
+      perfectDiv.appendChild(
+        document.createTextNode(" You correctly classified all 18 messages with zero errors.")
+      );
+      elEndWrongList.appendChild(perfectDiv);
+    } else {
+      for (var w = 0; w < wrongAnswers.length; w += 1) {
+        (function (errItem) {
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "wrong-card-btn";
+
+          var headerDiv = document.createElement("div");
+          headerDiv.className = "wrong-card-header";
+
+          var tagSpan = document.createElement("span");
+          tagSpan.className = "wrong-card-tag";
+          tagSpan.textContent =
+            "// door " + errItem.level + " · " + errItem.message.channel.toUpperCase();
+          headerDiv.appendChild(tagSpan);
+
+          var errSpan = document.createElement("span");
+          errSpan.className = "wrong-card-err";
+          var userText = errItem.userDecision ? "Marked PHISHING" : "Marked SAFE";
+          var actualText = errItem.message.is_phishing ? "Actual: PHISHING" : "Actual: SAFE";
+          errSpan.textContent = userText + " · " + actualText;
+          headerDiv.appendChild(errSpan);
+
+          btn.appendChild(headerDiv);
+
+          var snippetP = document.createElement("p");
+          snippetP.className = "wrong-card-snippet";
+          var preview =
+            errItem.message.channel === "email" && errItem.message.subject
+              ? "Subject: " + errItem.message.subject
+              : errItem.message.body.slice(0, 90) + "...";
+          snippetP.textContent = preview;
+          btn.appendChild(snippetP);
+
+          var ctaSpan = document.createElement("span");
+          ctaSpan.className = "wrong-card-cta";
+          ctaSpan.textContent = "-> Click to inspect message breakdown";
+          btn.appendChild(ctaSpan);
+
+          btn.addEventListener("click", function () {
+            openWrongAnswerDetail(errItem);
+          });
+
+          elEndWrongList.appendChild(btn);
+        })(wrongAnswers[w]);
+      }
+    }
+
+    elEndDetailView.classList.add("hidden");
+  }
+
   /* ---------- Keyboard ---------- */
 
   function getPrimaryAction() {
     switch (state.screen) {
       case "menu":
-        if (!state.loaded) {
-          return null;
-        }
-        return getContinueDoor()
-          ? continueRun
-          : function () {
-              startNewRun(1);
-            };
+        return function () {
+          var activeButtons = getActiveTitleMenuButtons();
+          var selectedBtn = activeButtons[state.selectedMenuIndex] || activeButtons[0];
+          if (selectedBtn) {
+            selectedBtn.click();
+          }
+        };
       case "howto":
         return showMenu;
       case "select":
@@ -969,6 +1348,19 @@
 
     var key = event.key;
 
+    if (state.screen === "menu") {
+      if (key === "ArrowDown") {
+        event.preventDefault();
+        moveMenuSelection(1);
+        return;
+      }
+      if (key === "ArrowUp") {
+        event.preventDefault();
+        moveMenuSelection(-1);
+        return;
+      }
+    }
+
     if (key === "Escape" || key === "Esc") {
       if (state.screen === "game") {
         event.preventDefault();
@@ -983,7 +1375,6 @@
       return;
     }
 
-    // Ignore held-down keys so one long press never skips several screens.
     if (event.repeat) {
       if (key === "Enter") {
         event.preventDefault();
@@ -994,7 +1385,7 @@
     if (key === "Enter") {
       var active = document.activeElement;
       if (active && active.tagName === "BUTTON" && !active.disabled) {
-        return; // the browser activates the focused button
+        return;
       }
       var primary = getPrimaryAction();
       if (primary) {
@@ -1027,6 +1418,33 @@
     elMenuContinue.addEventListener("click", continueRun);
     elMenuSelect.addEventListener("click", showSelect);
     elMenuHowto.addEventListener("click", showHowTo);
+    elMenuAbout.addEventListener("click", function () {
+      scrollToSiteSection("about", "About the mission.");
+    });
+
+    if (elNavPlayBtn) {
+      elNavPlayBtn.addEventListener("click", launchQuickPlay);
+    }
+    if (elBottomPlayBtn) {
+      elBottomPlayBtn.addEventListener("click", launchQuickPlay);
+    }
+
+    allTitleMenuButtons.forEach(function (btn) {
+      if (!btn) {
+        return;
+      }
+      btn.addEventListener("mouseenter", function () {
+        if (!btn.disabled) {
+          setSelectedMenuButton(btn, false);
+        }
+      });
+      btn.addEventListener("focus", function () {
+        if (!btn.disabled) {
+          setSelectedMenuButton(btn, false);
+        }
+      });
+    });
+
     elHowtoBack.addEventListener("click", showMenu);
     elSelectBack.addEventListener("click", showMenu);
 
@@ -1064,6 +1482,33 @@
     });
     elEndMenu.addEventListener("click", showMenu);
 
+    if (elReviewDetailClose) {
+      elReviewDetailClose.addEventListener("click", function () {
+        elEndDetailView.classList.add("hidden");
+      });
+    }
+
+    if (elEndViewFellBtn) {
+      elEndViewFellBtn.addEventListener("click", function () {
+        scrollToSiteSection("if-you-fell-for-it", "Post-compromise recovery guide.");
+      });
+    }
+
+    if (elMobileMenuToggle && elSiteNavLinks) {
+      elMobileMenuToggle.addEventListener("click", function () {
+        var isOpen = elSiteNavLinks.classList.toggle("is-open");
+        elMobileMenuToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+
+      var navLinks = elSiteNavLinks.querySelectorAll(".nav-link");
+      for (var nl = 0; nl < navLinks.length; nl += 1) {
+        navLinks[nl].addEventListener("click", function () {
+          elSiteNavLinks.classList.remove("is-open");
+          elMobileMenuToggle.setAttribute("aria-expanded", "false");
+        });
+      }
+    }
+
     document.addEventListener("keydown", handleKeyDown);
 
     state.clearedDoors = loadClearedDoors();
@@ -1082,7 +1527,10 @@
         state.loaded = state.allMessages.length > 0;
         renderMenu();
         if (state.screen === "menu") {
-          focusElement(getMenuPrimaryButton());
+          var activeButtons = getActiveTitleMenuButtons();
+          if (activeButtons[state.selectedMenuIndex]) {
+            focusElement(activeButtons[state.selectedMenuIndex]);
+          }
         }
       })
       .catch(function () {
