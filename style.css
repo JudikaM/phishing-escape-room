@@ -622,6 +622,15 @@ body {
   text-transform: uppercase;
 }
 
+.site-brand-logo {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: block;
+  border-radius: 4px;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.45);
+}
+
 .status-led {
   width: 8px;
   height: 8px;
@@ -1690,6 +1699,11 @@ mark.quote-highlight {
   .site-brand {
     font-size: 0.76rem;
     white-space: nowrap;
+  }
+
+  .site-brand-logo {
+    width: 18px;
+    height: 18px;
   }
 
   .site-nav-actions {

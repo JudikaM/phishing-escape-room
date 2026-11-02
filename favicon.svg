@@ -1,7 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="12" fill="#050912"/>
-  <path d="M32 8 L52 16 V32 C52 44 43 53 32 58 C21 53 12 44 12 32 V16 Z" fill="#091527" stroke="#00e5ff" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M32 18 V46" stroke="#00e5ff" stroke-width="2.5" stroke-linecap="round"/>
-  <circle cx="32" cy="28" r="5" fill="#00e5ff"/>
-  <path d="M26 36 H38" stroke="#00e5ff" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Outer Cyber Shield -->
+  <path d="M32 8 L52 17 V32 C52 44.5 43 53 32 57 C21 53 12 44.5 12 32 V17 Z" fill="#091527" stroke="#00e5ff" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Two-tone cyber depth shading -->
+  <path d="M32 10 L14 18 V32 C14 43.5 22.5 51.5 32 55.2 Z" fill="#050d1a" opacity="0.65"/>
+  <!-- Inner Shield Contour -->
+  <path d="M32 16 L45 23 V33 C45 41 38.5 46.8 32 50 C25.5 46.8 19 41 19 33 V23 Z" fill="none" stroke="#00e5ff" stroke-width="1.8" stroke-linejoin="round" opacity="0.85"/>
 </svg>
