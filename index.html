@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Phishing Escape Room — an educational cybersecurity simulation game. Triage Email, SMS, and Chat messages to unlock three server room security doors.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Phishing Escape Room — SOC Lockdown</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script src="game.js" defer></script>
+</head>
+<body>
+  <div id="live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ==================== WEBSITE VIEW (TITLE SCREEN + SECTIONS) ==================== -->
+  <div id="website-view" class="website-view">
+    <header class="site-nav" role="banner">
+      <div class="site-nav-inner">
+        <a href="#home" class="site-brand">
+          <span class="status-led" aria-hidden="true"></span>
+          <span>// PHISHING ESCAPE ROOM</span>
+        </a>
+        <nav id="site-nav-links" class="site-nav-links" aria-label="Primary website navigation">
+          <a href="#home" class="nav-link">Home</a>
+          <a href="#about" class="nav-link">About</a>
+          <a href="#how-to-play" class="nav-link">How to Play</a>
+          <a href="#what-youll-learn" class="nav-link">What You'll Learn</a>
+          <a href="#if-you-fell-for-it" class="nav-link">If You Fell For It</a>
+        </nav>
+        <div class="site-nav-actions">
+          <button type="button" id="mobile-menu-toggle" class="btn btn-outline btn-mobile-menu" aria-expanded="false" aria-controls="site-nav-links" aria-label="Toggle navigation menu">MENU</button>
+          <button type="button" id="nav-play-btn" class="btn btn-primary btn-nav-play">PLAY</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 1. Cinematic Full-Viewport Title Screen -->
+    <section id="home" class="title-hero" aria-labelledby="hero-title">
+      <div class="scene-backdrop" aria-hidden="true">
+        <img src="lockdown-scene.svg" alt="" class="scene-svg">
+        <div class="emergency-beacon"></div>
+        <div class="scene-vignette"></div>
+        <div class="scene-scanlines"></div>
+      </div>
+
+      <div class="title-hero-content">
+        <p class="hero-tag">
+          <span class="beacon-dot" aria-hidden="true"></span>
+          // soc containment protocol &middot; alert level red
+        </p>
+        <h1 id="hero-title" class="hero-title">
+          PHISHING <span class="text-cyan">ESCAPE ROOM</span>
+        </h1>
+        <p class="hero-tagline">
+          Trapped inside a sealed server room on the night shift. Triage incoming Email, SMS, and Chat queues to unlock three security doors and break the lockdown.
+        </p>
+
+        <div class="hero-telemetry" aria-label="Player progress summary">
+          <div class="telemetry-pill">
+            <span class="telemetry-label">// best score</span>
+            <span id="menu-best-score" class="telemetry-value">0</span>
+          </div>
+          <div class="telemetry-pill">
+            <span class="telemetry-label">// doors cleared</span>
+            <span id="menu-progress" class="telemetry-value">0 / 3</span>
+          </div>
+        </div>
+
+        <nav class="title-menu" aria-label="Game title menu">
+          <ul id="title-menu-list" class="title-menu-list">
+            <li>
+              <button type="button" id="menu-start-btn" class="title-menu-btn is-selected" data-menu-item="true" disabled>
+                <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                <span class="menu-label">START NEW RUN</span>
+                <span class="menu-meta">DOOR 01</span>
+              </button>
+            </li>
+            <li id="menu-continue-item" class="hidden">
+              <button type="button" id="menu-continue-btn" class="title-menu-btn" data-menu-item="true" disabled>
+                <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                <span id="menu-continue-label" class="menu-label">CONTINUE</span>
+                <span id="menu-continue-meta" class="menu-meta">DOOR 02</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" id="menu-select-btn" class="title-menu-btn" data-menu-item="true" disabled>
+                <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                <span class="menu-label">SELECT DOOR</span>
+                <span class="menu-meta">01 - 03</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" id="menu-howto-btn" class="title-menu-btn" data-menu-item="true">
+                <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                <span class="menu-label">HOW TO PLAY</span>
+                <span class="menu-meta">CONTROLS</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" id="menu-about-btn" class="title-menu-btn" data-menu-item="true">
+                <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                <span class="menu-label">ABOUT</span>
+                <span class="menu-meta">BRIEFING</span>
+              </button>
+            </li>
+          </ul>
+          <p class="menu-key-hint">// use <kbd>&uarr;</kbd> <kbd>&darr;</kbd> arrow keys to select &middot; <kbd>Enter</kbd> to confirm</p>
+        </nav>
+
+        <p id="menu-status" class="mono-note mono-note-warning hidden" role="alert"></p>
+        <p id="menu-storage-note" class="mono-note hidden">// browser storage is blocked: gameplay works normally, but progress will not persist after closing the tab</p>
+
+        <p class="hero-disclaimer" role="note">
+          <strong>Educational Simulation:</strong> All brands, people, domains, email addresses, phone numbers, and scenario content in this game are completely fictional.
+        </p>
+      </div>
+    </section>
+
+    <!-- 2. Website Sections Below the Title Screen -->
+    <div class="site-sections">
+      <!-- About Section -->
+      <section id="about" class="site-section" tabindex="-1" aria-labelledby="about-heading">
+        <div class="site-container">
+          <p class="terminal-tag">// 01 &middot; mission briefing</p>
+          <h2 id="about-heading" class="section-heading">LOCKED IN THE <span class="text-cyan">SERVER ROOM</span></h2>
+          <p class="section-lead">
+            You are a new Security Operations Center (SOC) analyst working the overnight shift when an automated containment lockdown seals the server bay.
+            To override the blast doors and get out, you must inspect incoming messages and separate real communications from social engineering attacks across <strong>3 security doors</strong>.
+          </p>
+
+          <div class="about-doors-grid">
+            <article class="site-card">
+              <span class="rule-label">// door 01 &middot; tier 1</span>
+              <h3 class="card-title">CRUDE SCAMS</h3>
+              <p class="card-text">Spot obvious lottery giveaways, fake delivery APK installers, and urgent support impersonators demanding one-time passcodes.</p>
+            </article>
+            <article class="site-card">
+              <span class="rule-label">// door 02 &middot; tier 2</span>
+              <h3 class="card-title">SPEAR PHISHING</h3>
+              <p class="card-text">Analyze targeted subscription invoices, executive impersonation in chat, and disguised links hiding behind lookalike domains.</p>
+            </article>
+            <article class="site-card">
+              <span class="rule-label">// door 03 &middot; tier 3</span>
+              <h3 class="card-title">MIXED SIGNALS</h3>
+              <p class="card-text">Handle high-pressure recruitment and escrow traps alongside legitimate security alerts that look suspicious at first glance.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- How to Play Section -->
+      <section id="how-to-play" class="site-section" tabindex="-1" aria-labelledby="howto-site-heading">
+        <div class="site-container">
+          <p class="terminal-tag">// 02 &middot; operator manual</p>
+          <h2 id="howto-site-heading" class="section-heading">HOW TO <span class="text-cyan">PLAY</span></h2>
+          <p class="section-lead">
+            Each door presents 6 messages in random order with a <strong>120-second timer</strong>, <strong>3 lives</strong>, and <strong>1 hint</strong>.
+          </p>
+
+          <div class="steps-grid">
+            <article class="site-card">
+              <span class="rule-label">// step 01</span>
+              <h3 class="card-title">INSPECT THE CHANNEL</h3>
+              <p class="card-text">Read the sender address or masked phone number, subject line, and message body across realistic Email, SMS, and Chat views.</p>
+            </article>
+            <article class="site-card">
+              <span class="rule-label">// step 02</span>
+              <h3 class="card-title">CLASSIFY OR USE A HINT</h3>
+              <p class="card-text">Press <kbd>P</kbd> for Phishing or <kbd>S</kbd> for Safe (+100 pts per right call). Press <kbd>H</kbd> once per door to reveal a red flag or safe signal.</p>
+            </article>
+            <article class="site-card">
+              <span class="rule-label">// step 03</span>
+              <h3 class="card-title">LEARN &amp; UNLOCK</h3>
+              <p class="card-text">The timer pauses while you review highlighted red flags and security tips. Press <kbd>Enter</kbd> to continue or <kbd>Esc</kbd> to pause.</p>
+            </article>
+          </div>
+
+          <div class="controls-bar" aria-label="Keyboard shortcuts summary">
+            <div class="control-chip"><kbd>P</kbd> <span>Mark Phishing</span></div>
+            <div class="control-chip"><kbd>S</kbd> <span>Mark Safe</span></div>
+            <div class="control-chip"><kbd>H</kbd> <span>Use Hint (1 / door)</span></div>
+            <div class="control-chip"><kbd>Enter</kbd> <span>Confirm / Continue</span></div>
+            <div class="control-chip"><kbd>Esc</kbd> <span>Pause / Menu</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- What You'll Learn Section (8 Red Flag Categories) -->
+      <section id="what-youll-learn" class="site-section" tabindex="-1" aria-labelledby="learn-heading">
+        <div class="site-container">
+          <p class="terminal-tag">// 03 &middot; threat intelligence</p>
+          <h2 id="learn-heading" class="section-heading">WHAT YOU'LL <span class="text-cyan">LEARN</span></h2>
+          <p class="section-lead">
+            Every phishing scenario in the escape room trains you to spot one or more of these 8 core red flag categories:
+          </p>
+
+          <div class="categories-grid">
+            <article class="category-card">
+              <span class="rule-label">// 01 &middot; fake_domain</span>
+              <h3 class="card-title">FAKE DOMAIN</h3>
+              <p class="card-text">Lookalike or unverified domains crafted to impersonate trusted companies and capture logins.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 02 &middot; urgency</span>
+              <h3 class="card-title">URGENCY</h3>
+              <p class="card-text">Artificial deadlines and threats of account deletion designed to rush you into acting without checking.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 03 &middot; sensitive_data</span>
+              <h3 class="card-title">SENSITIVE DATA</h3>
+              <p class="card-text">Requests for one-time passcodes, passwords, national IDs, or bank account numbers over email or chat.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 04 &middot; malicious_attachment</span>
+              <h3 class="card-title">MALICIOUS ATTACHMENT</h3>
+              <p class="card-text">Unexpected executable or mobile installer files such as APK packages disguised as tracking tools.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 05 &middot; fake_prize</span>
+              <h3 class="card-title">FAKE PRIZE</h3>
+              <p class="card-text">Unsolicited sweepstakes or lottery winnings that ask for banking details to release a payout.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 06 &middot; disguised_link</span>
+              <h3 class="card-title">DISGUISED LINK</h3>
+              <p class="card-text">Deceptive URLs that place a known brand name in a subdomain while pointing to an untrusted host.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 07 &middot; suspicious_sender</span>
+              <h3 class="card-title">SUSPICIOUS SENDER</h3>
+              <p class="card-text">Generic support handles, unknown marketplace accounts, or private addresses posing as executives.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 08 &middot; unnatural_language</span>
+              <h3 class="card-title">UNNATURAL LANGUAGE</h3>
+              <p class="card-text">Awkward grammar, unusual phrasing, or instant job placements that skip normal interviews.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- If You Fell For It Section -->
+      <section id="if-you-fell-for-it" class="site-section" tabindex="-1" aria-labelledby="fell-heading">
+        <div class="site-container">
+          <p class="terminal-tag">// 04 &middot; emergency recovery protocol</p>
+          <h2 id="fell-heading" class="section-heading">WHAT TO DO <span class="text-cyan">IF YOU FELL FOR IT</span></h2>
+          <p class="section-lead">
+            Falling for a scam happens to everyday users and security pros alike. If you clicked a malicious link, sent a verification code, or entered financial details, take these immediate, region-neutral response steps:
+          </p>
+
+          <div class="fell-steps-grid">
+            <article class="site-card">
+              <span class="rule-label">// step 01 &middot; disconnect</span>
+              <h3 class="card-title">STOP REPLYING IMMEDIATELY</h3>
+              <p class="card-text">Cut all communications with the scammer. Do not answer follow-up calls, emails, or chat messages, and do not attempt to negotiate.</p>
+            </article>
+
+            <article class="site-card">
+              <span class="rule-label">// step 02 &middot; official channel</span>
+              <h3 class="card-title">CONTACT THE REAL SERVICE</h3>
+              <p class="card-text">Reach out to your bank, courier, or platform through their official app, saved browser bookmark, or the customer service number on the back of your payment card.</p>
+            </article>
+
+            <article class="site-card">
+              <span class="rule-label">// step 03 &middot; credential security</span>
+              <h3 class="card-title">CHANGE PASSWORDS &amp; ENABLE 2FA</h3>
+              <p class="card-text">Update passwords immediately for compromised accounts and any other services sharing that password. Enable two-factor authentication, preferably using an authenticator app.</p>
+            </article>
+
+            <article class="site-card">
+              <span class="rule-label">// step 04 &middot; fraud audit</span>
+              <h3 class="card-title">CHECK RECENT ACTIVITY</h3>
+              <p class="card-text">Inspect bank statements, card charges, login sessions, and email forwarding rules. Request a temporary freeze on payment cards or credit files if unauthorized charges appear.</p>
+            </article>
+
+            <article class="site-card">
+              <span class="rule-label">// step 05 &middot; incident reporting</span>
+              <h3 class="card-title">REPORT TO SERVICE &amp; AUTHORITIES</h3>
+              <p class="card-text">Report the scam to the impersonated company fraud department and file an official report with your regional or national consumer protection / cybercrime agency.</p>
+            </article>
+
+            <article class="site-card">
+              <span class="rule-label">// step 06 &middot; alert your network</span>
+              <h3 class="card-title">WARN FRIENDS &amp; COWORKERS</h3>
+              <p class="card-text">If your email, messaging profile, or address book was compromised, alert your contacts promptly so attackers cannot impersonate you to target your colleagues or loved ones.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Safety & Privacy Note Section -->
+      <section id="safety-note" class="site-section site-section-compact" aria-labelledby="safety-heading">
+        <div class="site-container">
+          <div class="disclaimer-box safety-callout">
+            <h2 id="safety-heading" class="safety-title">// safety &amp; privacy guarantee</h2>
+            <p class="safety-body">
+              This project is an <strong>educational simulation</strong>. All brands, people, email addresses, masked phone numbers, and messages are fictional and use RFC 2606 reserved domains (<code>.example</code> and <code>.test</code>). Links inside scenarios are plain text and never clickable.
+              <strong>No data ever leaves your browser</strong>—only your best score and unlocked-door progress are stored locally on your device.
+            </p>
+            <div class="action-row">
+              <button type="button" id="bottom-play-btn" class="btn btn-primary">LAUNCH ESCAPE ROOM</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer id="site-footer" class="site-footer" role="contentinfo">
+      <div class="site-container footer-inner">
+        <span class="footer-brand">PHISHING ESCAPE ROOM // SOC LOCKDOWN</span>
+        <span class="footer-credit">Built with Google Antigravity</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ==================== FOCUSED FULL-SCREEN GAME VIEW ==================== -->
+  <div id="terminal-view" class="app-shell hidden">
+    <header class="top-bar" role="banner">
+      <div class="brand-title">
+        <span class="status-led" aria-hidden="true"></span>
+        <span>// SOC ESCAPE TERMINAL</span>
+      </div>
+      <div class="doors-progress" aria-label="Security doors status">
+        <div class="door-badge" id="door-1">DOOR 1 · LOCKED</div>
+        <div class="door-badge" id="door-2">DOOR 2 · LOCKED</div>
+        <div class="door-badge" id="door-3">DOOR 3 · LOCKED</div>
+      </div>
+    </header>
+
+    <main class="main-stage">
+      <!-- How to Play (Focused Modal Screen) -->
+      <section id="howto-screen" class="screen-panel hidden" aria-labelledby="howto-heading">
+        <div class="terminal-card">
+          <p class="terminal-tag">// soc terminal &middot; operator briefing</p>
+          <h1 id="howto-heading">HOW TO / <span class="text-cyan">PLAY</span></h1>
+          <p class="story-text">
+            Each door is guarded by a queue of 6 messages shown in random order. Read every message carefully and decide whether it is a phishing attempt or a safe, legitimate message.
+          </p>
+
+          <div class="rules-grid">
+            <div class="rule-item">
+              <span class="rule-label">// 01 &middot; objective</span>
+              <span>Classify each message as <em>Phishing</em> or <em>Safe</em>. Clear a door to unlock the next one.</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-label">// 02 &middot; resources</span>
+              <span>120 seconds, 3 lives, and 1 hint per door. Running out of time or lives fails the door; retrying restarts it from the beginning.</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-label">// 03 &middot; scoring</span>
+              <span>+100 points per correct answer, plus remaining seconds added as a bonus when a door is cleared.</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-label">// 04 &middot; keyboard controls</span>
+              <span><kbd>P</kbd> Phishing &middot; <kbd>S</kbd> Safe &middot; <kbd>H</kbd> Hint &middot; <kbd>Enter</kbd> Confirm / Continue &middot; <kbd>Esc</kbd> Pause</span>
+            </div>
+          </div>
+
+          <div class="disclaimer-box" role="note">
+            <strong>Educational Simulation Notice:</strong> This game is an educational simulation. All brands, people, domains, email addresses, phone numbers, and messages are fictional. Links are shown as plain text and are never clickable.
+          </div>
+
+          <div class="action-row">
+            <button type="button" id="howto-back-btn" class="btn btn-primary">
+              TITLE SCREEN <span class="key-hint">[ESC]</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Select Door -->
+      <section id="select-screen" class="screen-panel hidden" aria-labelledby="select-heading">
+        <div class="terminal-card">
+          <p class="terminal-tag">// soc terminal &middot; door access control</p>
+          <h1 id="select-heading">SELECT / <span class="text-cyan">DOOR</span></h1>
+          <p class="story-text">Door 1 is always available. Doors 2 and 3 unlock after the previous door is cleared. Starting a door here begins a new run with a score of 0.</p>
+
+          <div class="door-grid">
+            <button type="button" id="select-door-1" class="door-card" data-door="1">
+              <span class="door-card-title">DOOR 01</span>
+              <span class="door-card-desc">Crude, easy-to-spot scams</span>
+              <span id="door-status-1" class="door-card-status">AVAILABLE</span>
+            </button>
+            <button type="button" id="select-door-2" class="door-card" data-door="2">
+              <span class="door-card-title">DOOR 02</span>
+              <span class="door-card-desc">Subtle, personalized spear phishing</span>
+              <span id="door-status-2" class="door-card-status">LOCKED</span>
+            </button>
+            <button type="button" id="select-door-3" class="door-card" data-door="3">
+              <span class="door-card-title">DOOR 03</span>
+              <span class="door-card-desc">Mixed signals: some safe messages look suspicious</span>
+              <span id="door-status-3" class="door-card-status">LOCKED</span>
+            </button>
+          </div>
+
+          <div class="action-row">
+            <button type="button" id="select-back-btn" class="btn btn-outline">
+              TITLE SCREEN <span class="key-hint">[ESC]</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Game Screen -->
+      <section id="game-screen" class="screen-panel hidden" aria-labelledby="level-heading">
+        <div class="hud-bar" role="region" aria-label="Game status">
+          <div class="hud-stat">
+            <span class="hud-label">// door</span>
+            <span id="hud-level" class="hud-value">1 / 3</span>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">// queue</span>
+            <span id="hud-progress" class="hud-value">1 / 6</span>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">// timer</span>
+            <span id="hud-timer" class="hud-value">120s</span>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">// lives</span>
+            <span id="hud-lives" class="hud-value" aria-label="3 lives remaining">♥♥♥</span>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">// score</span>
+            <span id="hud-score" class="hud-value">0</span>
+          </div>
+          <button type="button" id="btn-pause" class="btn btn-outline hud-pause" aria-keyshortcuts="Escape">
+            PAUSE <span class="key-hint">[ESC]</span>
+          </button>
+        </div>
+
+        <div id="status-banner" class="status-banner hidden" role="status" aria-live="polite"></div>
+
+        <article id="message-terminal" class="message-terminal channel-email" tabindex="-1" aria-label="Incoming message under inspection">
+          <div class="terminal-window-bar">
+            <span id="terminal-door-label" class="mono-label">// soc terminal &middot; door 1</span>
+            <span id="msg-channel-badge" class="channel-badge">EMAIL</span>
+          </div>
+
+          <div class="channel-viewport">
+            <div class="message-header">
+              <div class="message-field sender-row">
+                <span id="sender-label" class="field-label">From:</span>
+                <span id="msg-sender" class="field-value"></span>
+              </div>
+              <div id="msg-subject-row" class="message-field subject-row">
+                <span class="field-label">Subject:</span>
+                <span id="msg-subject" class="field-value subject-text"></span>
+              </div>
+            </div>
+
+            <div class="message-body-wrap">
+              <h2 id="level-heading" class="sr-only">Message Content</h2>
+              <p id="msg-body" class="message-body"></p>
+            </div>
+          </div>
+        </article>
+
+        <div id="hint-panel" class="hint-panel hidden" role="region" aria-live="polite" aria-label="Level hint">
+          <strong class="hint-title">// analyst hint:</strong>
+          <span id="hint-text"></span>
+        </div>
+
+        <div id="decision-controls" class="decision-bar" role="group" aria-label="Triage decision actions">
+          <button type="button" id="btn-phishing" class="btn btn-danger" aria-keyshortcuts="P">
+            PHISHING <span class="key-hint">[P]</span>
+          </button>
+          <button type="button" id="btn-safe" class="btn btn-safe" aria-keyshortcuts="S">
+            SAFE <span class="key-hint">[S]</span>
+          </button>
+          <button type="button" id="btn-hint" class="btn btn-warning" aria-keyshortcuts="H">
+            HINT (1) <span class="key-hint">[H]</span>
+          </button>
+        </div>
+
+        <section id="feedback-panel" class="feedback-panel hidden" aria-live="polite" aria-labelledby="feedback-verdict">
+          <div class="feedback-header">
+            <p class="terminal-tag">// triage analysis output</p>
+            <h3 id="feedback-verdict" class="feedback-verdict"></h3>
+            <p id="feedback-subtitle" class="feedback-subtitle"></p>
+          </div>
+
+          <div class="feedback-details">
+            <h4 id="feedback-list-title" class="feedback-section-title"></h4>
+            <ul id="feedback-list" class="feedback-list"></ul>
+          </div>
+
+          <div class="tip-box">
+            <strong>// security habit tip:</strong>
+            <span id="feedback-tip"></span>
+          </div>
+
+          <div class="action-row">
+            <button type="button" id="btn-continue" class="btn btn-primary">
+              CONTINUE <span class="key-hint">[ENTER]</span>
+            </button>
+          </div>
+        </section>
+      </section>
+
+      <!-- Pause Screen -->
+      <section id="pause-screen" class="screen-panel hidden" role="dialog" aria-modal="true" aria-labelledby="pause-heading">
+        <div class="terminal-card narrow-card">
+          <p class="terminal-tag">// soc terminal &middot; door <span id="pause-door-num">1</span> &middot; timer halted</p>
+          <h1 id="pause-heading">TRIAGE / <span class="text-cyan">PAUSED</span></h1>
+          <p class="story-text">The timer is stopped at <strong id="pause-time">120s</strong>. The message is hidden while the game is paused.</p>
+          <div class="menu-list">
+            <button type="button" id="pause-resume-btn" class="btn btn-primary btn-block">
+              RESUME <span class="key-hint">[ESC]</span>
+            </button>
+            <button type="button" id="pause-restart-btn" class="btn btn-outline btn-block">RESTART DOOR</button>
+            <button type="button" id="pause-menu-btn" class="btn btn-outline btn-block">TITLE SCREEN</button>
+          </div>
+          <p class="mono-note">// restart door or title screen discards progress on this door</p>
+        </div>
+      </section>
+
+      <!-- Door Unlocked Screen -->
+      <section id="unlocked-screen" class="screen-panel hidden" aria-labelledby="unlocked-heading">
+        <div class="terminal-card">
+          <p class="terminal-tag">// soc terminal &middot; access granted</p>
+          <h1 id="unlocked-heading">DOOR <span id="unlocked-door-num">1</span> / <span class="text-cyan">UNLOCKED</span></h1>
+          <p id="unlocked-note" class="story-text"></p>
+
+          <div class="result-grid">
+            <div class="summary-card">
+              <span class="summary-label">// door score</span>
+              <span id="unlocked-points" class="summary-value">0</span>
+            </div>
+            <div class="summary-card">
+              <span class="summary-label">// time bonus</span>
+              <span id="unlocked-bonus" class="summary-value">+0</span>
+            </div>
+            <div class="summary-card">
+              <span class="summary-label">// run total</span>
+              <span id="unlocked-total" class="summary-value">0</span>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button type="button" id="unlocked-next-btn" class="btn btn-primary">
+              NEXT DOOR <span class="key-hint">[ENTER]</span>
+            </button>
+            <button type="button" id="unlocked-menu-btn" class="btn btn-outline">TITLE SCREEN</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Level Failed Screen -->
+      <section id="failed-screen" class="screen-panel hidden" aria-labelledby="failed-heading">
+        <div class="terminal-card">
+          <p class="terminal-tag">// soc terminal &middot; access denied</p>
+          <h1 id="failed-heading">DOOR <span id="failed-door-num">1</span> / <span class="text-danger">FAILED</span></h1>
+          <div class="callout-danger" role="status">
+            <strong>// reason:</strong>
+            <span id="failed-reason"></span>
+          </div>
+          <p id="failed-note" class="story-text"></p>
+          <div class="action-row">
+            <button type="button" id="failed-retry-btn" class="btn btn-primary">
+              RETRY DOOR <span class="key-hint">[ENTER]</span>
+            </button>
+            <button type="button" id="failed-menu-btn" class="btn btn-outline">TITLE SCREEN</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- End Screen with Comprehensive Run Review -->
+      <section id="end-screen" class="screen-panel hidden" aria-labelledby="end-heading">
+        <div class="terminal-card">
+          <p class="terminal-tag">// soc terminal &middot; containment override complete</p>
+          <h1 id="end-heading">ESCAPE / <span class="text-cyan">SUCCESSFUL</span></h1>
+          <p class="story-text">
+            You triaged the final queue and unlocked all three server room doors. Review your complete SOC run performance and threat intelligence debrief below:
+          </p>
+
+          <div class="score-summary-grid">
+            <div class="summary-card">
+              <span class="summary-label">// total score</span>
+              <span id="end-total-score" class="summary-value">0</span>
+            </div>
+            <div class="summary-card">
+              <span class="summary-label">// best score</span>
+              <span id="end-best-score" class="summary-value">0</span>
+            </div>
+            <div class="summary-card">
+              <span class="summary-label">// most missed category</span>
+              <span id="end-missed-category" class="summary-value summary-category">None</span>
+            </div>
+            <div class="summary-card">
+              <span class="summary-label">// false alarms (safe marked phishing)</span>
+              <span id="end-false-alarms" class="summary-value">0</span>
+            </div>
+          </div>
+
+          <!-- Run Review: Accuracy per Category -->
+          <div class="run-review-section">
+            <h2 class="review-heading">// threat detection accuracy by category</h2>
+            <div id="end-category-accuracy" class="category-accuracy-grid"></div>
+          </div>
+
+          <!-- Run Review: Incorrect Answers List -->
+          <div class="run-review-section">
+            <h2 class="review-heading">// triage errors review (click to inspect)</h2>
+            <div id="end-wrong-list" class="wrong-answers-list"></div>
+          </div>
+
+          <!-- Read-Only Review Detail Card -->
+          <div id="end-detail-view" class="review-detail-card hidden" role="region" aria-labelledby="review-detail-title">
+            <div class="review-detail-header">
+              <h3 id="review-detail-title" class="review-detail-title"></h3>
+              <button type="button" id="review-detail-close" class="btn btn-outline btn-close-detail">CLOSE REVIEW [X]</button>
+            </div>
+            <div id="review-detail-meta" class="review-detail-meta"></div>
+            <div class="message-body-wrap">
+              <p id="review-detail-body" class="message-body"></p>
+            </div>
+            <div class="feedback-details">
+              <h4 id="review-detail-signals-title" class="feedback-section-title"></h4>
+              <ul id="review-detail-signals-list" class="feedback-list"></ul>
+            </div>
+            <div class="tip-box">
+              <strong>// security habit tip:</strong>
+              <span id="review-detail-tip"></span>
+            </div>
+          </div>
+
+          <!-- Link to "If You Fell For It" section -->
+          <div class="fell-for-it-banner">
+            <p class="fell-banner-text"><strong>// real-world recovery protocol:</strong> Need guidance for real scams? Review the post-compromise emergency response steps.</p>
+            <button type="button" id="end-view-fell-btn" class="btn btn-outline">VIEW "IF YOU FELL FOR IT" GUIDE</button>
+          </div>
+
+          <div class="action-row">
+            <button type="button" id="btn-restart" class="btn btn-primary">
+              PLAY AGAIN <span class="key-hint">[ENTER]</span>
+            </button>
+            <button type="button" id="end-menu-btn" class="btn btn-outline">TITLE SCREEN</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

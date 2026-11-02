@@ -1,0 +1,399 @@
+{
+  "version": 1,
+  "messages": [
+    {
+      "id": "L1-01",
+      "level": 1,
+      "channel": "email",
+      "sender": "Global Rewards Club <winner@lottery-bonus.example>",
+      "subject": "CLAIM NOW: You won 50,000 credits in our annual prize draw!",
+      "body": "Congratulations! Your email was randomly chosen to receive 50,000 credits in the MegaReward Sweepstakes. You must claim your prize within 2 hours or it will be given away to the next contestant. Go to prize-claim.example immediately to enter your bank details and payout address.",
+      "is_phishing": true,
+      "red_flags": [
+        {
+          "quote": "50,000 credits in our annual prize draw!",
+          "category": "fake_prize",
+          "explanation": "Unsolicited notifications claiming you won a lottery or sweepstakes you never entered are classic scams."
+        },
+        {
+          "quote": "within 2 hours or it will be given away",
+          "category": "urgency",
+          "explanation": "Artificial deadlines and extreme urgency pressure victims into acting hastily before verifying legitimacy."
+        },
+        {
+          "quote": "prize-claim.example",
+          "category": "fake_domain",
+          "explanation": "The link directs to an unverified third-party prize collection domain rather than a legitimate service."
+        }
+      ],
+      "safe_signals": [],
+      "tip": "Never enter your bank details or personal information to claim unsolicited sweepstakes prizes."
+    },
+    {
+      "id": "L1-02",
+      "level": 1,
+      "channel": "sms",
+      "sender": "+44 7700-xxx-901",
+      "subject": "",
+      "body": "Parcel dispatch alert: We attempted to deliver your package today but failed. To avoid parcel return, download and install parcel-tracker.apk from fast-courier.example to update your address immediately.",
+      "is_phishing": true,
+      "red_flags": [
+        {
+          "quote": "parcel-tracker.apk",
+          "category": "malicious_attachment",
+          "explanation": "Legitimate delivery services never ask you to install an Android APK package to manage package deliveries."
+        },
+        {
+          "quote": "fast-courier.example",
+          "category": "fake_domain",
+          "explanation": "Unfamiliar domain used to distribute an application outside of trusted official app stores."
+        },
+        {
+          "quote": "immediately",
+          "category": "urgency",
+          "explanation": "Urgent demands to update delivery details right away are designed to induce panic and hasty actions."
+        }
+      ],
+      "safe_signals": [],
+      "tip": "Only track parcel shipments using tracking codes entered directly on the carrier official website."
+    },
+    {
+      "id": "L1-03",
+      "level": 1,
+      "channel": "email",
+      "sender": "SOC Operations <facilities@ops.internal.example>",
+      "subject": "Notice: Scheduled cooling maintenance in Server Bay B",
+      "body": "Team, the facility management team will perform scheduled quarterly maintenance on the Server Bay B HVAC units this Saturday from 02:00 to 06:00 UTC. Environmental monitors will remain active throughout the window. No service downtime is anticipated. Please route questions to the internal SOC dispatch queue.",
+      "is_phishing": false,
+      "red_flags": [],
+      "safe_signals": [
+        "Provides clear maintenance window times and directs inquiries to existing internal dispatch channels without asking for credentials or action.",
+        "Sender address matches the organization's usual domain ops.internal.example."
+      ],
+      "tip": "Confirm scheduled operational maintenance windows against the internal company maintenance calendar."
+    },
+    {
+      "id": "L1-04",
+      "level": 1,
+      "channel": "chat",
+      "sender": "Customer Support Desk",
+      "subject": "",
+      "body": "Hello! We detected an irregular login on your shopping portal profile. For your security, our agent needs to cancel this transaction right now. Please tell me the 6-digit one-time passcode sent to your phone so I can verify your identity.",
+      "is_phishing": true,
+      "red_flags": [
+        {
+          "quote": "Customer Support Desk",
+          "category": "suspicious_sender",
+          "explanation": "Generic unverified support accounts on messaging platforms often attempt social engineering."
+        },
+        {
+          "quote": "tell me the 6-digit one-time passcode",
+          "category": "sensitive_data",
+          "explanation": "Genuine customer service representatives will never ask you to disclose a confidential one-time password."
+        },
+        {
+          "quote": "cancel this transaction right now",
+          "category": "urgency",
+          "explanation": "Scammers create false panic about unauthorized purchases to compel victims to hand over security codes."
+        }
+      ],
+      "safe_signals": [],
+      "tip": "One-time passcodes are for your eyes only. Never disclose verification codes to anyone over chat or phone."
+    },
+    {
+      "id": "L1-05",
+      "level": 1,
+      "channel": "sms",
+      "sender": "+1 555-xxx-0100",
+      "subject": "",
+      "body": "Security Notice: Card ending in 4821 approved for 24.50 EUR at City Transit on 02-Nov. If this was not you, lock your card immediately inside your official mobile banking app. Do not reply to this automated text.",
+      "is_phishing": false,
+      "red_flags": [],
+      "safe_signals": [
+        "Uses masked card reference and does not include any links or phone numbers to click or call.",
+        "Explicitly instructs the customer to manage card controls directly through their official banking application."
+      ],
+      "tip": "Legitimate transaction alerts instruct you to check your installed mobile banking app rather than tapping links."
+    },
+    {
+      "id": "L1-06",
+      "level": 1,
+      "channel": "chat",
+      "sender": "Amina Diop",
+      "subject": "",
+      "body": "Hey! Are we still meeting for lunch at the courtyard cafe around 12:30? Let me know if you want me to grab a table ahead of time.",
+      "is_phishing": false,
+      "red_flags": [],
+      "safe_signals": [
+        "Natural, conversational message between known contacts with zero requests for credentials, links, or actions."
+      ],
+      "tip": "Routine casual messages from verified peers without links or requests are typical day-to-day communication."
+    },
+    {
+      "id": "L2-01",
+      "level": 2,
+      "channel": "email",
+      "sender": "Digital Media Billing <billing@streamplay-service.example>",
+      "subject": "Invoice #INV-9024: Your annual subscription renewal",
+      "body": "Thank you for your business. Your annual Premium Ultra Plan has automatically renewed for $389.00 USD. If you did not authorize this charge or wish to cancel your subscription to receive a full refund, visit streamplay-cancel.example before your statement closes in 24 hours.",
+      "is_phishing": true,
+      "red_flags": [
+        {
+          "quote": "streamplay-cancel.example",
+          "category": "fake_domain",
+          "explanation": "The domain streamplay-cancel.example is a lookalike domain crafted to harvest credit card details."
+        },
+        {
+          "quote": "statement closes in 24 hours",
+          "category": "urgency",
+          "explanation": "Imposing a strict 24-hour deadline prompts emotional panic over unexpected charges."
+        }
+      ],
+      "safe_signals": [],
+      "tip": "Check your actual bank account or open the service provider app directly to verify subscriptions."
+    },
+    {
+      "id": "L2-02",
+      "level": 2,
+      "channel": "chat",
+      "sender": "Marcus Vance [VP Operations]",
+      "subject": "",
+      "body": "Hi, I am in a confidential board meeting right now and cannot take calls. I need you to pull the complete personal contact list and salary sheets for the regional team and send them directly to my private inbox at marcus-vance@executive-board.example within the hour.",
+      "is_phishing": true,
+      "red_flags": [
+        {
+          "quote": "marcus-vance@executive-board.example",
+          "category": "suspicious_sender",
+          "explanation": "The sender requests sensitive company information be transmitted to an external unverified email domain."
+        },
+        {
+          "quote": "personal contact list and salary sheets",
+          "category": "sensitive_data",
+          "explanation": "Demanding export of payroll and employee personal data over instant messaging bypasses security controls."
+        },
+        {
+          "quote": "within the hour",
+          "category": "urgency",
+          "explanation": "Scammers pretend to be busy executives in meetings to bypass normal verification procedures."
+        }
+      ],
+      "safe_signals": [],
+      "tip": "Always verify requests for sensitive payroll or HR records via established out-of-band communication."
+    },
+    {
+      "id": "L2-03",
+      "level": 2,
+      "channel": "email",
+      "sender": "Elena Rostova <elena-rostova@partner-audit.example>",
+      "subject": "Signed mutual nondisclosure agreement for Q3 joint review",
+      "body": "Hello team, following up on our vendor risk assessment, our signed bilateral agreement has been uploaded to the shared contract workspace both teams already use. Please log in there as usual and review section 4 on data retention periods. Let us know if your legal team requires any amendments before Friday's executive sync.",
+      "is_phishing": false,
+      "red_flags": [],
+      "safe_signals": [
+        "Does not contain any attachments or links, directing the recipient instead to open the document directly inside the existing shared contract workspace.",
+        "Sender address matches the organization's usual domain partner-audit.example and follows an expected business workflow without urgent pressure."
+      ],
+      "tip": "Verify unexpected or sensitive documents by accessing them through an existing, trusted channel you already know rather than email links or attachments."
+    },
+    {
+      "id": "L2-04",
+      "level": 2,
+      "channel": "sms",
+      "sender": "+1 555-xxx-0199",
+      "subject": "",
+      "body": "Horizon Bank Alert: Unusual login attempt detected from IP in foreign jurisdiction. Your account access has been restricted. Restore your access to prevent permanent suspension by verifying your identity at https://horizonbank.example.account-unlock.test immediately.",
+      "is_phishing": true,
+      "red_flags": [
+        {
+          "quote": "https://horizonbank.example.account-unlock.test",
+          "category": "disguised_link",
+          "explanation": "The URL places the brand name as a subdomain of account-unlock.test to deceive readers."
+        },
+        {
+          "quote": "account-unlock.test",
+          "category": "fake_domain",
+          "explanation": "The actual host domain is account-unlock.test rather than the authentic financial institution."
+        },
+        {
+          "quote": "prevent permanent suspension",
+          "category": "urgency",
+          "explanation": "Threatening account suspension pressures the recipient to surrender banking credentials without thinking."
+        }
+      ],
+      "safe_signals": [],
+      "tip": "Always navigate to banking portals via your stored browser bookmark or mobile application, never SMS links."
+    },
+    {
+      "id": "L2-05",
+      "level": 2,
+      "channel": "email",
+      "sender": "PhotoShare Copyright Protection <notice@social-intellectual.example>",
+      "subject": "Notice: Your account will be deleted within 24 hours due to copyright infringement",
+      "body": "We received multiple DMCA complaints regarding media posted on your profile. If you believe this is an error, submit your counter-claim form at https://photoshare.example-infringement.test to prevent account deletion. Failure to respond within 24 hours will result in permanent account termination.",
+      "is_phishing": true,
+      "red_flags": [
+        {
+          "quote": "https://photoshare.example-infringement.test",
+          "category": "disguised_link",
+          "explanation": "The link masquerades as PhotoShare but directs users to the domain example-infringement.test."
+        },
+        {
+          "quote": "within 24 hours will result in permanent account termination",
+          "category": "urgency",
+          "explanation": "Extreme deadlines coupled with threats of account deletion are designed to prevent careful evaluation."
+        },
+        {
+          "quote": "notice@social-intellectual.example",
+          "category": "suspicious_sender",
+          "explanation": "The sender uses a third-party domain instead of the verified social platform support domain."
+        }
+      ],
+      "safe_signals": [],
+      "tip": "Social platforms deliver copyright and policy notices inside the platform official notification center."
+    },
+    {
+      "id": "L2-06",
+      "level": 2,
+      "channel": "sms",
+      "sender": "+44 7700-xxx-550",
+      "subject": "",
+      "body": "Your one-time security code is 739201. Valid for 10 minutes for your secure sign-in. Never share this code with anyone, including customer service agents. If you did not request this code, no action is needed.",
+      "is_phishing": false,
+      "red_flags": [],
+      "safe_signals": [
+        "Standard automated two-factor passcode message that includes an explicit warning never to share the code.",
+        "Does not contain clickable links, phone numbers, or prompts urging the user to respond."
+      ],
+      "tip": "Authentic two-factor authentication alerts explicitly instruct you not to disclose security codes to anyone."
+    },
+    {
+      "id": "L3-01",
+      "level": 3,
+      "channel": "email",
+      "sender": "CloudSync Account Security <security@cloudsync.example>",
+      "subject": "Security Alert: New sign-in detected on Chrome for Linux",
+      "body": "A new session was initiated for your CloudSync profile on Chrome for Linux at 14:15 UTC from an unrecognized network address. If this was you, you can disregard this message. If you did not sign in recently, open your web browser, navigate to your saved CloudSync bookmark, and review your Active Sessions under Account Settings.",
+      "is_phishing": false,
+      "red_flags": [],
+      "safe_signals": [
+        "Proactively instructs the user to navigate to their own saved browser bookmark rather than providing any links.",
+        "Sender address matches the organization's usual domain cloudsync.example without suspicious subdomains."
+      ],
+      "tip": "Legitimate security alerts often urge you to visit the service using your own trusted bookmarks."
+    },
+    {
+      "id": "L3-02",
+      "level": 3,
+      "channel": "chat",
+      "sender": "Kenji Sato",
+      "subject": "",
+      "body": "Hey! Can you take a quick look at the updated quarterly targets spreadsheet? The board needs these numbers finalized before the morning standup: https://office-docs-portal.example/sheets/q3-targets. You will need to sign in with your corporate single sign-on to view the workbook.",
+      "is_phishing": true,
+      "red_flags": [
+        {
+          "quote": "office-docs-portal.example",
+          "category": "fake_domain",
+          "explanation": "The spreadsheet link points to an external lookalike portal designed to harvest corporate credentials."
+        },
+        {
+          "quote": "before the morning standup",
+          "category": "urgency",
+          "explanation": "Manufactured deadline urging urgent action before the morning meeting prevents out-of-band verification."
+        },
+        {
+          "quote": "sign in with your corporate single sign-on",
+          "category": "sensitive_data",
+          "explanation": "Scammers use hijacked chat accounts to direct colleagues to credential harvesters disguised as SSO logins."
+        }
+      ],
+      "safe_signals": [],
+      "tip": "If a coworker shares a document hosted on an unfamiliar domain, verify the request in person or via call."
+    },
+    {
+      "id": "L3-03",
+      "level": 3,
+      "channel": "email",
+      "sender": "Global Talents Recruiting <hr-outreach@career-scout.example>",
+      "subject": "Urgent: Remote Data Reviewer role offer ($45/hr) - Immediate placement",
+      "body": "Dear Candidate, We have reviewed your profile and are pleased of making you an immediate appointment for the position of Remote Operations Reviewer. Pay is $45 per hour plus home equipment stipend. Kindly confirm your placement by sending your national identity number and bank account number to talent-onboarding.test within 48 hours to process advance stipend payment.",
+      "is_phishing": true,
+      "red_flags": [
+        {
+          "quote": "pleased of making you an immediate appointment",
+          "category": "unnatural_language",
+          "explanation": "Awkward grammatical phrasing and abrupt hiring decisions without interviews indicate recruitment fraud."
+        },
+        {
+          "quote": "sending your national identity number and bank account number",
+          "category": "sensitive_data",
+          "explanation": "Legitimate employers never solicit sensitive national IDs and bank account numbers prior to formal onboarding."
+        },
+        {
+          "quote": "talent-onboarding.test",
+          "category": "fake_domain",
+          "explanation": "The recruitment agency uses an unverified domain to harvest identity and financial documents."
+        }
+      ],
+      "safe_signals": [],
+      "tip": "Job offers made without formal interviews that request banking or identity information are recruitment scams."
+    },
+    {
+      "id": "L3-04",
+      "level": 3,
+      "channel": "sms",
+      "sender": "+1 555-xxx-0144",
+      "subject": "",
+      "body": "CityExpress Courier: Your parcel has arrived at Locker #12, Market Square Station. Use PIN 8204 to open your compartment. Package will be held for 48 hours. No fees are due.",
+      "is_phishing": false,
+      "red_flags": [],
+      "safe_signals": [
+        "Contains only physical locker pickup details and PIN with no links, phone numbers, or payment requests.",
+        "Explicitly confirms that no fees are due, eliminating the common fake fee pretext."
+      ],
+      "tip": "Legitimate automated parcel locker notifications provide a pickup PIN without asking you to tap any URL."
+    },
+    {
+      "id": "L3-05",
+      "level": 3,
+      "channel": "email",
+      "sender": "Enterprise IT Identity <identity-noreply@corp.internal.example>",
+      "subject": "Notice: Mandatory quarterly credential cycle approaching in 7 days",
+      "body": "This is an automated notification that your network domain password will expire in 7 days in accordance with company security policy. To update your password, log into your workstation or visit the internal employee intranet portal using your corporate SSO portal bookmark. Please note: IT staff will never send you a link to reset your credentials.",
+      "is_phishing": false,
+      "red_flags": [],
+      "safe_signals": [
+        "Explicitly reminds employees that IT never emails password reset links and directs to the corporate SSO bookmark.",
+        "Sender address matches the organization's usual domain corp.internal.example."
+      ],
+      "tip": "Trustworthy password expiration notices direct employees to existing SSO bookmarks rather than embedded links."
+    },
+    {
+      "id": "L3-06",
+      "level": 3,
+      "channel": "chat",
+      "sender": "Buyer_Dave88",
+      "subject": "",
+      "body": "I am ready to buy your listed camera right now for the asking price of 450 EUR. However, I can only pay through ExpressEscrow service. Please register your account at payment-escrow-verify.example and enter your debit card number so my payment can be released to you immediately.",
+      "is_phishing": true,
+      "red_flags": [
+        {
+          "quote": "payment-escrow-verify.example",
+          "category": "fake_domain",
+          "explanation": "The buyer directs you to an unverified third-party escrow domain designed to harvest payment cards."
+        },
+        {
+          "quote": "enter your debit card number",
+          "category": "sensitive_data",
+          "explanation": "Legitimate marketplace payments do not require sellers to provide debit card credentials to receive funds."
+        },
+        {
+          "quote": "Buyer_Dave88",
+          "category": "suspicious_sender",
+          "explanation": "Unknown buyer insisting on non-standard off-platform payment methods is a classic marketplace scam pattern."
+        }
+      ],
+      "safe_signals": [],
+      "tip": "Always conduct transactions through the official marketplace payment system; never accept third-party escrow links."
+    }
+  ]
+}
