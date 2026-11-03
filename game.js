@@ -224,11 +224,7 @@
 
     elMenuHowto,
 
-    elMenuAbout,
-
-    elMenuEncyclopedia,
-
-    elMenuBadges
+    elMenuAbout
 
   ];
 
