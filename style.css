@@ -7749,8 +7749,7 @@ mark.quote-highlight {
 
 /* ==================== UIVERSE.IO LINUX TERMINAL CARDS (BY KEMBOI-DUN) ==================== */
 /* From Uiverse.io by Kemboi-Dun */
-.category-card.kemboi-terminal,
-.site-card.kemboi-terminal {
+.category-card.kemboi-terminal {
   width: 100%;
   padding: 0 !important;
   border: 1px solid #2a2a2a !important;
@@ -7766,8 +7765,7 @@ mark.quote-highlight {
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.category-card.kemboi-terminal:hover,
-.site-card.kemboi-terminal:hover {
+.category-card.kemboi-terminal:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(30, 255, 142, 0.12), 0 4px 12px rgba(0, 0, 0, 0.6);
   border-color: rgba(30, 255, 142, 0.45) !important;
