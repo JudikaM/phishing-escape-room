@@ -6960,3 +6960,177 @@ mark.quote-highlight {
     min-height: 100px;
   }
 }
+
+/* ==================== UIVERSE.IO DOOR CARDS (BY SMIT-PRAJAPATI) ==================== */
+.showcase-door-card.card {
+  width: 100%;
+  max-width: 330px;
+  margin: 0 auto;
+  border-radius: 20px;
+  background: #1b233d;
+  padding: 6px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 229, 255, 0.12);
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, border-color 0.3s ease;
+  border: 1px solid rgba(0, 229, 255, 0.22);
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.showcase-door-card.card:hover {
+  transform: scale(1.04) translateY(-4px);
+  border-color: #00e5ff;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 229, 255, 0.35);
+}
+
+.showcase-door-card.card .top-section {
+  height: 165px;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(45deg, rgb(4, 159, 187) 0%, rgb(80, 246, 255) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.showcase-door-card.card.is-locked .top-section {
+  background: linear-gradient(45deg, rgba(14, 25, 42, 0.95) 0%, rgba(28, 48, 76, 0.9) 100%);
+}
+
+.showcase-door-card.card.is-unlocked .top-section {
+  background: linear-gradient(45deg, rgb(16, 185, 129) 0%, rgb(52, 211, 153) 100%);
+}
+
+.showcase-door-card.card .top-section .border {
+  border-bottom-right-radius: 10px;
+  height: 32px;
+  width: 135px;
+  background: #1b233d;
+  position: relative;
+  transform: skew(-40deg);
+  box-shadow: -10px -10px 0 0 #1b233d;
+  z-index: 2;
+}
+
+.showcase-door-card.card .top-section .border::before {
+  content: "";
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  top: 0;
+  right: -15px;
+  background: transparent;
+  border-top-left-radius: 10px;
+  box-shadow: -5px -5px 0 2px #1b233d;
+}
+
+.showcase-door-card.card .top-section::before {
+  content: "";
+  position: absolute;
+  top: 32px;
+  left: 0;
+  background: transparent;
+  height: 15px;
+  width: 15px;
+  border-top-left-radius: 15px;
+  box-shadow: -5px -5px 0 2px #1b233d;
+  z-index: 2;
+}
+
+.showcase-door-card.card .top-section .icons {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12px;
+  z-index: 10;
+}
+
+.showcase-door-card.card .top-section .icons .logo {
+  display: flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #00e5ff;
+  letter-spacing: 0.08em;
+}
+
+.showcase-door-card.card .top-section .icons .social-media {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.showcase-door-card.card .top-section .card-blueprint-canvas {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px 4px;
+  z-index: 1;
+}
+
+.showcase-door-card.card .top-section .blueprint-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 135px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+}
+
+.showcase-door-card.card .bottom-section {
+  margin-top: 14px;
+  padding: 8px 8px 12px;
+}
+
+.showcase-door-card.card .bottom-section .title {
+  display: block;
+  font-size: 16px;
+  font-weight: 900;
+  color: #ffffff;
+  text-align: center;
+  letter-spacing: 2px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.showcase-door-card.card .bottom-section .row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.showcase-door-card.card .bottom-section .row .item {
+  flex: 30%;
+  text-align: center;
+  padding: 4px 2px;
+  color: rgba(170, 222, 243, 0.75);
+  font-family: var(--font-mono);
+}
+
+.showcase-door-card.card .bottom-section .row .item .big-text {
+  font-size: 11px;
+  font-weight: 800;
+  color: #00e5ff;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.showcase-door-card.card .bottom-section .row .item .regular-text {
+  font-size: 8px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #7b9fc2;
+}
+
+.showcase-door-card.card .bottom-section .row .item:nth-child(2) {
+  border-left: 1px solid rgba(255, 255, 255, 0.126);
+  border-right: 1px solid rgba(255, 255, 255, 0.126);
+}
