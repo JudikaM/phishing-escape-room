@@ -7329,18 +7329,7 @@ mark.quote-highlight {
 
 .github-star-rainbow-btn::before {
   content: "";
-  position: absolute;
-  bottom: -20%;
-  left: 50%;
-  z-index: 0;
-  height: 20%;
-  width: 60%;
-  transform: translateX(-50%);
-  background: linear-gradient(90deg, hsl(0, 100%, 63%), hsl(90, 100%, 63%), hsl(210, 100%, 63%), hsl(195, 100%, 63%), hsl(270, 100%, 63%));
-  background-size: 200% 100%;
-  filter: blur(calc(0.8 * 1rem));
-  animation: rainbow-glow 3s linear infinite;
-  pointer-events: none;
+  display: none !important;
 }
 
 @keyframes rainbow-border {
