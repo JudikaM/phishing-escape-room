@@ -6962,9 +6962,14 @@ mark.quote-highlight {
   border-radius: 15px;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(45deg, rgb(4, 159, 187) 0%, rgb(80, 246, 255) 100%);
+  background: linear-gradient(45deg, rgba(14, 25, 42, 0.95) 0%, rgba(28, 48, 76, 0.9) 100%);
   position: relative;
   overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+.showcase-door-card.card:hover .top-section {
+  background: linear-gradient(45deg, rgba(16, 32, 54, 0.98) 0%, rgba(32, 58, 92, 0.95) 100%);
 }
 
 .showcase-door-card.card.is-locked .top-section {
@@ -6972,7 +6977,7 @@ mark.quote-highlight {
 }
 
 .showcase-door-card.card.is-unlocked .top-section {
-  background: linear-gradient(45deg, rgb(16, 185, 129) 0%, rgb(52, 211, 153) 100%);
+  background: linear-gradient(45deg, rgba(10, 36, 28, 0.95) 0%, rgba(18, 56, 42, 0.9) 100%);
 }
 
 .showcase-door-card.card .top-section .border {
