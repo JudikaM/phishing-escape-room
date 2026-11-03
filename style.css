@@ -304,6 +304,8 @@ body {
 
   display: flex;
 
+  flex-direction: column;
+
   align-items: center;
 
   justify-content: center;
@@ -830,28 +832,69 @@ body {
 
 }
 
-.hero-disclaimer {
-
-  margin: 4px 0 0;
-
-  max-width: 520px;
-
-  font-size: 0.74rem;
-
-  line-height: 1.45;
-
-  color: var(--text-muted);
-
-  text-align: left;
-
+/* Tactical Status Strip Banner (Educational Simulation) */
+.hero-status-strip-banner {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1140px;
+  margin: 22px auto 0;
+  padding: 8px 18px;
+  background: rgba(8, 16, 30, 0.78);
+  border: 1px solid rgba(0, 229, 255, 0.22);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 0 12px rgba(0, 229, 255, 0.05);
 }
 
-.hero-disclaimer strong {
+.status-strip-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  text-align: center;
+}
 
+.status-strip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  color: #00e5ff;
   font-family: var(--font-mono);
+  font-size: 0.70rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
 
-  color: var(--accent-cyan);
+.status-strip-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00e5ff;
+  box-shadow: 0 0 8px #00e5ff;
+  animation: beacon-pulse 2s ease-in-out infinite;
+}
 
+.status-strip-divider {
+  color: rgba(0, 229, 255, 0.45);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.status-strip-text {
+  color: #a4c2df;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
 }
 
 /* ==================== SCROLLABLE WEBSITE SECTIONS ==================== */
