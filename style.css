@@ -3384,7 +3384,7 @@ mark.quote-highlight {
 
   position: absolute;
 
-  top: 270px;
+  top: 335px;
 
   width: 130px;
 
@@ -3822,7 +3822,8 @@ mark.quote-highlight {
 
   max-width: 236px;
 
-  margin-top: 6px;
+  margin-top: 0;
+  margin-bottom: 14px;
 
   padding: 8px 12px 7px;
 
@@ -3857,31 +3858,18 @@ mark.quote-highlight {
 /* Smooth Top Speech Stem */
 
 .robot-speech-bubble::before {
-
   content: "";
-
   position: absolute;
-
-  top: -5px;
-
+  bottom: -5px;
   left: 50%;
-
   transform: translateX(-50%) rotate(45deg);
-
   width: 8px;
-
   height: 8px;
-
-  background: #0c1a30;
-
-  border-left: 1px solid var(--accent-cyan);
-
-  border-top: 1px solid var(--accent-cyan);
-
-  border-top-left-radius: 2px;
-
-  box-shadow: -1px -1px 4px rgba(0, 229, 255, 0.25);
-
+  background: #060e1d;
+  border-right: 1px solid var(--accent-cyan);
+  border-bottom: 1px solid var(--accent-cyan);
+  border-bottom-right-radius: 2px;
+  box-shadow: 2px 2px 4px rgba(0, 229, 255, 0.25);
 }
 
 .robot-speech-bubble:hover {

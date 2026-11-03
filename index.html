@@ -151,6 +151,16 @@
         <!-- RIGHT COLUMN: Robot Pane with Cam Feed & Companion Tag -->
         <div class="title-hero-robot-pane" aria-hidden="true">
           <div class="robot-stage">
+            <!-- Floating Speech Bubble (Positioned directly above robot's head) -->
+            <div id="robot-speech-bubble" class="robot-speech-bubble" role="status" aria-live="polite">
+              <div class="speech-header">
+                <span class="speech-led" aria-hidden="true"></span>
+                <span class="speech-channel">// SENTINEL &middot; SOC</span>
+                <span id="speech-mode-tag" class="speech-status-tag">STANDBY</span>
+              </div>
+              <p id="robot-speech-text" class="speech-text">// SENTINEL BOT ONLINE &middot; READY FOR TRIAGE</p>
+            </div>
+
             <div class="robot-shadow"></div>
 
             <div id="soc-robot" class="robot-character" title="Click to interact with Sentinel Bot">
@@ -178,16 +188,6 @@
               <div class="robot-body-layer">
                 <img src="assets/robot/robot-body.png" alt="" class="robot-body-img" width="240" height="148" draggable="false">
               </div>
-            </div>
-
-            <!-- Floating Speech Bubble (Rounded Cyber Droid Bubble) -->
-            <div id="robot-speech-bubble" class="robot-speech-bubble" role="status" aria-live="polite">
-              <div class="speech-header">
-                <span class="speech-led" aria-hidden="true"></span>
-                <span class="speech-channel">// SENTINEL &middot; SOC</span>
-                <span id="speech-mode-tag" class="speech-status-tag">STANDBY</span>
-              </div>
-              <p id="robot-speech-text" class="speech-text">// SENTINEL BOT ONLINE &middot; READY FOR TRIAGE</p>
             </div>
           </div>
 
