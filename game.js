@@ -872,6 +872,372 @@
 
 
 
+
+  /* ==================== ZERO-G ANTIGRAVITY PHYSICS ARENA ENGINE ==================== */
+  var arenaGravityMode = "zero"; // "zero" | "down" | "up"
+  var arenaBodies = [];
+  var arenaAnimId = null;
+  var arenaScore = 0;
+  var arenaQuarantinedCount = 0;
+  var arenaSafeCount = 0;
+  var draggedArenaIndex = -1;
+  var arenaDragOffset = { x: 0, y: 0 };
+  var arenaMousePos = { x: 0, y: 0 };
+  var arenaLastMousePos = { x: 0, y: 0 };
+  var arenaToastTimerId = null;
+
+  function showArenaToast(message, isPositive) {
+    var elToast = byId("arena-toast-banner");
+    if (!elToast) return;
+    elToast.textContent = message;
+    elToast.className = "arena-toast-banner " + (isPositive ? "toast-positive" : "toast-negative");
+    elToast.classList.remove("hidden");
+    if (arenaToastTimerId) clearTimeout(arenaToastTimerId);
+    arenaToastTimerId = setTimeout(function () {
+      elToast.classList.add("hidden");
+    }, 2800);
+  }
+
+  function updateArenaStats() {
+    var elScore = byId("arena-score-val");
+    var elQuar = byId("arena-quarantined-val");
+    var elSafe = byId("arena-safe-val");
+    if (elScore) elScore.textContent = arenaScore + " PTS";
+    if (elQuar) elQuar.textContent = String(arenaQuarantinedCount);
+    if (elSafe) elSafe.textContent = String(arenaSafeCount);
+  }
+
+  function createCapsuleCardElement(body, index) {
+    var card = document.createElement("article");
+    card.className = "arena-capsule-card tier-" + (index % 4);
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("aria-label", "Threat capsule: " + body.msg.sender);
+
+    var topRow = document.createElement("div");
+    topRow.className = "capsule-top-row";
+
+    var chanTag = document.createElement("span");
+    chanTag.className = "capsule-channel-tag";
+    chanTag.textContent = body.msg.channel.toUpperCase();
+    topRow.appendChild(chanTag);
+
+    var tossHint = document.createElement("span");
+    tossHint.className = "capsule-drag-hint";
+    tossHint.textContent = "DRAG TO FLING";
+    topRow.appendChild(tossHint);
+    card.appendChild(topRow);
+
+    var senderP = document.createElement("strong");
+    senderP.className = "capsule-sender";
+    senderP.textContent = body.msg.sender;
+    card.appendChild(senderP);
+
+    if (body.msg.subject) {
+      var subP = document.createElement("div");
+      subP.className = "capsule-subject";
+      subP.textContent = body.msg.subject;
+      card.appendChild(subP);
+    }
+
+    var snippetP = document.createElement("p");
+    snippetP.className = "capsule-snippet";
+    var bodySnippet = body.msg.body.length > 85 ? body.msg.body.substring(0, 85) + "..." : body.msg.body;
+    snippetP.textContent = bodySnippet;
+    card.appendChild(snippetP);
+
+    // Mouse & Touch Drag Listeners
+    function onPointerDown(e) {
+      e.preventDefault();
+      var stage = byId("arena-stage");
+      if (!stage) return;
+      var rect = stage.getBoundingClientRect();
+      var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      var x = clientX - rect.left;
+      var y = clientY - rect.top;
+
+      draggedArenaIndex = index;
+      body.isDragging = true;
+      body.vx = 0;
+      body.vy = 0;
+      arenaDragOffset.x = x - body.x;
+      arenaDragOffset.y = y - body.y;
+      arenaMousePos.x = x;
+      arenaMousePos.y = y;
+      arenaLastMousePos.x = x;
+      arenaLastMousePos.y = y;
+      card.classList.add("is-dragging");
+      playSoundInspect();
+    }
+
+    card.addEventListener("mousedown", onPointerDown);
+    card.addEventListener("touchstart", onPointerDown, { passive: false });
+
+    return card;
+  }
+
+  function initArenaBodies() {
+    var stage = byId("arena-stage");
+    var container = byId("arena-capsules-container");
+    if (!stage || !container) return;
+
+    clearChildren(container);
+    arenaBodies = [];
+    var rect = stage.getBoundingClientRect();
+    var w = Math.max(700, rect.width || 800);
+    var h = Math.max(460, rect.height || 520);
+
+    var scenarios = state.allMessages && state.allMessages.length > 0 ? state.allMessages : [];
+    var pool = scenarios.slice(0, 8);
+    if (pool.length === 0) return;
+
+    for (var i = 0; i < pool.length; i += 1) {
+      var msg = pool[i];
+      var bw = 240;
+      var bh = 118;
+      var col = i % 3;
+      var row = Math.floor(i / 3);
+      var initX = 140 + col * ((w - 280) / 3) + (Math.random() - 0.5) * 30;
+      var initY = 70 + row * 135 + (Math.random() - 0.5) * 20;
+
+      var body = {
+        id: "capsule-" + i,
+        msg: msg,
+        x: Math.max(120, Math.min(w - bw - 120, initX)),
+        y: Math.max(50, Math.min(h - bh - 60, initY)),
+        vx: (Math.random() - 0.5) * 2.2,
+        vy: (Math.random() - 0.5) * 2.2,
+        rotation: (Math.random() - 0.5) * 12,
+        vRot: (Math.random() - 0.5) * 0.4,
+        width: bw,
+        height: bh,
+        isDragging: false,
+        isAbsorbed: false,
+        el: null
+      };
+
+      body.el = createCapsuleCardElement(body, i);
+      container.appendChild(body.el);
+      arenaBodies.push(body);
+    }
+
+    updateArenaStats();
+  }
+
+  function handleArenaTriageDecision(body, userChosePhishing) {
+    var isCorrect = userChosePhishing === body.msg.is_phishing;
+    if (isCorrect) {
+      arenaScore += 100;
+      state.score += 100;
+      saveBestScore(state.score);
+      playSoundSuccess();
+      if (userChosePhishing) {
+        arenaQuarantinedCount += 1;
+        state.threatsNeutralized += 1;
+        showArenaToast("✓ QUARANTINED THREAT! +100 PTS", true);
+      } else {
+        arenaSafeCount += 1;
+        showArenaToast("✓ VERIFIED SAFE MESSAGE STORED! +100 PTS", true);
+      }
+      addAuditEntry(body.msg, userChosePhishing, true, 100);
+      checkAndUpdateBadges(true);
+    } else {
+      playSoundFailure();
+      if (userChosePhishing) {
+        showArenaToast("✗ FALSE ALARM — LEGITIMATE MESSAGE QUARANTINED!", false);
+      } else {
+        showArenaToast("✗ SECURITY BREACH — PHISHING THREAT CLASSIFIED SAFE!", false);
+      }
+      addAuditEntry(body.msg, userChosePhishing, false, 0);
+    }
+    updateArenaStats();
+  }
+
+  function updateArenaPhysics() {
+    var elModal = byId("arena-modal");
+    if (!elModal || elModal.classList.contains("hidden")) {
+      arenaAnimId = null;
+      return;
+    }
+
+    var stage = byId("arena-stage");
+    if (!stage) {
+      arenaAnimId = requestAnimationFrame(updateArenaPhysics);
+      return;
+    }
+
+    var rect = stage.getBoundingClientRect();
+    var boundsW = rect.width || 800;
+    var boundsH = rect.height || 520;
+
+    var gy = 0;
+    if (arenaGravityMode === "down") gy = 0.26;
+    else if (arenaGravityMode === "up") gy = -0.26;
+
+    // Quarantine Vortex Center (Left) & Safe Vault Center (Right)
+    var qVortex = { x: 74, y: boundsH / 2, radius: 80 };
+    var sVault = { x: boundsW - 74, y: boundsH / 2, radius: 80 };
+
+    for (var i = 0; i < arenaBodies.length; i += 1) {
+      var body = arenaBodies[i];
+      if (!body || !body.el) continue;
+
+      if (body.isDragging) {
+        body.vx = (arenaMousePos.x - arenaLastMousePos.x) * 0.7;
+        body.vy = (arenaMousePos.y - arenaLastMousePos.y) * 0.7;
+        body.x = arenaMousePos.x - arenaDragOffset.x;
+        body.y = arenaMousePos.y - arenaDragOffset.y;
+        body.rotation += body.vRot;
+      } else {
+        // Gravity & Damping
+        body.vy += gy;
+        body.vx *= 0.992;
+        body.vy *= 0.992;
+        body.vRot *= 0.985;
+
+        body.x += body.vx;
+        body.y += body.vy;
+        body.rotation += body.vRot;
+
+        // Stage bounds bouncing
+        if (body.x < 12) {
+          body.x = 12;
+          body.vx = Math.abs(body.vx) * 0.8;
+          body.vRot += (Math.random() - 0.5) * 0.5;
+        } else if (body.x + body.width > boundsW - 12) {
+          body.x = boundsW - 12 - body.width;
+          body.vx = -Math.abs(body.vx) * 0.8;
+          body.vRot += (Math.random() - 0.5) * 0.5;
+        }
+
+        if (body.y < 12) {
+          body.y = 12;
+          body.vy = Math.abs(body.vy) * 0.8;
+        } else if (body.y + body.height > boundsH - 52) {
+          body.y = boundsH - 52 - body.height;
+          body.vy = -Math.abs(body.vy) * 0.8;
+        }
+
+        // Center point of capsule
+        var cx = body.x + body.width / 2;
+        var cy = body.y + body.height / 2;
+
+        // Gravitational Attraction: Quarantine Vortex (Left)
+        var distQ = Math.hypot(cx - qVortex.x, cy - qVortex.y);
+        if (distQ < 140) {
+          body.vx += (qVortex.x - cx) * 0.055;
+          body.vy += (qVortex.y - cy) * 0.055;
+          if (distQ < 54 && !body.isAbsorbed) {
+            body.isAbsorbed = true;
+            handleArenaTriageDecision(body, true);
+            // Respawn with fresh scenario from center
+            var randomMsg = state.allMessages[Math.floor(Math.random() * state.allMessages.length)];
+            body.msg = randomMsg;
+            body.x = boundsW / 2 + (Math.random() - 0.5) * 80;
+            body.y = boundsH / 2 + (Math.random() - 0.5) * 80;
+            body.vx = (Math.random() - 0.5) * 4;
+            body.vy = (Math.random() - 0.5) * 4;
+            // Update snippet text
+            var snipEl = body.el.querySelector(".capsule-snippet");
+            var sendEl = body.el.querySelector(".capsule-sender");
+            var chanEl = body.el.querySelector(".capsule-channel-tag");
+            if (snipEl) snipEl.textContent = randomMsg.body.length > 85 ? randomMsg.body.substring(0, 85) + "..." : randomMsg.body;
+            if (sendEl) sendEl.textContent = randomMsg.sender;
+            if (chanEl) chanEl.textContent = randomMsg.channel.toUpperCase();
+            body.isAbsorbed = false;
+          }
+        }
+
+        // Gravitational Attraction: Safe Shield Vault (Right)
+        var distS = Math.hypot(cx - sVault.x, cy - sVault.y);
+        if (distS < 140) {
+          body.vx += (sVault.x - cx) * 0.055;
+          body.vy += (sVault.y - cy) * 0.055;
+          if (distS < 54 && !body.isAbsorbed) {
+            body.isAbsorbed = true;
+            handleArenaTriageDecision(body, false);
+            var randMsg = state.allMessages[Math.floor(Math.random() * state.allMessages.length)];
+            body.msg = randMsg;
+            body.x = boundsW / 2 + (Math.random() - 0.5) * 80;
+            body.y = boundsH / 2 + (Math.random() - 0.5) * 80;
+            body.vx = (Math.random() - 0.5) * 4;
+            body.vy = (Math.random() - 0.5) * 4;
+            var sEl = body.el.querySelector(".capsule-snippet");
+            var seEl = body.el.querySelector(".capsule-sender");
+            var chEl = body.el.querySelector(".capsule-channel-tag");
+            if (sEl) sEl.textContent = randMsg.body.length > 85 ? randMsg.body.substring(0, 85) + "..." : randMsg.body;
+            if (seEl) seEl.textContent = randMsg.sender;
+            if (chEl) chEl.textContent = randMsg.channel.toUpperCase();
+            body.isAbsorbed = false;
+          }
+        }
+      }
+
+      // Render 2D transform
+      body.el.style.transform = "translate3d(" + Math.round(body.x) + "px," + Math.round(body.y) + "px,0px) rotate(" + body.rotation.toFixed(1) + "deg)";
+    }
+
+    arenaLastMousePos.x = arenaMousePos.x;
+    arenaLastMousePos.y = arenaMousePos.y;
+    arenaAnimId = requestAnimationFrame(updateArenaPhysics);
+  }
+
+  function triggerGravitationalPulse() {
+    playSoundUnlock();
+    for (var i = 0; i < arenaBodies.length; i += 1) {
+      var b = arenaBodies[i];
+      b.vx += (Math.random() - 0.5) * 16;
+      b.vy += (Math.random() - 0.5) * 16;
+      b.vRot += (Math.random() - 0.5) * 4;
+    }
+    showArenaToast("⚡ GRAVITATIONAL PULSE DISCHARGED!", true);
+  }
+
+  function setArenaGravityMode(mode) {
+    arenaGravityMode = mode;
+    playSoundInspect();
+    var btnZero = byId("arena-grav-zero");
+    var btnDown = byId("arena-grav-down");
+    var btnUp = byId("arena-grav-up");
+    if (btnZero) btnZero.classList.toggle("is-active", mode === "zero");
+    if (btnDown) btnDown.classList.toggle("is-active", mode === "down");
+    if (btnUp) btnUp.classList.toggle("is-active", mode === "up");
+    announce("Gravity vector: " + mode);
+  }
+
+  function openArenaModal() {
+    var elModal = byId("arena-modal");
+    if (!elModal) return;
+    playSoundInspect();
+    elModal.classList.remove("hidden");
+    initArenaBodies();
+    if (!arenaAnimId) {
+      arenaAnimId = requestAnimationFrame(updateArenaPhysics);
+    }
+    var elClose = byId("arena-close-btn");
+    focusElement(elClose);
+    announce("Opened Zero-G Antigravity Physics Arena.");
+  }
+
+  function closeArenaModal() {
+    var elModal = byId("arena-modal");
+    if (elModal && !elModal.classList.contains("hidden")) {
+      elModal.classList.add("hidden");
+      if (draggedArenaIndex !== -1 && arenaBodies[draggedArenaIndex]) {
+        arenaBodies[draggedArenaIndex].isDragging = false;
+        if (arenaBodies[draggedArenaIndex].el) {
+          arenaBodies[draggedArenaIndex].el.classList.remove("is-dragging");
+        }
+      }
+      draggedArenaIndex = -1;
+      if (arenaAnimId) {
+        cancelAnimationFrame(arenaAnimId);
+        arenaAnimId = null;
+      }
+    }
+  }
+
   /* ---------- Security Threat Encyclopedia (12 Vectors) ---------- */
 
 
@@ -5167,6 +5533,12 @@
 
     if (key === "Escape" || key === "Esc") {
 
+      var arenaModal = byId("arena-modal");
+      if (arenaModal && !arenaModal.classList.contains("hidden")) {
+        event.preventDefault();
+        closeArenaModal();
+        return;
+      }
       var encModal = byId("encyclopedia-modal");
 
       if (encModal && !encModal.classList.contains("hidden")) {
@@ -5824,6 +6196,8 @@
     attachMenuReaction(encBtn, "// DATABASE: Threat Encyclopedia across 12 cyberattack vectors.", "INTEL", "is-alert");
 
     attachMenuReaction(badgesBtn, "// CLEARANCE: Review unlocked SOC badges and export credentials.", "HONORS", "is-happy");
+    var arenaMenuBtn = document.getElementById("menu-arena-btn");
+    attachMenuReaction(arenaMenuBtn, "// ZERO-G LAB: Fling message capsules in the Antigravity Arena!", "ZERO-G", "is-happy");
 
   }
 
@@ -5942,6 +6316,74 @@
     }
 
 
+
+    var elSiteArenaBtn = byId("site-arena-btn");
+    if (elSiteArenaBtn) elSiteArenaBtn.addEventListener("click", openArenaModal);
+    var elTermArenaBtn = byId("term-arena-btn");
+    if (elTermArenaBtn) elTermArenaBtn.addEventListener("click", openArenaModal);
+    var elMenuArenaBtn = byId("menu-arena-btn");
+    if (elMenuArenaBtn) elMenuArenaBtn.addEventListener("click", openArenaModal);
+    var elArenaClose = byId("arena-close-btn");
+    if (elArenaClose) elArenaClose.addEventListener("click", closeArenaModal);
+    var elArenaFooterClose = byId("arena-footer-close");
+    if (elArenaFooterClose) elArenaFooterClose.addEventListener("click", closeArenaModal);
+    var elArenaModal = byId("arena-modal");
+    if (elArenaModal) {
+      elArenaModal.addEventListener("click", function (e) {
+        if (e.target === elArenaModal) closeArenaModal();
+      });
+    }
+    var elPulseBtn = byId("arena-pulse-btn");
+    if (elPulseBtn) elPulseBtn.addEventListener("click", triggerGravitationalPulse);
+    var elResetBtn = byId("arena-reset-btn");
+    if (elResetBtn) elResetBtn.addEventListener("click", initArenaBodies);
+    var elGravZero = byId("arena-grav-zero");
+    if (elGravZero) elGravZero.addEventListener("click", function () { setArenaGravityMode("zero"); });
+    var elGravDown = byId("arena-grav-down");
+    if (elGravDown) elGravDown.addEventListener("click", function () { setArenaGravityMode("down"); });
+    var elGravUp = byId("arena-grav-up");
+    if (elGravUp) elGravUp.addEventListener("click", function () { setArenaGravityMode("up"); });
+
+    // Stage pointer move and up handlers for physics dragging
+    window.addEventListener("mousemove", function (e) {
+      if (draggedArenaIndex === -1) return;
+      var stage = byId("arena-stage");
+      if (!stage) return;
+      var rect = stage.getBoundingClientRect();
+      arenaMousePos.x = e.clientX - rect.left;
+      arenaMousePos.y = e.clientY - rect.top;
+    });
+
+    window.addEventListener("mouseup", function () {
+      if (draggedArenaIndex !== -1) {
+        var b = arenaBodies[draggedArenaIndex];
+        if (b) {
+          b.isDragging = false;
+          if (b.el) b.el.classList.remove("is-dragging");
+        }
+        draggedArenaIndex = -1;
+      }
+    });
+
+    window.addEventListener("touchmove", function (e) {
+      if (draggedArenaIndex === -1) return;
+      var stage = byId("arena-stage");
+      if (!stage || !e.touches || !e.touches[0]) return;
+      var rect = stage.getBoundingClientRect();
+      arenaMousePos.x = e.touches[0].clientX - rect.left;
+      arenaMousePos.y = e.touches[0].clientY - rect.top;
+    }, { passive: true });
+
+    window.addEventListener("touchend", function () {
+      if (draggedArenaIndex !== -1) {
+        var b = arenaBodies[draggedArenaIndex];
+        if (b) {
+          b.isDragging = false;
+          if (b.el) b.el.classList.remove("is-dragging");
+        }
+        draggedArenaIndex = -1;
+      }
+    });
 
     if (elSiteBadgesBtn) elSiteBadgesBtn.addEventListener("click", openBadgesModal);
 

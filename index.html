@@ -1,1160 +1,1256 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Phishing Escape Room — an educational cybersecurity simulation game. Triage Email, SMS, and Chat messages to unlock three server room security doors.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <title>Phishing Escape Room — SOC Lockdown</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="style.css">
-  <script src="game.js" defer></script>
-</head>
-<body>
-  <div id="live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-
-  <!-- ==================== WEBSITE VIEW (TITLE SCREEN + SECTIONS) ==================== -->
-  <div id="website-view" class="website-view">
-    <header class="site-nav" role="banner">
-      <div class="site-nav-inner">
-        <a href="#home" class="site-brand">
-          <img src="favicon.svg" alt="" class="site-brand-logo" width="24" height="24" aria-hidden="true">
-          <span class="brand-title">SENTINEL</span>
-        </a>
-        <nav id="site-nav-links" class="site-nav-links" aria-label="Primary website navigation">
-          <a href="#home" class="nav-link">Home</a>
-          <a href="#about" class="nav-link">About</a>
-          <a href="#how-to-play" class="nav-link">How to Play</a>
-          <a href="#what-youll-learn" class="nav-link">What You'll Learn</a>
-          <a href="#if-you-fell-for-it" class="nav-link">If You Fell For It</a>
-        </nav>
-        <div class="site-nav-actions">
-          <button type="button" id="site-sound-toggle" class="btn btn-outline btn-nav-util" aria-pressed="true" aria-label="Toggle audio effects">AUDIO: ON</button>
-          <button type="button" id="site-encyclopedia-btn" class="btn btn-outline btn-nav-util" aria-label="Open Security Threat Encyclopedia">ENCYCLOPEDIA</button>
-          <button type="button" id="site-badges-btn" class="btn btn-outline btn-nav-util" aria-label="Open Cyber Defense Badges">BADGES <span id="site-badges-count" class="nav-badge-pill">0/9</span></button>
-<button type="button" id="mobile-menu-toggle" class="btn btn-outline btn-mobile-menu" aria-expanded="false" aria-controls="site-nav-links" aria-label="Toggle navigation menu">MENU</button>
-          <button type="button" id="nav-play-btn" class="btn btn-primary btn-nav-play">PLAY</button>
-        </div>
-      </div>
-    </header>
-
-    <!-- 1. Cinematic Full-Viewport Title Screen -->
-    <section id="home" class="title-hero" aria-labelledby="hero-title">
-      <div class="scene-backdrop" aria-hidden="true">
-        <img src="lockdown-scene.svg" alt="" class="scene-svg">
-        <div class="emergency-beacon"></div>
-        <div class="scene-vignette"></div>
-        <div class="scene-scanlines"></div>
-      </div>
-
-      <div class="title-hero-inner">
-        <!-- LEFT COLUMN: Top (Judul & About) + Bottom (Kotak Pilihan) -->
-        <div class="title-hero-content">
-          <!-- Kiri Atas: Judul dan Kontrol Taktis -->
-          <div class="hero-header-area">
-            <div class="hero-status-pill-row">
-              <span class="lockdown-alert-badge">
-                <span class="alert-square" aria-hidden="true">&#x25A0;</span>
-                LOCKDOWN ACTIVE
-              </span>
-              <span class="incident-code-tag">INCIDENT // 001</span>
-            </div>
-
-            <h1 id="hero-title" class="hero-title">
-              PHISHING <span class="text-cyan">ESCAPE ROOM</span>
-            </h1>
-
-            <p class="hero-tagline">
-              The server room is sealed. Spot the phishing attempts in your inbox, texts, and chats to unlock three doors and escape.
-            </p>
-
-            <!-- Quick Action Row matching the reference design -->
-            <div class="hero-action-buttons">
-              <button type="button" id="hero-start-cta" class="btn-hero-primary" aria-label="Start mission">
-                <span class="btn-icon" aria-hidden="true">&#x25B6;</span>
-                <span class="btn-text">Start mission</span>
-              </button>
-              <a href="#about" class="btn-hero-secondary" aria-label="Mission briefing">
-                <img src="mission-briefing-book.svg" alt="" class="btn-icon-svg" width="18" height="18" aria-hidden="true">
-                <span class="btn-text">Mission briefing</span>
-              </a>
-            </div>
-
-            <!-- Tactical Meta Strip -->
-            <div class="hero-meta-strip">
-              <span class="meta-pill"><span class="meta-icon" aria-hidden="true">&#x1F5C4;</span> 3 SECURITY DOORS</span>
-              <span class="meta-divider" aria-hidden="true">|</span>
-              <span class="meta-pill"><span class="meta-icon" aria-hidden="true">&#x1F464;</span> SINGLE PLAYER</span>
-            </div>
-          </div>
-
-          <!-- Kiri Bawah: Kotak Pilihan -->
-          <div class="hero-selection-card">
-            <div class="hero-telemetry" aria-label="Player progress summary">
-              <div class="telemetry-pill">
-                <span class="telemetry-label">// BEST SCORE</span>
-                <span id="menu-best-score" class="telemetry-value">0</span>
-              </div>
-              <div class="telemetry-pill">
-                <span class="telemetry-label">// DOORS CLEARED</span>
-                <span id="menu-progress" class="telemetry-value">0 / 3</span>
-              </div>
-            </div>
-
-            <nav class="title-menu" aria-label="Game title menu">
-              <ul id="title-menu-list" class="title-menu-list">
-                <li>
-                  <button type="button" id="menu-start-btn" class="title-menu-btn is-selected" data-menu-item="true" disabled>
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span class="menu-label">START NEW RUN</span>
-                    <span class="menu-meta">DOOR 01</span>
-                  </button>
-                </li>
-                <li id="menu-continue-item" class="hidden">
-                  <button type="button" id="menu-continue-btn" class="title-menu-btn" data-menu-item="true" disabled>
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span id="menu-continue-label" class="menu-label">CONTINUE</span>
-                    <span id="menu-continue-meta" class="menu-meta">DOOR 02</span>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" id="menu-select-btn" class="title-menu-btn" data-menu-item="true" disabled>
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span class="menu-label">SELECT DOOR</span>
-                    <span class="menu-meta">01 - 03</span>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" id="menu-howto-btn" class="title-menu-btn" data-menu-item="true">
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span class="menu-label">HOW TO PLAY</span>
-                    <span class="menu-meta">CONTROLS</span>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" id="menu-about-btn" class="title-menu-btn" data-menu-item="true">
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span class="menu-label">ABOUT</span>
-                    <span class="menu-meta">BRIEFING</span>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" id="menu-encyclopedia-btn" class="title-menu-btn" data-menu-item="true">
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span class="menu-label">THREAT ENCYCLOPEDIA</span>
-                    <span class="menu-meta">12 VECTORS</span>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" id="menu-badges-btn" class="title-menu-btn" data-menu-item="true">
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span class="menu-label">HONOR ROLL BADGES</span>
-                    <span id="menu-badges-meta" class="menu-meta">0 / 9</span>
-                  </button>
-                </li>
-              </ul>
-              <p class="menu-key-hint">// use <kbd>&uarr;</kbd> <kbd>&darr;</kbd> arrow keys to select &middot; <kbd>Enter</kbd> to confirm</p>
-            </nav>
-
-            <p id="menu-status" class="mono-note mono-note-warning hidden" role="alert"></p>
-            <p id="menu-storage-note" class="mono-note hidden">// browser storage is blocked: gameplay works normally, but progress will not persist after closing the tab</p>
-          </div>
-
-          <p class="hero-disclaimer" role="note">
-            <strong>Educational Simulation:</strong> All brands, people, domains, email addresses, phone numbers, and scenario content in this game are completely fictional.
-          </p>
-        </div>
-
-        <!-- RIGHT COLUMN: Robot Pane with Cam Feed & Companion Tag -->
-        <div class="title-hero-robot-pane" aria-hidden="true">
-          <div class="robot-stage">
-            <!-- Floating Speech Bubble (Positioned directly above robot's head) -->
-            <div id="robot-speech-bubble" class="robot-speech-bubble" role="status" aria-live="polite">
-              <div class="speech-header">
-                <span class="speech-led" aria-hidden="true"></span>
-                <span class="speech-channel">// SENTINEL &middot; SOC</span>
-                <span id="speech-mode-tag" class="speech-status-tag">STANDBY</span>
-              </div>
-              <p id="robot-speech-text" class="speech-text">// SENTINEL BOT ONLINE &middot; READY FOR TRIAGE</p>
-            </div>
-
-            <div class="robot-shadow"></div>
-
-            <div id="soc-robot" class="robot-character" title="Click to interact with Sentinel Bot">
-              <!-- 1. HEAD (Previous Beloved Cyber Droid Head with Smooth Tracking) -->
-              <div id="robot-head" class="robot-head">
-                <div class="robot-head-crest"></div>
-                <div class="robot-ear robot-ear-left"></div>
-                <div class="robot-ear robot-ear-right"></div>
-                <div class="robot-helmet">
-                  <div class="helmet-highlight"></div>
-                  <div class="robot-visor">
-                    <div class="visor-reflection"></div>
-                    <div id="robot-eyes-group" class="robot-face-screen">
-                      <div class="robot-eyes-row">
-                        <div class="robot-eye robot-eye-left"></div>
-                        <div class="robot-eye robot-eye-right"></div>
-                      </div>
-                      <div class="robot-mouth"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 2. BODY LAYER (High-Fidelity 3D Matched Cyber Body) -->
-              <div class="robot-body-layer">
-                <img src="assets/robot/robot-body.png" alt="" class="robot-body-img" width="240" height="148" draggable="false">
-              </div>
-            </div>
-          </div>
-
-
-        </div>
-      </div>
-    </section>
-
-    <!-- Tactical Environment Feed Divider -->
-    <div class="environment-feed-bar" aria-hidden="true">
-      <div class="site-container feed-bar-inner">
-        <div class="feed-left">
-          <span class="feed-slashes">///</span>
-          <span class="feed-label">ENVIRONMENT FEED</span>
-        </div>
-        <div class="feed-center-line"></div>
-        <div class="feed-right">
-          <span class="feed-location">SECTOR 07 / SERVER ROOM</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECURITY DOORS SHOWCASE (Matching reference design) -->
-    <section id="security-doors" class="security-doors-showcase" aria-labelledby="doors-showcase-heading">
-      <div class="site-container">
-        <div class="doors-showcase-header">
-          <div class="doors-header-titles">
-            <h2 id="doors-showcase-heading" class="doors-section-title">
-              SECURITY DOORS<span class="text-cyan">.</span>
-            </h2>
-            <p class="doors-section-lead">Three channels. Clear each door to break the lockdown.</p>
-          </div>
-          <div class="doors-header-telemetry" aria-label="Mission door status summary">
-            <div class="showcase-telemetry-pill">
-              <span class="telemetry-glyph" aria-hidden="true">&#x1F3C6;</span>
-              <span class="telemetry-tag">PRACTICE BEST</span>
-              <span id="showcase-best-score" class="telemetry-digit">0</span>
-            </div>
-            <div class="showcase-telemetry-pill">
-              <span class="telemetry-glyph" aria-hidden="true">&#x1F6AA;</span>
-              <span class="telemetry-tag">CLEARED</span>
-              <span id="showcase-progress" class="telemetry-digit">0 / 3</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="doors-showcase-grid">
-          <!-- DOOR 01: EMAIL GATEWAY -->
-          <article id="showcase-card-1" class="showcase-door-card is-available" data-showcase-door="1" tabindex="0" role="button" aria-label="Door 01: Email Gateway. Status: Available. Click to launch.">
-            <div class="card-status-bar">
-              <span class="card-door-number">DOOR / 01</span>
-              <span class="card-status-tag tag-available">
-                <span class="status-beacon-dot"></span>AVAILABLE
-              </span>
-            </div>
-            <div class="card-blueprint-canvas" aria-hidden="true">
-                <svg class="blueprint-svg" viewBox="0 0 400 140" fill="none" aria-hidden="true" shape-rendering="geometricPrecision">
-                  <g stroke="#3a999c" stroke-width=".65" opacity=".46">
-                    <path d="m88 106 113-27 112 24-113 29z" stroke-dasharray="4 5"/>
-                    <path d="m111 106 90-21 89 18-90 22z" />
-                    <path d="m136 100 89 19m-65-25 90 19m-65-25 90 19m-142 5 91-22m-68 27 91-22m-68 27 91-22" opacity=".48"/>
-                    <path d="M77 55h6m-3-3v6m229 5h6m-3-3v6M101 128h6m-3-3v6m187-116h6m-3-3v6"/>
-                    <path d="M98 35v-9h12m191 90v9h-13M76 96h11m226-64h11" />
-                  </g>
-                  <g class="blueprint-asset-body" stroke-linejoin="round" stroke-linecap="round">
-                    <path d="m111 45 154-31 10 4 9 64-156 33-9-5z" fill="#102f37" stroke="#4aa9ac" stroke-width="1"/>
-                    <path d="m111 45 8 3 155-30-9-4z" fill="#365c62" stroke="#86d5d2"/>
-                    <path d="m111 45 8 3 9 67-9-5z" fill="#132932" stroke="#4a8f99"/>
-                    <g transform="matrix(1,-.2,.14,1,119,48)">
-                      <path d="M2 0h151l2 2v63l-2 2H2l-2-2V2z" fill="#103743" stroke="#77d9d6" stroke-width="1.45"/>
-                      <path d="m2 63 52-40 23 14 24-15 51 40z" fill="#164652"/>
-                      <path d="m3 63 51-39m47-1 51 40" stroke="#51aeb6" stroke-width="1.25"/>
-                      <path d="m1 2 72 38q4 2 8-.5L153 2" fill="#245460" stroke="#88dcdb" stroke-width="1.45"/>
-                      <path d="m7 3 67 33q4 2 7-.4L146 3" stroke="#528c92" stroke-width=".8"/>
-                      <path d="M5 15V7h7m132 0h6v7m0 41v6h-9M15 61H6v-6" stroke="#91dfd8"/>
-                      <path d="M27 60h16m4 0h4m57-1h13" stroke="#4d8c94" stroke-width="1.4"/>
-                    </g>
-                    <path d="m99 64 8-2m-9 5 5-1m175 26 9-2m-10 5 5-1" stroke="#73bfc0" stroke-width=".75"/>
-                    <path d="M141 115v8m111-34v13" stroke="#46909b" stroke-dasharray="1 3"/>
-                  </g>
-                </svg>
-              </div>
-            <div class="card-footer-row">
-              <h3 class="channel-heading">EMAIL GATEWAY</h3>
-              <span class="action-arrow-icon" aria-hidden="true">&rarr;</span>
-            </div>
-          </article>
-
-          <!-- DOOR 02: SMS RELAY -->
-          <article id="showcase-card-2" class="showcase-door-card is-locked" data-showcase-door="2" tabindex="0" role="button" aria-label="Door 02: SMS Relay. Status: Locked.">
-            <div class="card-status-bar">
-              <span class="card-door-number">DOOR / 02</span>
-              <span id="showcase-card-status-2" class="card-status-tag tag-locked">
-                <span class="status-beacon-dot"></span>LOCKED
-              </span>
-            </div>
-            <div class="card-blueprint-canvas" aria-hidden="true">
-                <svg class="blueprint-svg" viewBox="0 0 400 140" fill="none" aria-hidden="true" shape-rendering="geometricPrecision">
-                  <g stroke="#3a999c" stroke-width=".65" opacity=".46">
-                    <path d="m88 106 113-27 112 24-113 29z" stroke-dasharray="4 5"/>
-                    <path d="m111 106 90-21 89 18-90 22z" />
-                    <path d="m136 100 89 19m-65-25 90 19m-65-25 90 19m-142 5 91-22m-68 27 91-22m-68 27 91-22" opacity=".48"/>
-                    <path d="M77 55h6m-3-3v6m229 5h6m-3-3v6M101 128h6m-3-3v6m187-116h6m-3-3v6"/>
-                    <path d="M98 35v-9h12m191 90v9h-13M76 96h11m226-64h11" />
-                  </g>
-                  <g class="blueprint-asset-body" stroke-linejoin="round" stroke-linecap="round">
-                    <g transform="matrix(.97,-.215,-.56,.76,198,27)">
-                      <path d="M8 4h65q7 0 7 7v105q0 8-9 9H8q-8-.3-10-7L-3 14Q-3 7 8 4z" fill="#0c2933" stroke="#64abad" stroke-width="1.2"/>
-                      <path d="M6 0h64q8 0 8 8v104q0 7-8 7H6q-8 0-8-8V9q0-8 8-9z" fill="#2a4d55" stroke="#92d7d4" stroke-width="1.6"/>
-                      <path d="m0 112 2 7m63 .5 2.5 5m-43-2h12" stroke="#54858c" stroke-width="1.15"/>
-                      <rect x="3.8" y="5" width="68.4" height="107.8" rx="4.8" fill="#102f3c" stroke="#529aa3" stroke-width="1.1"/>
-                      <path d="M24 5h29l-2 4H26z" fill="#54858c" />
-                      <path d="M9 90h57m-58 7h39m-39 4h21m22 0h14" stroke="#50858c" stroke-width=".85" />
-                      <path d="M31 109h13" stroke="#b3e5df" stroke-width="1.8"/>
-                      <g transform="translate(8,31)">
-                        <path d="M1 5 4 2h52l-2 35H19l-6 5-.5-5H2z" fill="#0e222d" />
-                        <path d="M2 0h53l2 2v29l-3 3H20l-9 7 1-7H2l-2-2V3z" fill="#27616b" stroke="#83dcd9" stroke-width="1.45"/>
-                        <path d="M8 9h37m-37 6h28m-28 6h16" stroke="#9cd8d6" stroke-width="2.2"/>
-                      </g>
-                      <path d="M80 22v17m0 6v8m-82 7v10" stroke="#64a3a7" stroke-width="1.2"/>
-                    </g>
-                    <path d="m144 59-11 3m12 1-7 2m134-8 11-3m-10 6 6-1" stroke="#68a6ae" stroke-width=".8"/>
-                    <path d="M151 107v13m99-57v36" stroke="#40909a" stroke-width=".75" stroke-dasharray="2 4"/>
-                  </g>
-                </svg>
-              </div>
-            <div class="card-footer-row">
-              <h3 class="channel-heading">SMS RELAY</h3>
-              <span id="showcase-card-lock-2" class="action-lock-icon" aria-hidden="true">&#x1F512;</span>
-            </div>
-          </article>
-
-          <!-- DOOR 03: CHAT TERMINAL -->
-          <article id="showcase-card-3" class="showcase-door-card is-locked" data-showcase-door="3" tabindex="0" role="button" aria-label="Door 03: Chat Terminal. Status: Locked.">
-            <div class="card-status-bar">
-              <span class="card-door-number">DOOR / 03</span>
-              <span id="showcase-card-status-3" class="card-status-tag tag-locked">
-                <span class="status-beacon-dot"></span>LOCKED
-              </span>
-            </div>
-            <div class="card-blueprint-canvas" aria-hidden="true">
-                <svg class="blueprint-svg" viewBox="0 0 400 140" fill="none" aria-hidden="true" shape-rendering="geometricPrecision">
-                  <g stroke="#3a999c" stroke-width=".65" opacity=".46">
-                    <path d="m88 106 113-27 112 24-113 29z" stroke-dasharray="4 5"/>
-                    <path d="m111 106 90-21 89 18-90 22z" />
-                    <path d="m136 100 89 19m-65-25 90 19m-65-25 90 19m-142 5 91-22m-68 27 91-22m-68 27 91-22" opacity=".48"/>
-                    <path d="M77 55h6m-3-3v6m229 5h6m-3-3v6M101 128h6m-3-3v6m187-116h6m-3-3v6"/>
-                    <path d="M98 35v-9h12m191 90v9h-13M76 96h11m226-64h11" />
-                  </g>
-                  <g class="blueprint-asset-body" stroke-linejoin="round" stroke-linecap="round">
-                    <g transform="matrix(1,-.20,.06,1,169,34)">
-                      <path d="m3 0 6-3h96l4 4v47l-4 5-5 1H88v12l-10-5-9-8H4l-4-4V5z" fill="#173c47" stroke="#5eaaaf" stroke-width="1"/>
-                      <path d="m3 0 6-3h96l4 4-6 2-2-3z" fill="#375b62" stroke="#80c6c6" stroke-width="1"/>
-                      <path d="M3 0h97l3 3v44l-3 3H85v13L68 50H3l-3-3V4z" fill="#17434f" stroke="#6fb8c0" stroke-width="1.3"/>
-                      <path d="M21 13h62m-62 6h41" stroke="#619397" stroke-width="1.3"/>
-                      <path d="M83 39h12v-6" stroke="#78afb0" stroke-width="1"/>
-                    </g>
-                    <g transform="matrix(1,-.20,.055,1,115,61)">
-                      <path d="m0 3 9-5 4-2h102l4 4v44l-2 4-8 6H38L16 68l-4-3 1-14H3l-3-3z" fill="#13303a" stroke="#5bafb0" stroke-width="1"/>
-                      <path d="m1 2 8-5h105l5 3-8 5-3-3z" fill="#395e65" stroke="#94d9d4" stroke-width="1"/>
-                      <path d="M4 2h104l4 4v43l-4 5H36L14 68l2-14H4l-4-4V6z" fill="#1b4d57" stroke="#84d7d4" stroke-width="1.6"/>
-                      <path d="M6 15V9h9m81 0h9v6m-1 25v7h-9" stroke="#75b5ba" stroke-width="1"/>
-                      <path d="m12 52-5-.2-4-3" stroke="#477f89" stroke-width="1"/>
-                      <g fill="#9cdedb" stroke="#a7dfda" stroke-width=".65">
-                        <path d="m31 25 2-2h5l2 2v5l-2 2h-5l-2-2z"/>
-                        <path d="m51 25 2-2h5l2 2v5l-2 2h-5l-2-2z"/>
-                        <path d="m71 25 2-2h5l2 2v5l-2 2h-5l-2-2z"/>
-                      </g>
-                    </g>
-                    <path d="m101 74 7-2m-7 6 4-1m180-40 8-2m-7 5 5-1" stroke="#70afb2" stroke-width=".8"/>
-                    <path d="M152 111v11m102-55v34" stroke="#468d98" stroke-width=".75" stroke-dasharray="2 4"/>
-                  </g>
-                </svg>
-              </div>
-            <div class="card-footer-row">
-              <h3 class="channel-heading">CHAT TERMINAL</h3>
-              <span id="showcase-card-lock-3" class="action-lock-icon" aria-hidden="true">&#x1F512;</span>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- Mission Dossier Modal for Showcase Cards -->
-    <div id="door-dossier-modal" class="dossier-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="dossier-door-title">
-      <div class="dossier-card">
-        <div class="dossier-header">
-          <div class="dossier-header-left">
-            <span class="dossier-meta">// MISSION INTEL &middot; THREAT BRIEFING</span>
-            <h2 id="dossier-door-title" class="dossier-title">DOOR 01 // EMAIL GATEWAY</h2>
-          </div>
-          <button type="button" id="dossier-close-btn" class="dossier-close-btn" aria-label="Close dossier">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-
-        <div class="dossier-body">
-          <div class="dossier-tags-row">
-            <span id="dossier-channel-tag" class="dossier-pill pill-cyan">EMAIL GATEWAY</span>
-            <span id="dossier-tier-tag" class="dossier-pill pill-tier">TIER 1 &middot; CRUDE SCAMS</span>
-            <span id="dossier-status-badge" class="dossier-pill pill-status status-avail">AVAILABLE</span>
-          </div>
-
-          <div class="dossier-section">
-            <h3 class="dossier-subtitle">// OPERATOR OVERVIEW</h3>
-            <p id="dossier-desc" class="dossier-text">
-              Automated phishing campaigns, mass sweepstakes, and crude payload drops targeting corporate inboxes on the night shift. Separate real vendor receipts from social engineering traps.
-            </p>
-          </div>
-
-          <div class="dossier-section">
-            <h3 class="dossier-subtitle">// KEY THREAT SIGNALS TO INSPECT</h3>
-            <div class="dossier-flags-grid">
-              <div class="dossier-flag-item">
-                <span class="flag-icon" aria-hidden="true">&#x25C6;</span>
-                <div class="flag-text-group">
-                  <strong id="dossier-flag-1-title">Lookalike Domains</strong>
-                  <span id="dossier-flag-1-desc">Check sender addresses for character swaps and unverified hosts.</span>
-                </div>
-              </div>
-              <div class="dossier-flag-item">
-                <span class="flag-icon" aria-hidden="true">&#x25C6;</span>
-                <div class="flag-text-group">
-                  <strong id="dossier-flag-2-title">Artificial Urgency</strong>
-                  <span id="dossier-flag-2-desc">Threats of account suspension designed to bypass careful inspection.</span>
-                </div>
-              </div>
-              <div class="dossier-flag-item">
-                <span class="flag-icon" aria-hidden="true">&#x25C6;</span>
-                <div class="flag-text-group">
-                  <strong id="dossier-flag-3-title">Disguised Attachments</strong>
-                  <span id="dossier-flag-3-desc">Executable files or mobile installer packages (.apk, .scr).</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="dossier-parameters-bar">
-            <div class="param-chip"><span class="param-label">QUEUE:</span> <span class="param-value">6 Messages</span></div>
-            <div class="param-chip"><span class="param-label">TIME:</span> <span class="param-value">120 Seconds</span></div>
-            <div class="param-chip"><span class="param-label">LIVES:</span> <span class="param-value">3 Shield Lives</span></div>
-            <div class="param-chip"><span class="param-label">HINTS:</span> <span class="param-value">1 Analyst Hint</span></div>
-          </div>
-        </div>
-
-        <div class="dossier-footer">
-          <button type="button" id="dossier-cancel-btn" class="btn btn-outline dossier-btn-cancel">
-            CANCEL
-          </button>
-          <button type="button" id="dossier-play-btn" class="btn btn-primary dossier-btn-play">
-            <span class="btn-icon" aria-hidden="true">&#x25B6;</span>
-            <span id="dossier-play-text">START DOOR 01</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tactical Bottom Bar matching screenshot footer -->
-    <div class="showcase-bottom-bar">
-      <div class="site-container bottom-bar-inner">
-        <span class="simulation-note">
-          <span class="diamond-glyph" aria-hidden="true">&#x25C7;</span>
-          Educational simulation / All messages and identities are fictional.
-        </span>
-        <a href="#if-you-fell-for-it" class="fell-phish-link">Fell for a phish? &#x2197;</a>
-      </div>
-    </div>
-
-    <!-- 2. Website Sections Below the Title Screen -->
-    <div class="site-sections">
-      <!-- About Section -->
-      <section id="about" class="site-section" tabindex="-1" aria-labelledby="about-heading">
-        <div class="site-container">
-          <p class="terminal-tag">// 01 &middot; mission briefing</p>
-          <h2 id="about-heading" class="section-heading">LOCKED IN THE <span class="text-cyan">SERVER ROOM</span></h2>
-          <p class="section-lead">
-            You are a new Security Operations Center (SOC) analyst working the overnight shift when an automated containment lockdown seals the server bay.
-            To override the blast doors and get out, you must inspect incoming messages and separate real communications from social engineering attacks across <strong>3 security doors</strong>.
-          </p>
-
-          <div class="about-doors-grid">
-            <article class="site-card">
-              <span class="rule-label">// door 01 &middot; tier 1</span>
-              <h3 class="card-title">CRUDE SCAMS</h3>
-              <p class="card-text">Spot obvious lottery giveaways, fake delivery APK installers, and urgent support impersonators demanding one-time passcodes.</p>
-            </article>
-            <article class="site-card">
-              <span class="rule-label">// door 02 &middot; tier 2</span>
-              <h3 class="card-title">SPEAR PHISHING</h3>
-              <p class="card-text">Analyze targeted subscription invoices, executive impersonation in chat, and disguised links hiding behind lookalike domains.</p>
-            </article>
-            <article class="site-card">
-              <span class="rule-label">// door 03 &middot; tier 3</span>
-              <h3 class="card-title">MIXED SIGNALS</h3>
-              <p class="card-text">Handle high-pressure recruitment and escrow traps alongside legitimate security alerts that look suspicious at first glance.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <!-- How to Play Section -->
-      <section id="how-to-play" class="site-section" tabindex="-1" aria-labelledby="howto-site-heading">
-        <div class="site-container">
-          <p class="terminal-tag">// 02 &middot; operator manual</p>
-          <h2 id="howto-site-heading" class="section-heading">HOW TO <span class="text-cyan">PLAY</span></h2>
-          <p class="section-lead">
-            Each door presents 6 messages in random order with a <strong>120-second timer</strong>, <strong>3 lives</strong>, and <strong>1 hint</strong>.
-          </p>
-
-          <div class="steps-grid">
-            <article class="site-card">
-              <span class="rule-label">// step 01</span>
-              <h3 class="card-title">INSPECT THE CHANNEL</h3>
-              <p class="card-text">Read the sender address or masked phone number, subject line, and message body across realistic Email, SMS, and Chat views.</p>
-            </article>
-            <article class="site-card">
-              <span class="rule-label">// step 02</span>
-              <h3 class="card-title">CLASSIFY OR USE A HINT</h3>
-              <p class="card-text">Press <kbd>P</kbd> for Phishing or <kbd>S</kbd> for Safe (+100 pts per right call). Press <kbd>H</kbd> once per door to reveal a red flag or safe signal.</p>
-            </article>
-            <article class="site-card">
-              <span class="rule-label">// step 03</span>
-              <h3 class="card-title">LEARN &amp; UNLOCK</h3>
-              <p class="card-text">The timer pauses while you review highlighted red flags and security tips. Press <kbd>Enter</kbd> to continue or <kbd>Esc</kbd> to pause.</p>
-            </article>
-          </div>
-
-          <div class="controls-bar" aria-label="Keyboard shortcuts summary">
-            <div class="control-chip"><kbd>P</kbd> <span>Mark Phishing</span></div>
-            <div class="control-chip"><kbd>S</kbd> <span>Mark Safe</span></div>
-            <div class="control-chip"><kbd>H</kbd> <span>Use Hint (1 / door)</span></div>
-            <div class="control-chip"><kbd>Enter</kbd> <span>Confirm / Continue</span></div>
-            <div class="control-chip"><kbd>Esc</kbd> <span>Pause / Menu</span></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- What You'll Learn Section (8 Red Flag Categories) -->
-      <section id="what-youll-learn" class="site-section" tabindex="-1" aria-labelledby="learn-heading">
-        <div class="site-container">
-          <p class="terminal-tag">// 03 &middot; threat intelligence</p>
-          <h2 id="learn-heading" class="section-heading">WHAT YOU'LL <span class="text-cyan">LEARN</span></h2>
-          <p class="section-lead">
-            Every phishing scenario in the escape room trains you to spot one or more of these 8 core red flag categories:
-          </p>
-
-          <div class="categories-grid">
-            <article class="category-card">
-              <span class="rule-label">// 01 &middot; fake_domain</span>
-              <h3 class="card-title">FAKE DOMAIN</h3>
-              <p class="card-text">Lookalike or unverified domains crafted to impersonate trusted companies and capture logins.</p>
-            </article>
-            <article class="category-card">
-              <span class="rule-label">// 02 &middot; urgency</span>
-              <h3 class="card-title">URGENCY</h3>
-              <p class="card-text">Artificial deadlines and threats of account deletion designed to rush you into acting without checking.</p>
-            </article>
-            <article class="category-card">
-              <span class="rule-label">// 03 &middot; sensitive_data</span>
-              <h3 class="card-title">SENSITIVE DATA</h3>
-              <p class="card-text">Requests for one-time passcodes, passwords, national IDs, or bank account numbers over email or chat.</p>
-            </article>
-            <article class="category-card">
-              <span class="rule-label">// 04 &middot; malicious_attachment</span>
-              <h3 class="card-title">MALICIOUS ATTACHMENT</h3>
-              <p class="card-text">Unexpected executable or mobile installer files such as APK packages disguised as tracking tools.</p>
-            </article>
-            <article class="category-card">
-              <span class="rule-label">// 05 &middot; fake_prize</span>
-              <h3 class="card-title">FAKE PRIZE</h3>
-              <p class="card-text">Unsolicited sweepstakes or lottery winnings that ask for banking details to release a payout.</p>
-            </article>
-            <article class="category-card">
-              <span class="rule-label">// 06 &middot; disguised_link</span>
-              <h3 class="card-title">DISGUISED LINK</h3>
-              <p class="card-text">Deceptive URLs that place a known brand name in a subdomain while pointing to an untrusted host.</p>
-            </article>
-            <article class="category-card">
-              <span class="rule-label">// 07 &middot; suspicious_sender</span>
-              <h3 class="card-title">SUSPICIOUS SENDER</h3>
-              <p class="card-text">Generic support handles, unknown marketplace accounts, or private addresses posing as executives.</p>
-            </article>
-            <article class="category-card">
-              <span class="rule-label">// 08 &middot; unnatural_language</span>
-              <h3 class="card-title">UNNATURAL LANGUAGE</h3>
-              <p class="card-text">Awkward grammar, unusual phrasing, or instant job placements that skip normal interviews.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <!-- If You Fell For It Section -->
-      <section id="if-you-fell-for-it" class="site-section" tabindex="-1" aria-labelledby="fell-heading">
-        <div class="site-container">
-          <p class="terminal-tag">// 04 &middot; emergency recovery protocol</p>
-          <h2 id="fell-heading" class="section-heading">WHAT TO DO <span class="text-cyan">IF YOU FELL FOR IT</span></h2>
-          <p class="section-lead">
-            Falling for a scam happens to everyday users and security pros alike. If you clicked a malicious link, sent a verification code, or entered financial details, take these immediate, region-neutral response steps:
-          </p>
-
-          <div class="fell-steps-grid">
-            <article class="site-card">
-              <span class="rule-label">// step 01 &middot; disconnect</span>
-              <h3 class="card-title">STOP REPLYING IMMEDIATELY</h3>
-              <p class="card-text">Cut all communications with the scammer. Do not answer follow-up calls, emails, or chat messages, and do not attempt to negotiate.</p>
-            </article>
-
-            <article class="site-card">
-              <span class="rule-label">// step 02 &middot; official channel</span>
-              <h3 class="card-title">CONTACT THE REAL SERVICE</h3>
-              <p class="card-text">Reach out to your bank, courier, or platform through their official app, saved browser bookmark, or the customer service number on the back of your payment card.</p>
-            </article>
-
-            <article class="site-card">
-              <span class="rule-label">// step 03 &middot; credential security</span>
-              <h3 class="card-title">CHANGE PASSWORDS &amp; ENABLE 2FA</h3>
-              <p class="card-text">Update passwords immediately for compromised accounts and any other services sharing that password. Enable two-factor authentication, preferably using an authenticator app.</p>
-            </article>
-
-            <article class="site-card">
-              <span class="rule-label">// step 04 &middot; fraud audit</span>
-              <h3 class="card-title">CHECK RECENT ACTIVITY</h3>
-              <p class="card-text">Inspect bank statements, card charges, login sessions, and email forwarding rules. Request a temporary freeze on payment cards or credit files if unauthorized charges appear.</p>
-            </article>
-
-            <article class="site-card">
-              <span class="rule-label">// step 05 &middot; incident reporting</span>
-              <h3 class="card-title">REPORT TO SERVICE &amp; AUTHORITIES</h3>
-              <p class="card-text">Report the scam to the impersonated company fraud department and file an official report with your regional or national consumer protection / cybercrime agency.</p>
-            </article>
-
-            <article class="site-card">
-              <span class="rule-label">// step 06 &middot; alert your network</span>
-              <h3 class="card-title">WARN FRIENDS &amp; COWORKERS</h3>
-              <p class="card-text">If your email, messaging profile, or address book was compromised, alert your contacts promptly so attackers cannot impersonate you to target your colleagues or loved ones.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <!-- Safety & Privacy Note Section -->
-      <section id="safety-note" class="site-section site-section-compact" aria-labelledby="safety-heading">
-        <div class="site-container">
-          <div class="disclaimer-box safety-callout">
-            <h2 id="safety-heading" class="safety-title">// safety &amp; privacy guarantee</h2>
-            <p class="safety-body">
-              This project is an <strong>educational simulation</strong>. All brands, people, email addresses, masked phone numbers, and messages are fictional and use RFC 2606 reserved domains (<code>.example</code> and <code>.test</code>). Links inside scenarios are plain text and never clickable.
-              <strong>No data ever leaves your browser</strong>—only your best score and unlocked-door progress are stored locally on your device.
-            </p>
-            <div class="action-row">
-              <button type="button" id="bottom-play-btn" class="btn btn-primary">LAUNCH ESCAPE ROOM</button>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <footer id="site-footer" class="site-footer" role="contentinfo">
-      <div class="site-container footer-inner">
-        <span class="footer-brand">PHISHING ESCAPE ROOM // SOC LOCKDOWN</span>
-        <span class="footer-credit">Built with Google Antigravity</span>
-      </div>
-    </footer>
-  </div>
-
-  <!-- ==================== FOCUSED FULL-SCREEN GAME VIEW ==================== -->
-  <div id="terminal-view" class="app-shell hidden">
-    <header class="top-bar" role="banner">
-      <div class="brand-title">
-        <img src="favicon.svg" alt="" class="site-brand-logo" width="20" height="20" aria-hidden="true">
-        <span>// SOC ESCAPE TERMINAL</span>
-      </div>
-      <div class="top-bar-right">
-        <div class="doors-progress" aria-label="Security doors status">
-          <div class="door-badge" id="door-1">DOOR 1 · LOCKED</div>
-          <div class="door-badge" id="door-2">DOOR 2 · LOCKED</div>
-          <div class="door-badge" id="door-3">DOOR 3 · LOCKED</div>
-        </div>
-        <div class="terminal-util-controls">
-          <button type="button" id="term-sound-toggle" class="btn btn-outline btn-term-util" aria-pressed="true" aria-label="Toggle audio effects">AUDIO: ON</button>
-          <button type="button" id="term-encyclopedia-btn" class="btn btn-outline btn-term-util" aria-label="Open Security Threat Encyclopedia">ENCYCLOPEDIA</button>
-          <button type="button" id="term-badges-btn" class="btn btn-outline btn-term-util" aria-label="Open Cyber Defense Badges">BADGES</button>
-        </div>
-      </div>
-    </header>
-
-    <main class="main-stage">
-      <!-- How to Play (Focused Modal Screen) -->
-      <section id="howto-screen" class="screen-panel hidden" aria-labelledby="howto-heading">
-        <div class="terminal-card">
-          <p class="terminal-tag">// soc terminal &middot; operator briefing</p>
-          <h1 id="howto-heading">HOW TO / <span class="text-cyan">PLAY</span></h1>
-          <p class="story-text">
-            Each door is guarded by a queue of 6 messages shown in random order. Read every message carefully and decide whether it is a phishing attempt or a safe, legitimate message.
-          </p>
-
-          <div class="rules-grid">
-            <div class="rule-item">
-              <span class="rule-label">// 01 &middot; objective</span>
-              <span>Classify each message as <em>Phishing</em> or <em>Safe</em>. Clear a door to unlock the next one.</span>
-            </div>
-            <div class="rule-item">
-              <span class="rule-label">// 02 &middot; resources</span>
-              <span>120 seconds, 3 lives, and 1 hint per door. Running out of time or lives fails the door; retrying restarts it from the beginning.</span>
-            </div>
-            <div class="rule-item">
-              <span class="rule-label">// 03 &middot; scoring</span>
-              <span>+100 points per correct answer, plus remaining seconds added as a bonus when a door is cleared.</span>
-            </div>
-            <div class="rule-item">
-              <span class="rule-label">// 04 &middot; keyboard controls</span>
-              <span><kbd>P</kbd> Phishing &middot; <kbd>S</kbd> Safe &middot; <kbd>H</kbd> Hint &middot; <kbd>Enter</kbd> Confirm / Continue &middot; <kbd>Esc</kbd> Pause</span>
-            </div>
-          </div>
-
-          <div class="disclaimer-box" role="note">
-            <strong>Educational Simulation Notice:</strong> This game is an educational simulation. All brands, people, domains, email addresses, phone numbers, and messages are fictional. Links are shown as plain text and are never clickable.
-          </div>
-
-          <div class="action-row">
-            <button type="button" id="howto-back-btn" class="btn btn-primary">
-              MAIN MENU <span class="key-hint">[ESC]</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Select Door -->
-      <section id="select-screen" class="screen-panel hidden" aria-labelledby="select-heading">
-        <div class="terminal-card">
-          <p class="terminal-tag">// soc terminal &middot; door access control</p>
-          <h1 id="select-heading">SELECT / <span class="text-cyan">DOOR</span></h1>
-          <p class="story-text">Door 1 is always available. Doors 2 and 3 unlock after the previous door is cleared. Starting a door here begins a new run with a score of 0.</p>
-
-          <div class="door-grid">
-            <button type="button" id="select-door-1" class="door-card" data-door="1">
-              <span class="door-card-title">DOOR 01</span>
-              <span class="door-card-desc">Crude, easy-to-spot scams</span>
-              <span id="door-status-1" class="door-card-status">AVAILABLE</span>
-            </button>
-            <button type="button" id="select-door-2" class="door-card" data-door="2">
-              <span class="door-card-title">DOOR 02</span>
-              <span class="door-card-desc">Subtle, personalized spear phishing</span>
-              <span id="door-status-2" class="door-card-status">LOCKED</span>
-            </button>
-            <button type="button" id="select-door-3" class="door-card" data-door="3">
-              <span class="door-card-title">DOOR 03</span>
-              <span class="door-card-desc">Mixed signals: some safe messages look suspicious</span>
-              <span id="door-status-3" class="door-card-status">LOCKED</span>
-            </button>
-          </div>
-
-          <div class="action-row">
-            <button type="button" id="select-back-btn" class="btn btn-outline">
-              MAIN MENU <span class="key-hint">[ESC]</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Game Screen -->
-      <section id="game-screen" class="screen-panel hidden" aria-labelledby="level-heading">
-        <div class="hud-bar" role="region" aria-label="Game status">
-          <div class="hud-stat">
-            <span class="hud-label">// door</span>
-            <span id="hud-level" class="hud-value">1 / 3</span>
-          </div>
-          <div class="hud-stat">
-            <span class="hud-label">// queue</span>
-            <span id="hud-progress" class="hud-value">1 / 6</span>
-          </div>
-          <div class="hud-stat">
-            <span class="hud-label">// timer</span>
-            <span id="hud-timer" class="hud-value">120s</span>
-          </div>
-          <div class="hud-stat">
-            <span class="hud-label">// lives</span>
-            <span id="hud-lives" class="hud-value" aria-label="3 lives remaining">♥♥♥</span>
-          </div>
-          <div class="hud-stat">
-            <span class="hud-label">// score</span>
-            <span id="hud-score" class="hud-value">0</span>
-          </div>
-          <button type="button" id="btn-pause" class="btn btn-outline hud-pause" aria-keyshortcuts="Escape">
-            PAUSE <span class="key-hint">[ESC]</span>
-          </button>
-        </div>
-
-        <div id="status-banner" class="status-banner hidden" role="status" aria-live="polite"></div>
-
-        <article id="message-terminal" class="message-terminal channel-email" tabindex="-1" aria-label="Incoming message under inspection">
-          <div class="terminal-window-bar">
-            <span id="terminal-door-label" class="mono-label">// soc terminal &middot; door 1</span>
-            <span id="msg-channel-badge" class="channel-badge">EMAIL</span>
-          </div>
-
-          <div class="channel-viewport">
-            <div class="message-header">
-              <div class="message-field sender-row">
-                <span id="sender-label" class="field-label">From:</span>
-                <span id="msg-sender" class="field-value"></span>
-              </div>
-              <div id="msg-subject-row" class="message-field subject-row">
-                <span class="field-label">Subject:</span>
-                <span id="msg-subject" class="field-value subject-text"></span>
-              </div>
-            </div>
-
-            <div class="message-body-wrap">
-              <h2 id="level-heading" class="sr-only">Message Content</h2>
-              <p id="msg-body" class="message-body"></p>
-            </div>
-          </div>
-        </article>
-
-        <div id="hint-panel" class="hint-panel hidden" role="region" aria-live="polite" aria-label="Level hint">
-          <strong class="hint-title">// analyst hint:</strong>
-          <span id="hint-text"></span>
-        </div>
-
-        <div id="decision-controls" class="decision-bar" role="group" aria-label="Triage decision actions">
-          <button type="button" id="btn-phishing" class="btn btn-danger" aria-keyshortcuts="P">
-            PHISHING <span class="key-hint">[P]</span>
-          </button>
-          <button type="button" id="btn-safe" class="btn btn-safe" aria-keyshortcuts="S">
-            SAFE <span class="key-hint">[S]</span>
-          </button>
-          <button type="button" id="btn-hint" class="btn btn-warning" aria-keyshortcuts="H">
-            HINT (1) <span class="key-hint">[H]</span>
-          </button>
-        </div>
-
-        <section id="feedback-panel" class="feedback-panel hidden" aria-live="polite" aria-labelledby="feedback-verdict">
-          <div class="feedback-header">
-            <p class="terminal-tag">// triage analysis output</p>
-            <h3 id="feedback-verdict" class="feedback-verdict"></h3>
-            <p id="feedback-subtitle" class="feedback-subtitle"></p>
-          </div>
-
-          <div class="feedback-details">
-            <h4 id="feedback-list-title" class="feedback-section-title"></h4>
-            <ul id="feedback-list" class="feedback-list"></ul>
-          </div>
-
-          <div class="tip-box">
-            <strong>// security habit tip:</strong>
-            <span id="feedback-tip"></span>
-          </div>
-
-          <div class="action-row">
-            <button type="button" id="btn-continue" class="btn btn-primary">
-              CONTINUE <span class="key-hint">[ENTER]</span>
-            </button>
-            <button type="button" id="btn-feedback-encyclopedia" class="btn btn-outline">
-              THREAT ENCYCLOPEDIA
-            </button>
-          </div>
-        </section>
-
-        <!-- Live SOC Decision Audit Log (Last 5 Triage Decisions) -->
-        <section id="soc-audit-panel" class="soc-audit-panel" aria-label="SOC Decision Audit Log">
-          <div class="soc-audit-header">
-            <div class="soc-audit-title-group">
-              <span class="terminal-tag">// live telemetry &middot; immutable event feed</span>
-              <h3 class="soc-audit-heading">SOC DECISION AUDIT LOG <span id="audit-count-badge" class="audit-count-pill">0 / 5</span></h3>
-            </div>
-            <div id="audit-compliance-pill" class="audit-compliance-pill hidden">
-              <span>RECENT ACCURACY:</span>
-              <strong id="audit-compliance-rate">100%</strong>
-            </div>
-          </div>
-          <div id="soc-audit-list" class="soc-audit-list">
-            <p class="soc-audit-empty">// no triage decisions audited in this session yet</p>
-          </div>
-        </section>
-      </section>
-
-      <!-- Pause Screen -->
-      <section id="pause-screen" class="screen-panel hidden" role="dialog" aria-modal="true" aria-labelledby="pause-heading">
-        <div class="terminal-card narrow-card">
-          <p class="terminal-tag">// soc terminal &middot; door <span id="pause-door-num">1</span> &middot; timer halted</p>
-          <h1 id="pause-heading">TRIAGE / <span class="text-cyan">PAUSED</span></h1>
-          <p class="story-text">The timer is stopped at <strong id="pause-time">120s</strong>. The message is hidden while the game is paused.</p>
-          <div class="menu-list">
-            <button type="button" id="pause-resume-btn" class="btn btn-primary btn-block">
-              RESUME <span class="key-hint">[ESC]</span>
-            </button>
-            <button type="button" id="pause-restart-btn" class="btn btn-outline btn-block">RESTART DOOR</button>
-            <button type="button" id="pause-menu-btn" class="btn btn-outline btn-block">MAIN MENU</button>
-          </div>
-          <p class="mono-note">// restart door or main menu discards progress on this door</p>
-        </div>
-      </section>
-
-      <!-- Door Unlocked Screen -->
-      <section id="unlocked-screen" class="screen-panel hidden" aria-labelledby="unlocked-heading">
-        <div class="terminal-card">
-          <p class="terminal-tag">// soc terminal &middot; access granted</p>
-          <h1 id="unlocked-heading">DOOR <span id="unlocked-door-num">1</span> / <span class="text-cyan">UNLOCKED</span></h1>
-          <p id="unlocked-note" class="story-text"></p>
-
-          <div class="result-grid">
-            <div class="summary-card">
-              <span class="summary-label">// door score</span>
-              <span id="unlocked-points" class="summary-value">0</span>
-            </div>
-            <div class="summary-card">
-              <span class="summary-label">// time bonus</span>
-              <span id="unlocked-bonus" class="summary-value">+0</span>
-            </div>
-            <div class="summary-card">
-              <span class="summary-label">// run total</span>
-              <span id="unlocked-total" class="summary-value">0</span>
-            </div>
-          </div>
-
-          <div class="action-row">
-            <button type="button" id="unlocked-next-btn" class="btn btn-primary">
-              NEXT DOOR <span class="key-hint">[ENTER]</span>
-            </button>
-            <button type="button" id="unlocked-menu-btn" class="btn btn-outline">MAIN MENU</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Level Failed Screen -->
-      <section id="failed-screen" class="screen-panel hidden" aria-labelledby="failed-heading">
-        <div class="terminal-card">
-          <p class="terminal-tag">// soc terminal &middot; access denied</p>
-          <h1 id="failed-heading">DOOR <span id="failed-door-num">1</span> / <span class="text-danger">FAILED</span></h1>
-          <div class="callout-danger" role="status">
-            <strong>// reason:</strong>
-            <span id="failed-reason"></span>
-          </div>
-          <p id="failed-note" class="story-text"></p>
-          <div class="action-row">
-            <button type="button" id="failed-retry-btn" class="btn btn-primary">
-              RETRY DOOR <span class="key-hint">[ENTER]</span>
-            </button>
-            <button type="button" id="failed-menu-btn" class="btn btn-outline">MAIN MENU</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- End Screen with Comprehensive Run Review -->
-      <section id="end-screen" class="screen-panel hidden" aria-labelledby="end-heading">
-        <div class="terminal-card">
-          <p class="terminal-tag">// soc terminal &middot; containment override complete</p>
-          <h1 id="end-heading">ESCAPE / <span class="text-cyan">SUCCESSFUL</span></h1>
-          <p class="story-text">
-            You triaged the final queue and unlocked all three server room doors. Review your complete SOC run performance and threat intelligence debrief below:
-          </p>
-
-          <div class="score-summary-grid">
-            <div class="summary-card">
-              <span class="summary-label">// total score</span>
-              <span id="end-total-score" class="summary-value">0</span>
-            </div>
-            <div class="summary-card">
-              <span class="summary-label">// best score</span>
-              <span id="end-best-score" class="summary-value">0</span>
-            </div>
-            <div class="summary-card">
-              <span class="summary-label">// most missed category</span>
-              <span id="end-missed-category" class="summary-value summary-category">None</span>
-            </div>
-            <div class="summary-card">
-              <span class="summary-label">// false alarms (safe marked phishing)</span>
-              <span id="end-false-alarms" class="summary-value">0</span>
-            </div>
-          </div>
-
-          <!-- Run Review: Accuracy per Category -->
-          <div class="run-review-section">
-            <h2 class="review-heading">// threat detection accuracy by category</h2>
-            <div id="end-category-accuracy" class="category-accuracy-grid"></div>
-          </div>
-
-          <!-- Run Review: Incorrect Answers List -->
-          <div class="run-review-section">
-            <h2 class="review-heading">// triage errors review (click to inspect)</h2>
-            <div id="end-wrong-list" class="wrong-answers-list"></div>
-          </div>
-
-          <!-- Read-Only Review Detail Card -->
-          <div id="end-detail-view" class="review-detail-card hidden" role="region" aria-labelledby="review-detail-title">
-            <div class="review-detail-header">
-              <h3 id="review-detail-title" class="review-detail-title"></h3>
-              <button type="button" id="review-detail-close" class="btn btn-outline btn-close-detail">CLOSE REVIEW [X]</button>
-            </div>
-            <div id="review-detail-meta" class="review-detail-meta"></div>
-            <div class="message-body-wrap">
-              <p id="review-detail-body" class="message-body"></p>
-            </div>
-            <div class="feedback-details">
-              <h4 id="review-detail-signals-title" class="feedback-section-title"></h4>
-              <ul id="review-detail-signals-list" class="feedback-list"></ul>
-            </div>
-            <div class="tip-box">
-              <strong>// security habit tip:</strong>
-              <span id="review-detail-tip"></span>
-            </div>
-          </div>
-
-          <!-- Link to "If You Fell For It" section -->
-          <div class="fell-for-it-banner">
-            <p class="fell-banner-text"><strong>// real-world recovery protocol:</strong> Need guidance for real scams? Review the post-compromise emergency response steps.</p>
-            <button type="button" id="end-view-fell-btn" class="btn btn-outline">VIEW "IF YOU FELL FOR IT" GUIDE</button>
-          </div>
-
-          <div class="action-row">
-            <button type="button" id="btn-restart" class="btn btn-primary">
-              PLAY AGAIN <span class="key-hint">[ENTER]</span>
-            </button>
-            <button type="button" id="end-badges-btn" class="btn btn-outline">VIEW &amp; EXPORT BADGES</button>
-            <button type="button" id="end-menu-btn" class="btn btn-outline">MAIN MENU</button>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <!-- ==================== SECURITY THREAT ENCYCLOPEDIA MODAL ==================== -->
-  <div id="encyclopedia-modal" class="dossier-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="encyclopedia-modal-title">
-    <div class="dossier-card encyclopedia-modal-card">
-      <div class="dossier-header">
-        <div class="dossier-header-left">
-          <span class="dossier-meta">// THREAT INTELLIGENCE REFERENCE &middot; 12 DOCUMENTED VECTORS</span>
-          <h2 id="encyclopedia-modal-title" class="dossier-title">SECURITY THREAT ENCYCLOPEDIA</h2>
-        </div>
-        <button type="button" id="encyclopedia-close-btn" class="dossier-close-btn" aria-label="Close encyclopedia">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-
-      <div class="encyclopedia-layout">
-        <!-- Left Sidebar: Search, Category Filter & Concept List -->
-        <div class="encyclopedia-sidebar">
-          <div class="encyclopedia-search-box">
-            <input type="search" id="encyclopedia-search" class="encyclopedia-search-input" placeholder="Search vectors (e.g. typosquatting, vishing)..." aria-label="Search security concepts">
-            <div id="encyclopedia-categories" class="encyclopedia-cat-bar" role="tablist" aria-label="Concept categories"></div>
-          </div>
-          <div id="encyclopedia-term-list" class="encyclopedia-term-list" role="listbox" aria-label="Security threat concepts"></div>
-        </div>
-
-        <!-- Right Detail View -->
-        <div id="encyclopedia-detail-pane" class="encyclopedia-detail-pane">
-          <div class="encyclopedia-detail-header">
-            <div>
-              <span id="enc-detail-category" class="dossier-meta">DOMAIN &amp; URLS</span>
-              <h3 id="enc-detail-name" class="enc-detail-title">Typosquatting</h3>
-            </div>
-            <span id="enc-detail-threat" class="dossier-pill pill-status status-locked">HIGH THREAT</span>
-          </div>
-
-          <div class="enc-detail-block">
-            <h4 class="dossier-subtitle">// EXECUTIVE DEFINITION</h4>
-            <p id="enc-detail-def" class="dossier-text"></p>
-          </div>
-
-          <div class="enc-detail-block">
-            <h4 class="dossier-subtitle">// ATTACK ANATOMY &amp; MECHANICS</h4>
-            <p id="enc-detail-vector" class="dossier-text"></p>
-          </div>
-
-          <div class="enc-detail-block">
-            <h4 class="dossier-subtitle">// FICTIONAL SIMULATION SAMPLE</h4>
-            <p id="enc-detail-example" class="enc-sample-box"></p>
-          </div>
-
-          <div class="enc-detail-block enc-block-danger">
-            <h4 class="dossier-subtitle">// TRIAGE RED FLAGS TO SPOT</h4>
-            <ul id="enc-detail-flags" class="feedback-list"></ul>
-          </div>
-
-          <div class="enc-detail-block enc-block-safe">
-            <h4 class="dossier-subtitle">// ANALYST DEFENSE PROTOCOL</h4>
-            <p id="enc-detail-advice" class="dossier-text"></p>
-          </div>
-        </div>
-      </div>
-
-      <div class="dossier-footer">
-        <button type="button" id="encyclopedia-footer-close" class="btn btn-outline dossier-btn-cancel">CLOSE [ESC]</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== CYBER DEFENSE BADGES & CREDENTIAL EXPORT MODAL ==================== -->
-  <div id="badges-modal" class="dossier-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="badges-modal-title">
-    <div class="dossier-card badges-modal-card">
-      <div class="dossier-header">
-        <div class="dossier-header-left">
-          <span class="dossier-meta">// CYBER SENTINEL HONOR ROLL &middot; MILESTONE VERIFICATION</span>
-          <h2 id="badges-modal-title" class="dossier-title">SECURITY OPERATIONS BADGES</h2>
-        </div>
-        <button type="button" id="badges-close-btn" class="dossier-close-btn" aria-label="Close badges modal">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-
-      <div class="badges-modal-body">
-        <!-- Summary Bar -->
-        <div class="badges-summary-bar">
-          <div class="badges-summary-info">
-            <span class="dossier-meta">// PROGRESS OVERVIEW</span>
-            <p id="badges-summary-text" class="badges-summary-lead">0 of 9 Badges Unlocked (0%)</p>
-          </div>
-          <div class="badges-callsign-box">
-            <label for="agent-callsign-input" class="dossier-meta">AGENT CALL-SIGN ON CREDENTIAL CARD:</label>
-            <input type="text" id="agent-callsign-input" class="encyclopedia-search-input" maxlength="28" value="SOC Analyst" placeholder="Enter your call-sign...">
-          </div>
-        </div>
-
-        <!-- Badges Grid -->
-        <div id="badges-grid" class="badges-grid"></div>
-
-        <!-- Credential Card Canvas Preview Section -->
-        <div id="badge-preview-section" class="badge-preview-section hidden">
-          <div class="badge-preview-header">
-            <div>
-              <span class="dossier-meta">// VERIFIED PNG CREDENTIAL GENERATOR</span>
-              <h3 id="badge-preview-title" class="enc-detail-title">Badge Credential Preview</h3>
-            </div>
-            <div class="action-row">
-              <button type="button" id="badge-download-btn" class="btn btn-primary btn-term-util">DOWNLOAD PNG CARD</button>
-              <button type="button" id="badge-preview-close" class="btn btn-outline btn-term-util">HIDE PREVIEW</button>
-            </div>
-          </div>
-          <div class="badge-canvas-wrap">
-            <canvas id="badge-export-canvas" width="1200" height="675" class="badge-export-canvas"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <div class="dossier-footer">
-        <button type="button" id="badges-footer-close" class="btn btn-outline dossier-btn-cancel">CLOSE [ESC]</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== ACHIEVEMENT UNLOCK TOAST ==================== -->
-  <div id="achievement-toast" class="achievement-toast hidden" role="status" aria-live="polite">
-    <div class="achievement-toast-inner">
-      <span class="achievement-toast-tag">// BADGE UNLOCKED</span>
-      <strong id="achievement-toast-title" class="achievement-toast-title">First Responder</strong>
-      <span id="achievement-toast-desc" class="achievement-toast-desc">Quarantine your first phishing threat.</span>
-    </div>
-    <button type="button" id="achievement-toast-view" class="btn btn-outline btn-term-util">VIEW</button>
-  </div>
-</body>
-</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Phishing Escape Room — an educational cybersecurity simulation game. Triage Email, SMS, and Chat messages to unlock three server room security doors.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Phishing Escape Room — SOC Lockdown</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script src="game.js" defer></script>
+</head>
+<body>
+  <div id="live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ==================== WEBSITE VIEW (TITLE SCREEN + SECTIONS) ==================== -->
+  <div id="website-view" class="website-view">
+    <header class="site-nav" role="banner">
+      <div class="site-nav-inner">
+        <a href="#home" class="site-brand">
+          <img src="favicon.svg" alt="" class="site-brand-logo" width="24" height="24" aria-hidden="true">
+          <span class="brand-title">SENTINEL</span>
+        </a>
+        <nav id="site-nav-links" class="site-nav-links" aria-label="Primary website navigation">
+          <a href="#home" class="nav-link">Home</a>
+          <a href="#about" class="nav-link">About</a>
+          <a href="#how-to-play" class="nav-link">How to Play</a>
+          <a href="#what-youll-learn" class="nav-link">What You'll Learn</a>
+          <a href="#if-you-fell-for-it" class="nav-link">If You Fell For It</a>
+        </nav>
+        <div class="site-nav-actions">
+          <button type="button" id="site-sound-toggle" class="btn btn-outline btn-nav-util" aria-pressed="true" aria-label="Toggle audio effects">AUDIO: ON</button>
+          <button type="button" id="site-encyclopedia-btn" class="btn btn-outline btn-nav-util" aria-label="Open Security Threat Encyclopedia">ENCYCLOPEDIA</button>
+          <button type="button" id="site-badges-btn" class="btn btn-outline btn-nav-util" aria-label="Open Cyber Defense Badges">BADGES <span id="site-badges-count" class="nav-badge-pill">0/9</span></button>
+          <button type="button" id="site-arena-btn" class="btn btn-outline btn-nav-util" aria-label="Open Zero-G Antigravity Physics Arena">ZERO-G ARENA</button>
+<button type="button" id="mobile-menu-toggle" class="btn btn-outline btn-mobile-menu" aria-expanded="false" aria-controls="site-nav-links" aria-label="Toggle navigation menu">MENU</button>
+          <button type="button" id="nav-play-btn" class="btn btn-primary btn-nav-play">PLAY</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 1. Cinematic Full-Viewport Title Screen -->
+    <section id="home" class="title-hero" aria-labelledby="hero-title">
+      <div class="scene-backdrop" aria-hidden="true">
+        <img src="lockdown-scene.svg" alt="" class="scene-svg">
+        <div class="emergency-beacon"></div>
+        <div class="scene-vignette"></div>
+        <div class="scene-scanlines"></div>
+      </div>
+
+      <div class="title-hero-inner">
+        <!-- LEFT COLUMN: Top (Judul & About) + Bottom (Kotak Pilihan) -->
+        <div class="title-hero-content">
+          <!-- Kiri Atas: Judul dan Kontrol Taktis -->
+          <div class="hero-header-area">
+            <div class="hero-status-pill-row">
+              <span class="lockdown-alert-badge">
+                <span class="alert-square" aria-hidden="true">&#x25A0;</span>
+                LOCKDOWN ACTIVE
+              </span>
+              <span class="incident-code-tag">INCIDENT // 001</span>
+            </div>
+
+            <h1 id="hero-title" class="hero-title">
+              PHISHING <span class="text-cyan">ESCAPE ROOM</span>
+            </h1>
+
+            <p class="hero-tagline">
+              The server room is sealed. Spot the phishing attempts in your inbox, texts, and chats to unlock three doors and escape.
+            </p>
+
+            <!-- Quick Action Row matching the reference design -->
+            <div class="hero-action-buttons">
+              <button type="button" id="hero-start-cta" class="btn-hero-primary" aria-label="Start mission">
+                <span class="btn-icon" aria-hidden="true">&#x25B6;</span>
+                <span class="btn-text">Start mission</span>
+              </button>
+              <a href="#about" class="btn-hero-secondary" aria-label="Mission briefing">
+                <img src="mission-briefing-book.svg" alt="" class="btn-icon-svg" width="18" height="18" aria-hidden="true">
+                <span class="btn-text">Mission briefing</span>
+              </a>
+            </div>
+
+            <!-- Tactical Meta Strip -->
+            <div class="hero-meta-strip">
+              <span class="meta-pill"><span class="meta-icon" aria-hidden="true">&#x1F5C4;</span> 3 SECURITY DOORS</span>
+              <span class="meta-divider" aria-hidden="true">|</span>
+              <span class="meta-pill"><span class="meta-icon" aria-hidden="true">&#x1F464;</span> SINGLE PLAYER</span>
+            </div>
+          </div>
+
+          <!-- Kiri Bawah: Kotak Pilihan -->
+          <div class="hero-selection-card">
+            <div class="hero-telemetry" aria-label="Player progress summary">
+              <div class="telemetry-pill">
+                <span class="telemetry-label">// BEST SCORE</span>
+                <span id="menu-best-score" class="telemetry-value">0</span>
+              </div>
+              <div class="telemetry-pill">
+                <span class="telemetry-label">// DOORS CLEARED</span>
+                <span id="menu-progress" class="telemetry-value">0 / 3</span>
+              </div>
+            </div>
+
+            <nav class="title-menu" aria-label="Game title menu">
+              <ul id="title-menu-list" class="title-menu-list">
+                <li>
+                  <button type="button" id="menu-start-btn" class="title-menu-btn is-selected" data-menu-item="true" disabled>
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span class="menu-label">START NEW RUN</span>
+                    <span class="menu-meta">DOOR 01</span>
+                  </button>
+                </li>
+                <li id="menu-continue-item" class="hidden">
+                  <button type="button" id="menu-continue-btn" class="title-menu-btn" data-menu-item="true" disabled>
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span id="menu-continue-label" class="menu-label">CONTINUE</span>
+                    <span id="menu-continue-meta" class="menu-meta">DOOR 02</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" id="menu-select-btn" class="title-menu-btn" data-menu-item="true" disabled>
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span class="menu-label">SELECT DOOR</span>
+                    <span class="menu-meta">01 - 03</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" id="menu-howto-btn" class="title-menu-btn" data-menu-item="true">
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span class="menu-label">HOW TO PLAY</span>
+                    <span class="menu-meta">CONTROLS</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" id="menu-about-btn" class="title-menu-btn" data-menu-item="true">
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span class="menu-label">ABOUT</span>
+                    <span class="menu-meta">BRIEFING</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" id="menu-encyclopedia-btn" class="title-menu-btn" data-menu-item="true">
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span class="menu-label">THREAT ENCYCLOPEDIA</span>
+                    <span class="menu-meta">12 VECTORS</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" id="menu-badges-btn" class="title-menu-btn" data-menu-item="true">
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span class="menu-label">HONOR ROLL BADGES</span>
+                    <span id="menu-badges-meta" class="menu-meta">0 / 9</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" id="menu-arena-btn" class="title-menu-btn" data-menu-item="true">
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span class="menu-label">ZERO-G PHYSICS ARENA</span>
+                    <span class="menu-meta">INTERACTIVE LAB</span>
+                  </button>
+                </li>
+              </ul>
+              <p class="menu-key-hint">// use <kbd>&uarr;</kbd> <kbd>&darr;</kbd> arrow keys to select &middot; <kbd>Enter</kbd> to confirm</p>
+            </nav>
+
+            <p id="menu-status" class="mono-note mono-note-warning hidden" role="alert"></p>
+            <p id="menu-storage-note" class="mono-note hidden">// browser storage is blocked: gameplay works normally, but progress will not persist after closing the tab</p>
+          </div>
+
+          <p class="hero-disclaimer" role="note">
+            <strong>Educational Simulation:</strong> All brands, people, domains, email addresses, phone numbers, and scenario content in this game are completely fictional.
+          </p>
+        </div>
+
+        <!-- RIGHT COLUMN: Robot Pane with Cam Feed & Companion Tag -->
+        <div class="title-hero-robot-pane" aria-hidden="true">
+          <div class="robot-stage">
+            <!-- Floating Speech Bubble (Positioned directly above robot's head) -->
+            <div id="robot-speech-bubble" class="robot-speech-bubble" role="status" aria-live="polite">
+              <div class="speech-header">
+                <span class="speech-led" aria-hidden="true"></span>
+                <span class="speech-channel">// SENTINEL &middot; SOC</span>
+                <span id="speech-mode-tag" class="speech-status-tag">STANDBY</span>
+              </div>
+              <p id="robot-speech-text" class="speech-text">// SENTINEL BOT ONLINE &middot; READY FOR TRIAGE</p>
+            </div>
+
+            <div class="robot-shadow"></div>
+
+            <div id="soc-robot" class="robot-character" title="Click to interact with Sentinel Bot">
+              <!-- 1. HEAD (Previous Beloved Cyber Droid Head with Smooth Tracking) -->
+              <div id="robot-head" class="robot-head">
+                <div class="robot-head-crest"></div>
+                <div class="robot-ear robot-ear-left"></div>
+                <div class="robot-ear robot-ear-right"></div>
+                <div class="robot-helmet">
+                  <div class="helmet-highlight"></div>
+                  <div class="robot-visor">
+                    <div class="visor-reflection"></div>
+                    <div id="robot-eyes-group" class="robot-face-screen">
+                      <div class="robot-eyes-row">
+                        <div class="robot-eye robot-eye-left"></div>
+                        <div class="robot-eye robot-eye-right"></div>
+                      </div>
+                      <div class="robot-mouth"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. BODY LAYER (High-Fidelity 3D Matched Cyber Body) -->
+              <div class="robot-body-layer">
+                <img src="assets/robot/robot-body.png" alt="" class="robot-body-img" width="240" height="148" draggable="false">
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Tactical Environment Feed Divider -->
+    <div class="environment-feed-bar" aria-hidden="true">
+      <div class="site-container feed-bar-inner">
+        <div class="feed-left">
+          <span class="feed-slashes">///</span>
+          <span class="feed-label">ENVIRONMENT FEED</span>
+        </div>
+        <div class="feed-center-line"></div>
+        <div class="feed-right">
+          <span class="feed-location">SECTOR 07 / SERVER ROOM</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECURITY DOORS SHOWCASE (Matching reference design) -->
+    <section id="security-doors" class="security-doors-showcase" aria-labelledby="doors-showcase-heading">
+      <div class="site-container">
+        <div class="doors-showcase-header">
+          <div class="doors-header-titles">
+            <h2 id="doors-showcase-heading" class="doors-section-title">
+              SECURITY DOORS<span class="text-cyan">.</span>
+            </h2>
+            <p class="doors-section-lead">Three channels. Clear each door to break the lockdown.</p>
+          </div>
+          <div class="doors-header-telemetry" aria-label="Mission door status summary">
+            <div class="showcase-telemetry-pill">
+              <span class="telemetry-glyph" aria-hidden="true">&#x1F3C6;</span>
+              <span class="telemetry-tag">PRACTICE BEST</span>
+              <span id="showcase-best-score" class="telemetry-digit">0</span>
+            </div>
+            <div class="showcase-telemetry-pill">
+              <span class="telemetry-glyph" aria-hidden="true">&#x1F6AA;</span>
+              <span class="telemetry-tag">CLEARED</span>
+              <span id="showcase-progress" class="telemetry-digit">0 / 3</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="doors-showcase-grid">
+          <!-- DOOR 01: EMAIL GATEWAY -->
+          <article id="showcase-card-1" class="showcase-door-card is-available" data-showcase-door="1" tabindex="0" role="button" aria-label="Door 01: Email Gateway. Status: Available. Click to launch.">
+            <div class="card-status-bar">
+              <span class="card-door-number">DOOR / 01</span>
+              <span class="card-status-tag tag-available">
+                <span class="status-beacon-dot"></span>AVAILABLE
+              </span>
+            </div>
+            <div class="card-blueprint-canvas" aria-hidden="true">
+                <svg class="blueprint-svg" viewBox="0 0 400 140" fill="none" aria-hidden="true" shape-rendering="geometricPrecision">
+                  <g stroke="#3a999c" stroke-width=".65" opacity=".46">
+                    <path d="m88 106 113-27 112 24-113 29z" stroke-dasharray="4 5"/>
+                    <path d="m111 106 90-21 89 18-90 22z" />
+                    <path d="m136 100 89 19m-65-25 90 19m-65-25 90 19m-142 5 91-22m-68 27 91-22m-68 27 91-22" opacity=".48"/>
+                    <path d="M77 55h6m-3-3v6m229 5h6m-3-3v6M101 128h6m-3-3v6m187-116h6m-3-3v6"/>
+                    <path d="M98 35v-9h12m191 90v9h-13M76 96h11m226-64h11" />
+                  </g>
+                  <g class="blueprint-asset-body" stroke-linejoin="round" stroke-linecap="round">
+                    <path d="m111 45 154-31 10 4 9 64-156 33-9-5z" fill="#102f37" stroke="#4aa9ac" stroke-width="1"/>
+                    <path d="m111 45 8 3 155-30-9-4z" fill="#365c62" stroke="#86d5d2"/>
+                    <path d="m111 45 8 3 9 67-9-5z" fill="#132932" stroke="#4a8f99"/>
+                    <g transform="matrix(1,-.2,.14,1,119,48)">
+                      <path d="M2 0h151l2 2v63l-2 2H2l-2-2V2z" fill="#103743" stroke="#77d9d6" stroke-width="1.45"/>
+                      <path d="m2 63 52-40 23 14 24-15 51 40z" fill="#164652"/>
+                      <path d="m3 63 51-39m47-1 51 40" stroke="#51aeb6" stroke-width="1.25"/>
+                      <path d="m1 2 72 38q4 2 8-.5L153 2" fill="#245460" stroke="#88dcdb" stroke-width="1.45"/>
+                      <path d="m7 3 67 33q4 2 7-.4L146 3" stroke="#528c92" stroke-width=".8"/>
+                      <path d="M5 15V7h7m132 0h6v7m0 41v6h-9M15 61H6v-6" stroke="#91dfd8"/>
+                      <path d="M27 60h16m4 0h4m57-1h13" stroke="#4d8c94" stroke-width="1.4"/>
+                    </g>
+                    <path d="m99 64 8-2m-9 5 5-1m175 26 9-2m-10 5 5-1" stroke="#73bfc0" stroke-width=".75"/>
+                    <path d="M141 115v8m111-34v13" stroke="#46909b" stroke-dasharray="1 3"/>
+                  </g>
+                </svg>
+              </div>
+            <div class="card-footer-row">
+              <h3 class="channel-heading">EMAIL GATEWAY</h3>
+              <span class="action-arrow-icon" aria-hidden="true">&rarr;</span>
+            </div>
+          </article>
+
+          <!-- DOOR 02: SMS RELAY -->
+          <article id="showcase-card-2" class="showcase-door-card is-locked" data-showcase-door="2" tabindex="0" role="button" aria-label="Door 02: SMS Relay. Status: Locked.">
+            <div class="card-status-bar">
+              <span class="card-door-number">DOOR / 02</span>
+              <span id="showcase-card-status-2" class="card-status-tag tag-locked">
+                <span class="status-beacon-dot"></span>LOCKED
+              </span>
+            </div>
+            <div class="card-blueprint-canvas" aria-hidden="true">
+                <svg class="blueprint-svg" viewBox="0 0 400 140" fill="none" aria-hidden="true" shape-rendering="geometricPrecision">
+                  <g stroke="#3a999c" stroke-width=".65" opacity=".46">
+                    <path d="m88 106 113-27 112 24-113 29z" stroke-dasharray="4 5"/>
+                    <path d="m111 106 90-21 89 18-90 22z" />
+                    <path d="m136 100 89 19m-65-25 90 19m-65-25 90 19m-142 5 91-22m-68 27 91-22m-68 27 91-22" opacity=".48"/>
+                    <path d="M77 55h6m-3-3v6m229 5h6m-3-3v6M101 128h6m-3-3v6m187-116h6m-3-3v6"/>
+                    <path d="M98 35v-9h12m191 90v9h-13M76 96h11m226-64h11" />
+                  </g>
+                  <g class="blueprint-asset-body" stroke-linejoin="round" stroke-linecap="round">
+                    <g transform="matrix(.97,-.215,-.56,.76,198,27)">
+                      <path d="M8 4h65q7 0 7 7v105q0 8-9 9H8q-8-.3-10-7L-3 14Q-3 7 8 4z" fill="#0c2933" stroke="#64abad" stroke-width="1.2"/>
+                      <path d="M6 0h64q8 0 8 8v104q0 7-8 7H6q-8 0-8-8V9q0-8 8-9z" fill="#2a4d55" stroke="#92d7d4" stroke-width="1.6"/>
+                      <path d="m0 112 2 7m63 .5 2.5 5m-43-2h12" stroke="#54858c" stroke-width="1.15"/>
+                      <rect x="3.8" y="5" width="68.4" height="107.8" rx="4.8" fill="#102f3c" stroke="#529aa3" stroke-width="1.1"/>
+                      <path d="M24 5h29l-2 4H26z" fill="#54858c" />
+                      <path d="M9 90h57m-58 7h39m-39 4h21m22 0h14" stroke="#50858c" stroke-width=".85" />
+                      <path d="M31 109h13" stroke="#b3e5df" stroke-width="1.8"/>
+                      <g transform="translate(8,31)">
+                        <path d="M1 5 4 2h52l-2 35H19l-6 5-.5-5H2z" fill="#0e222d" />
+                        <path d="M2 0h53l2 2v29l-3 3H20l-9 7 1-7H2l-2-2V3z" fill="#27616b" stroke="#83dcd9" stroke-width="1.45"/>
+                        <path d="M8 9h37m-37 6h28m-28 6h16" stroke="#9cd8d6" stroke-width="2.2"/>
+                      </g>
+                      <path d="M80 22v17m0 6v8m-82 7v10" stroke="#64a3a7" stroke-width="1.2"/>
+                    </g>
+                    <path d="m144 59-11 3m12 1-7 2m134-8 11-3m-10 6 6-1" stroke="#68a6ae" stroke-width=".8"/>
+                    <path d="M151 107v13m99-57v36" stroke="#40909a" stroke-width=".75" stroke-dasharray="2 4"/>
+                  </g>
+                </svg>
+              </div>
+            <div class="card-footer-row">
+              <h3 class="channel-heading">SMS RELAY</h3>
+              <span id="showcase-card-lock-2" class="action-lock-icon" aria-hidden="true">&#x1F512;</span>
+            </div>
+          </article>
+
+          <!-- DOOR 03: CHAT TERMINAL -->
+          <article id="showcase-card-3" class="showcase-door-card is-locked" data-showcase-door="3" tabindex="0" role="button" aria-label="Door 03: Chat Terminal. Status: Locked.">
+            <div class="card-status-bar">
+              <span class="card-door-number">DOOR / 03</span>
+              <span id="showcase-card-status-3" class="card-status-tag tag-locked">
+                <span class="status-beacon-dot"></span>LOCKED
+              </span>
+            </div>
+            <div class="card-blueprint-canvas" aria-hidden="true">
+                <svg class="blueprint-svg" viewBox="0 0 400 140" fill="none" aria-hidden="true" shape-rendering="geometricPrecision">
+                  <g stroke="#3a999c" stroke-width=".65" opacity=".46">
+                    <path d="m88 106 113-27 112 24-113 29z" stroke-dasharray="4 5"/>
+                    <path d="m111 106 90-21 89 18-90 22z" />
+                    <path d="m136 100 89 19m-65-25 90 19m-65-25 90 19m-142 5 91-22m-68 27 91-22m-68 27 91-22" opacity=".48"/>
+                    <path d="M77 55h6m-3-3v6m229 5h6m-3-3v6M101 128h6m-3-3v6m187-116h6m-3-3v6"/>
+                    <path d="M98 35v-9h12m191 90v9h-13M76 96h11m226-64h11" />
+                  </g>
+                  <g class="blueprint-asset-body" stroke-linejoin="round" stroke-linecap="round">
+                    <g transform="matrix(1,-.20,.06,1,169,34)">
+                      <path d="m3 0 6-3h96l4 4v47l-4 5-5 1H88v12l-10-5-9-8H4l-4-4V5z" fill="#173c47" stroke="#5eaaaf" stroke-width="1"/>
+                      <path d="m3 0 6-3h96l4 4-6 2-2-3z" fill="#375b62" stroke="#80c6c6" stroke-width="1"/>
+                      <path d="M3 0h97l3 3v44l-3 3H85v13L68 50H3l-3-3V4z" fill="#17434f" stroke="#6fb8c0" stroke-width="1.3"/>
+                      <path d="M21 13h62m-62 6h41" stroke="#619397" stroke-width="1.3"/>
+                      <path d="M83 39h12v-6" stroke="#78afb0" stroke-width="1"/>
+                    </g>
+                    <g transform="matrix(1,-.20,.055,1,115,61)">
+                      <path d="m0 3 9-5 4-2h102l4 4v44l-2 4-8 6H38L16 68l-4-3 1-14H3l-3-3z" fill="#13303a" stroke="#5bafb0" stroke-width="1"/>
+                      <path d="m1 2 8-5h105l5 3-8 5-3-3z" fill="#395e65" stroke="#94d9d4" stroke-width="1"/>
+                      <path d="M4 2h104l4 4v43l-4 5H36L14 68l2-14H4l-4-4V6z" fill="#1b4d57" stroke="#84d7d4" stroke-width="1.6"/>
+                      <path d="M6 15V9h9m81 0h9v6m-1 25v7h-9" stroke="#75b5ba" stroke-width="1"/>
+                      <path d="m12 52-5-.2-4-3" stroke="#477f89" stroke-width="1"/>
+                      <g fill="#9cdedb" stroke="#a7dfda" stroke-width=".65">
+                        <path d="m31 25 2-2h5l2 2v5l-2 2h-5l-2-2z"/>
+                        <path d="m51 25 2-2h5l2 2v5l-2 2h-5l-2-2z"/>
+                        <path d="m71 25 2-2h5l2 2v5l-2 2h-5l-2-2z"/>
+                      </g>
+                    </g>
+                    <path d="m101 74 7-2m-7 6 4-1m180-40 8-2m-7 5 5-1" stroke="#70afb2" stroke-width=".8"/>
+                    <path d="M152 111v11m102-55v34" stroke="#468d98" stroke-width=".75" stroke-dasharray="2 4"/>
+                  </g>
+                </svg>
+              </div>
+            <div class="card-footer-row">
+              <h3 class="channel-heading">CHAT TERMINAL</h3>
+              <span id="showcase-card-lock-3" class="action-lock-icon" aria-hidden="true">&#x1F512;</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Mission Dossier Modal for Showcase Cards -->
+    <div id="door-dossier-modal" class="dossier-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="dossier-door-title">
+      <div class="dossier-card">
+        <div class="dossier-header">
+          <div class="dossier-header-left">
+            <span class="dossier-meta">// MISSION INTEL &middot; THREAT BRIEFING</span>
+            <h2 id="dossier-door-title" class="dossier-title">DOOR 01 // EMAIL GATEWAY</h2>
+          </div>
+          <button type="button" id="dossier-close-btn" class="dossier-close-btn" aria-label="Close dossier">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="dossier-body">
+          <div class="dossier-tags-row">
+            <span id="dossier-channel-tag" class="dossier-pill pill-cyan">EMAIL GATEWAY</span>
+            <span id="dossier-tier-tag" class="dossier-pill pill-tier">TIER 1 &middot; CRUDE SCAMS</span>
+            <span id="dossier-status-badge" class="dossier-pill pill-status status-avail">AVAILABLE</span>
+          </div>
+
+          <div class="dossier-section">
+            <h3 class="dossier-subtitle">// OPERATOR OVERVIEW</h3>
+            <p id="dossier-desc" class="dossier-text">
+              Automated phishing campaigns, mass sweepstakes, and crude payload drops targeting corporate inboxes on the night shift. Separate real vendor receipts from social engineering traps.
+            </p>
+          </div>
+
+          <div class="dossier-section">
+            <h3 class="dossier-subtitle">// KEY THREAT SIGNALS TO INSPECT</h3>
+            <div class="dossier-flags-grid">
+              <div class="dossier-flag-item">
+                <span class="flag-icon" aria-hidden="true">&#x25C6;</span>
+                <div class="flag-text-group">
+                  <strong id="dossier-flag-1-title">Lookalike Domains</strong>
+                  <span id="dossier-flag-1-desc">Check sender addresses for character swaps and unverified hosts.</span>
+                </div>
+              </div>
+              <div class="dossier-flag-item">
+                <span class="flag-icon" aria-hidden="true">&#x25C6;</span>
+                <div class="flag-text-group">
+                  <strong id="dossier-flag-2-title">Artificial Urgency</strong>
+                  <span id="dossier-flag-2-desc">Threats of account suspension designed to bypass careful inspection.</span>
+                </div>
+              </div>
+              <div class="dossier-flag-item">
+                <span class="flag-icon" aria-hidden="true">&#x25C6;</span>
+                <div class="flag-text-group">
+                  <strong id="dossier-flag-3-title">Disguised Attachments</strong>
+                  <span id="dossier-flag-3-desc">Executable files or mobile installer packages (.apk, .scr).</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dossier-parameters-bar">
+            <div class="param-chip"><span class="param-label">QUEUE:</span> <span class="param-value">6 Messages</span></div>
+            <div class="param-chip"><span class="param-label">TIME:</span> <span class="param-value">120 Seconds</span></div>
+            <div class="param-chip"><span class="param-label">LIVES:</span> <span class="param-value">3 Shield Lives</span></div>
+            <div class="param-chip"><span class="param-label">HINTS:</span> <span class="param-value">1 Analyst Hint</span></div>
+          </div>
+        </div>
+
+        <div class="dossier-footer">
+          <button type="button" id="dossier-cancel-btn" class="btn btn-outline dossier-btn-cancel">
+            CANCEL
+          </button>
+          <button type="button" id="dossier-play-btn" class="btn btn-primary dossier-btn-play">
+            <span class="btn-icon" aria-hidden="true">&#x25B6;</span>
+            <span id="dossier-play-text">START DOOR 01</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tactical Bottom Bar matching screenshot footer -->
+    <div class="showcase-bottom-bar">
+      <div class="site-container bottom-bar-inner">
+        <span class="simulation-note">
+          <span class="diamond-glyph" aria-hidden="true">&#x25C7;</span>
+          Educational simulation / All messages and identities are fictional.
+        </span>
+        <a href="#if-you-fell-for-it" class="fell-phish-link">Fell for a phish? &#x2197;</a>
+      </div>
+    </div>
+
+    <!-- 2. Website Sections Below the Title Screen -->
+    <div class="site-sections">
+      <!-- About Section -->
+      <section id="about" class="site-section" tabindex="-1" aria-labelledby="about-heading">
+        <div class="site-container">
+          <p class="terminal-tag">// 01 &middot; mission briefing</p>
+          <h2 id="about-heading" class="section-heading">LOCKED IN THE <span class="text-cyan">SERVER ROOM</span></h2>
+          <p class="section-lead">
+            You are a new Security Operations Center (SOC) analyst working the overnight shift when an automated containment lockdown seals the server bay.
+            To override the blast doors and get out, you must inspect incoming messages and separate real communications from social engineering attacks across <strong>3 security doors</strong>.
+          </p>
+
+          <div class="about-doors-grid">
+            <article class="site-card">
+              <span class="rule-label">// door 01 &middot; tier 1</span>
+              <h3 class="card-title">CRUDE SCAMS</h3>
+              <p class="card-text">Spot obvious lottery giveaways, fake delivery APK installers, and urgent support impersonators demanding one-time passcodes.</p>
+            </article>
+            <article class="site-card">
+              <span class="rule-label">// door 02 &middot; tier 2</span>
+              <h3 class="card-title">SPEAR PHISHING</h3>
+              <p class="card-text">Analyze targeted subscription invoices, executive impersonation in chat, and disguised links hiding behind lookalike domains.</p>
+            </article>
+            <article class="site-card">
+              <span class="rule-label">// door 03 &middot; tier 3</span>
+              <h3 class="card-title">MIXED SIGNALS</h3>
+              <p class="card-text">Handle high-pressure recruitment and escrow traps alongside legitimate security alerts that look suspicious at first glance.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- How to Play Section -->
+      <section id="how-to-play" class="site-section" tabindex="-1" aria-labelledby="howto-site-heading">
+        <div class="site-container">
+          <p class="terminal-tag">// 02 &middot; operator manual</p>
+          <h2 id="howto-site-heading" class="section-heading">HOW TO <span class="text-cyan">PLAY</span></h2>
+          <p class="section-lead">
+            Each door presents 6 messages in random order with a <strong>120-second timer</strong>, <strong>3 lives</strong>, and <strong>1 hint</strong>.
+          </p>
+
+          <div class="steps-grid">
+            <article class="site-card">
+              <span class="rule-label">// step 01</span>
+              <h3 class="card-title">INSPECT THE CHANNEL</h3>
+              <p class="card-text">Read the sender address or masked phone number, subject line, and message body across realistic Email, SMS, and Chat views.</p>
+            </article>
+            <article class="site-card">
+              <span class="rule-label">// step 02</span>
+              <h3 class="card-title">CLASSIFY OR USE A HINT</h3>
+              <p class="card-text">Press <kbd>P</kbd> for Phishing or <kbd>S</kbd> for Safe (+100 pts per right call). Press <kbd>H</kbd> once per door to reveal a red flag or safe signal.</p>
+            </article>
+            <article class="site-card">
+              <span class="rule-label">// step 03</span>
+              <h3 class="card-title">LEARN &amp; UNLOCK</h3>
+              <p class="card-text">The timer pauses while you review highlighted red flags and security tips. Press <kbd>Enter</kbd> to continue or <kbd>Esc</kbd> to pause.</p>
+            </article>
+          </div>
+
+          <div class="controls-bar" aria-label="Keyboard shortcuts summary">
+            <div class="control-chip"><kbd>P</kbd> <span>Mark Phishing</span></div>
+            <div class="control-chip"><kbd>S</kbd> <span>Mark Safe</span></div>
+            <div class="control-chip"><kbd>H</kbd> <span>Use Hint (1 / door)</span></div>
+            <div class="control-chip"><kbd>Enter</kbd> <span>Confirm / Continue</span></div>
+            <div class="control-chip"><kbd>Esc</kbd> <span>Pause / Menu</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- What You'll Learn Section (8 Red Flag Categories) -->
+      <section id="what-youll-learn" class="site-section" tabindex="-1" aria-labelledby="learn-heading">
+        <div class="site-container">
+          <p class="terminal-tag">// 03 &middot; threat intelligence</p>
+          <h2 id="learn-heading" class="section-heading">WHAT YOU'LL <span class="text-cyan">LEARN</span></h2>
+          <p class="section-lead">
+            Every phishing scenario in the escape room trains you to spot one or more of these 8 core red flag categories:
+          </p>
+
+          <div class="categories-grid">
+            <article class="category-card">
+              <span class="rule-label">// 01 &middot; fake_domain</span>
+              <h3 class="card-title">FAKE DOMAIN</h3>
+              <p class="card-text">Lookalike or unverified domains crafted to impersonate trusted companies and capture logins.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 02 &middot; urgency</span>
+              <h3 class="card-title">URGENCY</h3>
+              <p class="card-text">Artificial deadlines and threats of account deletion designed to rush you into acting without checking.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 03 &middot; sensitive_data</span>
+              <h3 class="card-title">SENSITIVE DATA</h3>
+              <p class="card-text">Requests for one-time passcodes, passwords, national IDs, or bank account numbers over email or chat.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 04 &middot; malicious_attachment</span>
+              <h3 class="card-title">MALICIOUS ATTACHMENT</h3>
+              <p class="card-text">Unexpected executable or mobile installer files such as APK packages disguised as tracking tools.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 05 &middot; fake_prize</span>
+              <h3 class="card-title">FAKE PRIZE</h3>
+              <p class="card-text">Unsolicited sweepstakes or lottery winnings that ask for banking details to release a payout.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 06 &middot; disguised_link</span>
+              <h3 class="card-title">DISGUISED LINK</h3>
+              <p class="card-text">Deceptive URLs that place a known brand name in a subdomain while pointing to an untrusted host.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 07 &middot; suspicious_sender</span>
+              <h3 class="card-title">SUSPICIOUS SENDER</h3>
+              <p class="card-text">Generic support handles, unknown marketplace accounts, or private addresses posing as executives.</p>
+            </article>
+            <article class="category-card">
+              <span class="rule-label">// 08 &middot; unnatural_language</span>
+              <h3 class="card-title">UNNATURAL LANGUAGE</h3>
+              <p class="card-text">Awkward grammar, unusual phrasing, or instant job placements that skip normal interviews.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- If You Fell For It Section -->
+      <section id="if-you-fell-for-it" class="site-section" tabindex="-1" aria-labelledby="fell-heading">
+        <div class="site-container">
+          <p class="terminal-tag">// 04 &middot; emergency recovery protocol</p>
+          <h2 id="fell-heading" class="section-heading">WHAT TO DO <span class="text-cyan">IF YOU FELL FOR IT</span></h2>
+          <p class="section-lead">
+            Falling for a scam happens to everyday users and security pros alike. If you clicked a malicious link, sent a verification code, or entered financial details, take these immediate, region-neutral response steps:
+          </p>
+
+          <div class="fell-steps-grid">
+            <article class="site-card">
+              <span class="rule-label">// step 01 &middot; disconnect</span>
+              <h3 class="card-title">STOP REPLYING IMMEDIATELY</h3>
+              <p class="card-text">Cut all communications with the scammer. Do not answer follow-up calls, emails, or chat messages, and do not attempt to negotiate.</p>
+            </article>
+
+            <article class="site-card">
+              <span class="rule-label">// step 02 &middot; official channel</span>
+              <h3 class="card-title">CONTACT THE REAL SERVICE</h3>
+              <p class="card-text">Reach out to your bank, courier, or platform through their official app, saved browser bookmark, or the customer service number on the back of your payment card.</p>
+            </article>
+
+            <article class="site-card">
+              <span class="rule-label">// step 03 &middot; credential security</span>
+              <h3 class="card-title">CHANGE PASSWORDS &amp; ENABLE 2FA</h3>
+              <p class="card-text">Update passwords immediately for compromised accounts and any other services sharing that password. Enable two-factor authentication, preferably using an authenticator app.</p>
+            </article>
+
+            <article class="site-card">
+              <span class="rule-label">// step 04 &middot; fraud audit</span>
+              <h3 class="card-title">CHECK RECENT ACTIVITY</h3>
+              <p class="card-text">Inspect bank statements, card charges, login sessions, and email forwarding rules. Request a temporary freeze on payment cards or credit files if unauthorized charges appear.</p>
+            </article>
+
+            <article class="site-card">
+              <span class="rule-label">// step 05 &middot; incident reporting</span>
+              <h3 class="card-title">REPORT TO SERVICE &amp; AUTHORITIES</h3>
+              <p class="card-text">Report the scam to the impersonated company fraud department and file an official report with your regional or national consumer protection / cybercrime agency.</p>
+            </article>
+
+            <article class="site-card">
+              <span class="rule-label">// step 06 &middot; alert your network</span>
+              <h3 class="card-title">WARN FRIENDS &amp; COWORKERS</h3>
+              <p class="card-text">If your email, messaging profile, or address book was compromised, alert your contacts promptly so attackers cannot impersonate you to target your colleagues or loved ones.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Safety & Privacy Note Section -->
+      <section id="safety-note" class="site-section site-section-compact" aria-labelledby="safety-heading">
+        <div class="site-container">
+          <div class="disclaimer-box safety-callout">
+            <h2 id="safety-heading" class="safety-title">// safety &amp; privacy guarantee</h2>
+            <p class="safety-body">
+              This project is an <strong>educational simulation</strong>. All brands, people, email addresses, masked phone numbers, and messages are fictional and use RFC 2606 reserved domains (<code>.example</code> and <code>.test</code>). Links inside scenarios are plain text and never clickable.
+              <strong>No data ever leaves your browser</strong>—only your best score and unlocked-door progress are stored locally on your device.
+            </p>
+            <div class="action-row">
+              <button type="button" id="bottom-play-btn" class="btn btn-primary">LAUNCH ESCAPE ROOM</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer id="site-footer" class="site-footer" role="contentinfo">
+      <div class="site-container footer-inner">
+        <span class="footer-brand">PHISHING ESCAPE ROOM // SOC LOCKDOWN</span>
+        <span class="footer-credit">Built with Google Antigravity</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ==================== FOCUSED FULL-SCREEN GAME VIEW ==================== -->
+  <div id="terminal-view" class="app-shell hidden">
+    <header class="top-bar" role="banner">
+      <div class="brand-title">
+        <img src="favicon.svg" alt="" class="site-brand-logo" width="20" height="20" aria-hidden="true">
+        <span>// SOC ESCAPE TERMINAL</span>
+      </div>
+      <div class="top-bar-right">
+        <div class="doors-progress" aria-label="Security doors status">
+          <div class="door-badge" id="door-1">DOOR 1 · LOCKED</div>
+          <div class="door-badge" id="door-2">DOOR 2 · LOCKED</div>
+          <div class="door-badge" id="door-3">DOOR 3 · LOCKED</div>
+        </div>
+        <div class="terminal-util-controls">
+          <button type="button" id="term-sound-toggle" class="btn btn-outline btn-term-util" aria-pressed="true" aria-label="Toggle audio effects">AUDIO: ON</button>
+          <button type="button" id="term-encyclopedia-btn" class="btn btn-outline btn-term-util" aria-label="Open Security Threat Encyclopedia">ENCYCLOPEDIA</button>
+          <button type="button" id="term-badges-btn" class="btn btn-outline btn-term-util" aria-label="Open Cyber Defense Badges">BADGES</button>
+          <button type="button" id="term-arena-btn" class="btn btn-outline btn-term-util" aria-label="Open Zero-G Antigravity Physics Arena">ZERO-G ARENA</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-stage">
+      <!-- How to Play (Focused Modal Screen) -->
+      <section id="howto-screen" class="screen-panel hidden" aria-labelledby="howto-heading">
+        <div class="terminal-card">
+          <p class="terminal-tag">// soc terminal &middot; operator briefing</p>
+          <h1 id="howto-heading">HOW TO / <span class="text-cyan">PLAY</span></h1>
+          <p class="story-text">
+            Each door is guarded by a queue of 6 messages shown in random order. Read every message carefully and decide whether it is a phishing attempt or a safe, legitimate message.
+          </p>
+
+          <div class="rules-grid">
+            <div class="rule-item">
+              <span class="rule-label">// 01 &middot; objective</span>
+              <span>Classify each message as <em>Phishing</em> or <em>Safe</em>. Clear a door to unlock the next one.</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-label">// 02 &middot; resources</span>
+              <span>120 seconds, 3 lives, and 1 hint per door. Running out of time or lives fails the door; retrying restarts it from the beginning.</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-label">// 03 &middot; scoring</span>
+              <span>+100 points per correct answer, plus remaining seconds added as a bonus when a door is cleared.</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-label">// 04 &middot; keyboard controls</span>
+              <span><kbd>P</kbd> Phishing &middot; <kbd>S</kbd> Safe &middot; <kbd>H</kbd> Hint &middot; <kbd>Enter</kbd> Confirm / Continue &middot; <kbd>Esc</kbd> Pause</span>
+            </div>
+          </div>
+
+          <div class="disclaimer-box" role="note">
+            <strong>Educational Simulation Notice:</strong> This game is an educational simulation. All brands, people, domains, email addresses, phone numbers, and messages are fictional. Links are shown as plain text and are never clickable.
+          </div>
+
+          <div class="action-row">
+            <button type="button" id="howto-back-btn" class="btn btn-primary">
+              MAIN MENU <span class="key-hint">[ESC]</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Select Door -->
+      <section id="select-screen" class="screen-panel hidden" aria-labelledby="select-heading">
+        <div class="terminal-card">
+          <p class="terminal-tag">// soc terminal &middot; door access control</p>
+          <h1 id="select-heading">SELECT / <span class="text-cyan">DOOR</span></h1>
+          <p class="story-text">Door 1 is always available. Doors 2 and 3 unlock after the previous door is cleared. Starting a door here begins a new run with a score of 0.</p>
+
+          <div class="door-grid">
+            <button type="button" id="select-door-1" class="door-card" data-door="1">
+              <span class="door-card-title">DOOR 01</span>
+              <span class="door-card-desc">Crude, easy-to-spot scams</span>
+              <span id="door-status-1" class="door-card-status">AVAILABLE</span>
+            </button>
+            <button type="button" id="select-door-2" class="door-card" data-door="2">
+              <span class="door-card-title">DOOR 02</span>
+              <span class="door-card-desc">Subtle, personalized spear phishing</span>
+              <span id="door-status-2" class="door-card-status">LOCKED</span>
+            </button>
+            <button type="button" id="select-door-3" class="door-card" data-door="3">
+              <span class="door-card-title">DOOR 03</span>
+              <span class="door-card-desc">Mixed signals: some safe messages look suspicious</span>
+              <span id="door-status-3" class="door-card-status">LOCKED</span>
+            </button>
+          </div>
+
+          <div class="action-row">
+            <button type="button" id="select-back-btn" class="btn btn-outline">
+              MAIN MENU <span class="key-hint">[ESC]</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Game Screen -->
+      <section id="game-screen" class="screen-panel hidden" aria-labelledby="level-heading">
+        <div class="hud-bar" role="region" aria-label="Game status">
+          <div class="hud-stat">
+            <span class="hud-label">// door</span>
+            <span id="hud-level" class="hud-value">1 / 3</span>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">// queue</span>
+            <span id="hud-progress" class="hud-value">1 / 6</span>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">// timer</span>
+            <span id="hud-timer" class="hud-value">120s</span>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">// lives</span>
+            <span id="hud-lives" class="hud-value" aria-label="3 lives remaining">♥♥♥</span>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">// score</span>
+            <span id="hud-score" class="hud-value">0</span>
+          </div>
+          <button type="button" id="btn-pause" class="btn btn-outline hud-pause" aria-keyshortcuts="Escape">
+            PAUSE <span class="key-hint">[ESC]</span>
+          </button>
+        </div>
+
+        <div id="status-banner" class="status-banner hidden" role="status" aria-live="polite"></div>
+
+        <article id="message-terminal" class="message-terminal channel-email" tabindex="-1" aria-label="Incoming message under inspection">
+          <div class="terminal-window-bar">
+            <span id="terminal-door-label" class="mono-label">// soc terminal &middot; door 1</span>
+            <span id="msg-channel-badge" class="channel-badge">EMAIL</span>
+          </div>
+
+          <div class="channel-viewport">
+            <div class="message-header">
+              <div class="message-field sender-row">
+                <span id="sender-label" class="field-label">From:</span>
+                <span id="msg-sender" class="field-value"></span>
+              </div>
+              <div id="msg-subject-row" class="message-field subject-row">
+                <span class="field-label">Subject:</span>
+                <span id="msg-subject" class="field-value subject-text"></span>
+              </div>
+            </div>
+
+            <div class="message-body-wrap">
+              <h2 id="level-heading" class="sr-only">Message Content</h2>
+              <p id="msg-body" class="message-body"></p>
+            </div>
+          </div>
+        </article>
+
+        <div id="hint-panel" class="hint-panel hidden" role="region" aria-live="polite" aria-label="Level hint">
+          <strong class="hint-title">// analyst hint:</strong>
+          <span id="hint-text"></span>
+        </div>
+
+        <div id="decision-controls" class="decision-bar" role="group" aria-label="Triage decision actions">
+          <button type="button" id="btn-phishing" class="btn btn-danger" aria-keyshortcuts="P">
+            PHISHING <span class="key-hint">[P]</span>
+          </button>
+          <button type="button" id="btn-safe" class="btn btn-safe" aria-keyshortcuts="S">
+            SAFE <span class="key-hint">[S]</span>
+          </button>
+          <button type="button" id="btn-hint" class="btn btn-warning" aria-keyshortcuts="H">
+            HINT (1) <span class="key-hint">[H]</span>
+          </button>
+        </div>
+
+        <section id="feedback-panel" class="feedback-panel hidden" aria-live="polite" aria-labelledby="feedback-verdict">
+          <div class="feedback-header">
+            <p class="terminal-tag">// triage analysis output</p>
+            <h3 id="feedback-verdict" class="feedback-verdict"></h3>
+            <p id="feedback-subtitle" class="feedback-subtitle"></p>
+          </div>
+
+          <div class="feedback-details">
+            <h4 id="feedback-list-title" class="feedback-section-title"></h4>
+            <ul id="feedback-list" class="feedback-list"></ul>
+          </div>
+
+          <div class="tip-box">
+            <strong>// security habit tip:</strong>
+            <span id="feedback-tip"></span>
+          </div>
+
+          <div class="action-row">
+            <button type="button" id="btn-continue" class="btn btn-primary">
+              CONTINUE <span class="key-hint">[ENTER]</span>
+            </button>
+            <button type="button" id="btn-feedback-encyclopedia" class="btn btn-outline">
+              THREAT ENCYCLOPEDIA
+            </button>
+          </div>
+        </section>
+
+        <!-- Live SOC Decision Audit Log (Last 5 Triage Decisions) -->
+        <section id="soc-audit-panel" class="soc-audit-panel" aria-label="SOC Decision Audit Log">
+          <div class="soc-audit-header">
+            <div class="soc-audit-title-group">
+              <span class="terminal-tag">// live telemetry &middot; immutable event feed</span>
+              <h3 class="soc-audit-heading">SOC DECISION AUDIT LOG <span id="audit-count-badge" class="audit-count-pill">0 / 5</span></h3>
+            </div>
+            <div id="audit-compliance-pill" class="audit-compliance-pill hidden">
+              <span>RECENT ACCURACY:</span>
+              <strong id="audit-compliance-rate">100%</strong>
+            </div>
+          </div>
+          <div id="soc-audit-list" class="soc-audit-list">
+            <p class="soc-audit-empty">// no triage decisions audited in this session yet</p>
+          </div>
+        </section>
+      </section>
+
+      <!-- Pause Screen -->
+      <section id="pause-screen" class="screen-panel hidden" role="dialog" aria-modal="true" aria-labelledby="pause-heading">
+        <div class="terminal-card narrow-card">
+          <p class="terminal-tag">// soc terminal &middot; door <span id="pause-door-num">1</span> &middot; timer halted</p>
+          <h1 id="pause-heading">TRIAGE / <span class="text-cyan">PAUSED</span></h1>
+          <p class="story-text">The timer is stopped at <strong id="pause-time">120s</strong>. The message is hidden while the game is paused.</p>
+          <div class="menu-list">
+            <button type="button" id="pause-resume-btn" class="btn btn-primary btn-block">
+              RESUME <span class="key-hint">[ESC]</span>
+            </button>
+            <button type="button" id="pause-restart-btn" class="btn btn-outline btn-block">RESTART DOOR</button>
+            <button type="button" id="pause-menu-btn" class="btn btn-outline btn-block">MAIN MENU</button>
+          </div>
+          <p class="mono-note">// restart door or main menu discards progress on this door</p>
+        </div>
+      </section>
+
+      <!-- Door Unlocked Screen -->
+      <section id="unlocked-screen" class="screen-panel hidden" aria-labelledby="unlocked-heading">
+        <div class="terminal-card">
+          <p class="terminal-tag">// soc terminal &middot; access granted</p>
+          <h1 id="unlocked-heading">DOOR <span id="unlocked-door-num">1</span> / <span class="text-cyan">UNLOCKED</span></h1>
+          <p id="unlocked-note" class="story-text"></p>
+
+          <div class="result-grid">
+            <div class="summary-card">
+              <span class="summary-label">// door score</span>
+              <span id="unlocked-points" class="summary-value">0</span>
+            </div>
+            <div class="summary-card">
+              <span class="summary-label">// time bonus</span>
+              <span id="unlocked-bonus" class="summary-value">+0</span>
+            </div>
+            <div class="summary-card">
+              <span class="summary-label">// run total</span>
+              <span id="unlocked-total" class="summary-value">0</span>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button type="button" id="unlocked-next-btn" class="btn btn-primary">
+              NEXT DOOR <span class="key-hint">[ENTER]</span>
+            </button>
+            <button type="button" id="unlocked-menu-btn" class="btn btn-outline">MAIN MENU</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Level Failed Screen -->
+      <section id="failed-screen" class="screen-panel hidden" aria-labelledby="failed-heading">
+        <div class="terminal-card">
+          <p class="terminal-tag">// soc terminal &middot; access denied</p>
+          <h1 id="failed-heading">DOOR <span id="failed-door-num">1</span> / <span class="text-danger">FAILED</span></h1>
+          <div class="callout-danger" role="status">
+            <strong>// reason:</strong>
+            <span id="failed-reason"></span>
+          </div>
+          <p id="failed-note" class="story-text"></p>
+          <div class="action-row">
+            <button type="button" id="failed-retry-btn" class="btn btn-primary">
+              RETRY DOOR <span class="key-hint">[ENTER]</span>
+            </button>
+            <button type="button" id="failed-menu-btn" class="btn btn-outline">MAIN MENU</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- End Screen with Comprehensive Run Review -->
+      <section id="end-screen" class="screen-panel hidden" aria-labelledby="end-heading">
+        <div class="terminal-card">
+          <p class="terminal-tag">// soc terminal &middot; containment override complete</p>
+          <h1 id="end-heading">ESCAPE / <span class="text-cyan">SUCCESSFUL</span></h1>
+          <p class="story-text">
+            You triaged the final queue and unlocked all three server room doors. Review your complete SOC run performance and threat intelligence debrief below:
+          </p>
+
+          <div class="score-summary-grid">
+            <div class="summary-card">
+              <span class="summary-label">// total score</span>
+              <span id="end-total-score" class="summary-value">0</span>
+            </div>
+            <div class="summary-card">
+              <span class="summary-label">// best score</span>
+              <span id="end-best-score" class="summary-value">0</span>
+            </div>
+            <div class="summary-card">
+              <span class="summary-label">// most missed category</span>
+              <span id="end-missed-category" class="summary-value summary-category">None</span>
+            </div>
+            <div class="summary-card">
+              <span class="summary-label">// false alarms (safe marked phishing)</span>
+              <span id="end-false-alarms" class="summary-value">0</span>
+            </div>
+          </div>
+
+          <!-- Run Review: Accuracy per Category -->
+          <div class="run-review-section">
+            <h2 class="review-heading">// threat detection accuracy by category</h2>
+            <div id="end-category-accuracy" class="category-accuracy-grid"></div>
+          </div>
+
+          <!-- Run Review: Incorrect Answers List -->
+          <div class="run-review-section">
+            <h2 class="review-heading">// triage errors review (click to inspect)</h2>
+            <div id="end-wrong-list" class="wrong-answers-list"></div>
+          </div>
+
+          <!-- Read-Only Review Detail Card -->
+          <div id="end-detail-view" class="review-detail-card hidden" role="region" aria-labelledby="review-detail-title">
+            <div class="review-detail-header">
+              <h3 id="review-detail-title" class="review-detail-title"></h3>
+              <button type="button" id="review-detail-close" class="btn btn-outline btn-close-detail">CLOSE REVIEW [X]</button>
+            </div>
+            <div id="review-detail-meta" class="review-detail-meta"></div>
+            <div class="message-body-wrap">
+              <p id="review-detail-body" class="message-body"></p>
+            </div>
+            <div class="feedback-details">
+              <h4 id="review-detail-signals-title" class="feedback-section-title"></h4>
+              <ul id="review-detail-signals-list" class="feedback-list"></ul>
+            </div>
+            <div class="tip-box">
+              <strong>// security habit tip:</strong>
+              <span id="review-detail-tip"></span>
+            </div>
+          </div>
+
+          <!-- Link to "If You Fell For It" section -->
+          <div class="fell-for-it-banner">
+            <p class="fell-banner-text"><strong>// real-world recovery protocol:</strong> Need guidance for real scams? Review the post-compromise emergency response steps.</p>
+            <button type="button" id="end-view-fell-btn" class="btn btn-outline">VIEW "IF YOU FELL FOR IT" GUIDE</button>
+          </div>
+
+          <div class="action-row">
+            <button type="button" id="btn-restart" class="btn btn-primary">
+              PLAY AGAIN <span class="key-hint">[ENTER]</span>
+            </button>
+            <button type="button" id="end-badges-btn" class="btn btn-outline">VIEW &amp; EXPORT BADGES</button>
+            <button type="button" id="end-menu-btn" class="btn btn-outline">MAIN MENU</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==================== SECURITY THREAT ENCYCLOPEDIA MODAL ==================== -->
+  <div id="encyclopedia-modal" class="dossier-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="encyclopedia-modal-title">
+    <div class="dossier-card encyclopedia-modal-card">
+      <div class="dossier-header">
+        <div class="dossier-header-left">
+          <span class="dossier-meta">// THREAT INTELLIGENCE REFERENCE &middot; 12 DOCUMENTED VECTORS</span>
+          <h2 id="encyclopedia-modal-title" class="dossier-title">SECURITY THREAT ENCYCLOPEDIA</h2>
+        </div>
+        <button type="button" id="encyclopedia-close-btn" class="dossier-close-btn" aria-label="Close encyclopedia">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="encyclopedia-layout">
+        <!-- Left Sidebar: Search, Category Filter & Concept List -->
+        <div class="encyclopedia-sidebar">
+          <div class="encyclopedia-search-box">
+            <input type="search" id="encyclopedia-search" class="encyclopedia-search-input" placeholder="Search vectors (e.g. typosquatting, vishing)..." aria-label="Search security concepts">
+            <div id="encyclopedia-categories" class="encyclopedia-cat-bar" role="tablist" aria-label="Concept categories"></div>
+          </div>
+          <div id="encyclopedia-term-list" class="encyclopedia-term-list" role="listbox" aria-label="Security threat concepts"></div>
+        </div>
+
+        <!-- Right Detail View -->
+        <div id="encyclopedia-detail-pane" class="encyclopedia-detail-pane">
+          <div class="encyclopedia-detail-header">
+            <div>
+              <span id="enc-detail-category" class="dossier-meta">DOMAIN &amp; URLS</span>
+              <h3 id="enc-detail-name" class="enc-detail-title">Typosquatting</h3>
+            </div>
+            <span id="enc-detail-threat" class="dossier-pill pill-status status-locked">HIGH THREAT</span>
+          </div>
+
+          <div class="enc-detail-block">
+            <h4 class="dossier-subtitle">// EXECUTIVE DEFINITION</h4>
+            <p id="enc-detail-def" class="dossier-text"></p>
+          </div>
+
+          <div class="enc-detail-block">
+            <h4 class="dossier-subtitle">// ATTACK ANATOMY &amp; MECHANICS</h4>
+            <p id="enc-detail-vector" class="dossier-text"></p>
+          </div>
+
+          <div class="enc-detail-block">
+            <h4 class="dossier-subtitle">// FICTIONAL SIMULATION SAMPLE</h4>
+            <p id="enc-detail-example" class="enc-sample-box"></p>
+          </div>
+
+          <div class="enc-detail-block enc-block-danger">
+            <h4 class="dossier-subtitle">// TRIAGE RED FLAGS TO SPOT</h4>
+            <ul id="enc-detail-flags" class="feedback-list"></ul>
+          </div>
+
+          <div class="enc-detail-block enc-block-safe">
+            <h4 class="dossier-subtitle">// ANALYST DEFENSE PROTOCOL</h4>
+            <p id="enc-detail-advice" class="dossier-text"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="dossier-footer">
+        <button type="button" id="encyclopedia-footer-close" class="btn btn-outline dossier-btn-cancel">CLOSE [ESC]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CYBER DEFENSE BADGES & CREDENTIAL EXPORT MODAL ==================== -->
+  <div id="badges-modal" class="dossier-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="badges-modal-title">
+    <div class="dossier-card badges-modal-card">
+      <div class="dossier-header">
+        <div class="dossier-header-left">
+          <span class="dossier-meta">// CYBER SENTINEL HONOR ROLL &middot; MILESTONE VERIFICATION</span>
+          <h2 id="badges-modal-title" class="dossier-title">SECURITY OPERATIONS BADGES</h2>
+        </div>
+        <button type="button" id="badges-close-btn" class="dossier-close-btn" aria-label="Close badges modal">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="badges-modal-body">
+        <!-- Summary Bar -->
+        <div class="badges-summary-bar">
+          <div class="badges-summary-info">
+            <span class="dossier-meta">// PROGRESS OVERVIEW</span>
+            <p id="badges-summary-text" class="badges-summary-lead">0 of 9 Badges Unlocked (0%)</p>
+          </div>
+          <div class="badges-callsign-box">
+            <label for="agent-callsign-input" class="dossier-meta">AGENT CALL-SIGN ON CREDENTIAL CARD:</label>
+            <input type="text" id="agent-callsign-input" class="encyclopedia-search-input" maxlength="28" value="SOC Analyst" placeholder="Enter your call-sign...">
+          </div>
+        </div>
+
+        <!-- Badges Grid -->
+        <div id="badges-grid" class="badges-grid"></div>
+
+        <!-- Credential Card Canvas Preview Section -->
+        <div id="badge-preview-section" class="badge-preview-section hidden">
+          <div class="badge-preview-header">
+            <div>
+              <span class="dossier-meta">// VERIFIED PNG CREDENTIAL GENERATOR</span>
+              <h3 id="badge-preview-title" class="enc-detail-title">Badge Credential Preview</h3>
+            </div>
+            <div class="action-row">
+              <button type="button" id="badge-download-btn" class="btn btn-primary btn-term-util">DOWNLOAD PNG CARD</button>
+              <button type="button" id="badge-preview-close" class="btn btn-outline btn-term-util">HIDE PREVIEW</button>
+            </div>
+          </div>
+          <div class="badge-canvas-wrap">
+            <canvas id="badge-export-canvas" width="1200" height="675" class="badge-export-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="dossier-footer">
+        <button type="button" id="badges-footer-close" class="btn btn-outline dossier-btn-cancel">CLOSE [ESC]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ZERO-G ANTIGRAVITY PHYSICS ARENA MODAL ==================== -->
+  <div id="arena-modal" class="dossier-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="arena-modal-title">
+    <div class="dossier-card arena-modal-card">
+      <div class="dossier-header">
+        <div class="dossier-header-left">
+          <span class="dossier-meta">// ANTIGRAVITY PHYSICS LAB &middot; REAL-TIME ZERO-G SIMULATOR</span>
+          <h2 id="arena-modal-title" class="dossier-title">ZERO-G PHYSICS ARENA</h2>
+        </div>
+        <button type="button" id="arena-close-btn" class="dossier-close-btn" aria-label="Close arena">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <!-- Arena Controls Toolbar -->
+      <div class="arena-toolbar">
+        <div class="arena-toolbar-left">
+          <span class="arena-status-pill"><span class="arena-status-dot"></span> ZERO-G ENGINE ACTIVE</span>
+          <p class="arena-help-text">Drag &amp; fling floating threat capsules into the Quarantine Vortex (Phishing) or Safe Shield Vault (Safe).</p>
+        </div>
+        <div class="arena-toolbar-controls">
+          <div class="arena-gravity-group" role="group" aria-label="Gravitational field vector">
+            <button type="button" id="arena-grav-zero" class="btn-arena-grav is-active">ZERO-G FLOAT</button>
+            <button type="button" id="arena-grav-down" class="btn-arena-grav">EARTH 1G</button>
+            <button type="button" id="arena-grav-up" class="btn-arena-grav">INVERTED -1G</button>
+          </div>
+          <button type="button" id="arena-pulse-btn" class="btn btn-primary btn-arena-action" title="Trigger an antigravity gravitational shockwave">GRAVITATIONAL PULSE</button>
+          <button type="button" id="arena-reset-btn" class="btn btn-outline btn-arena-action" title="Reset floating capsules into orbit">RESET</button>
+        </div>
+      </div>
+
+      <!-- Physics Stage -->
+      <div id="arena-stage" class="arena-stage">
+        <!-- Background Grid -->
+        <div class="arena-grid-bg" aria-hidden="true"></div>
+
+        <!-- Left Zone: Quarantine Vortex (Black Hole for Phishing) -->
+        <div id="arena-quarantine-vortex" class="arena-vortex vortex-quarantine">
+          <div class="vortex-core">
+            <div class="vortex-ring-dashed"></div>
+            <span class="vortex-icon" aria-hidden="true">&#9888;</span>
+          </div>
+          <span class="vortex-label">QUARANTINE VORTEX</span>
+          <span class="vortex-sub">FLING PHISHING HERE</span>
+        </div>
+
+        <!-- Right Zone: Safe Shield Vault (Clean containment for Legitimate) -->
+        <div id="arena-safe-vault" class="arena-vortex vortex-safe">
+          <div class="vortex-core">
+            <div class="vortex-ring-dashed"></div>
+            <span class="vortex-icon" aria-hidden="true">&#128737;</span>
+          </div>
+          <span class="vortex-label">SAFE SHIELD VAULT</span>
+          <span class="vortex-sub">FLING SAFE HERE</span>
+        </div>
+
+        <!-- Floating Physics Capsules Container -->
+        <div id="arena-capsules-container" class="arena-capsules-container"></div>
+
+        <!-- Notification Banner in Arena -->
+        <div id="arena-toast-banner" class="arena-toast-banner hidden" role="status"></div>
+
+        <!-- Arena Footer Status Bar -->
+        <div class="arena-stage-footer">
+          <div class="arena-score-stat">
+            <span class="stat-lbl">ARENA SCORE:</span>
+            <strong id="arena-score-val" class="stat-num">0 PTS</strong>
+          </div>
+          <div class="arena-score-stat">
+            <span class="stat-lbl">QUARANTINED:</span>
+            <strong id="arena-quarantined-val" class="stat-num stat-safe">0</strong>
+          </div>
+          <div class="arena-score-stat">
+            <span class="stat-lbl">SAFE STORED:</span>
+            <strong id="arena-safe-val" class="stat-num stat-safe">0</strong>
+          </div>
+          <div class="arena-hint-chip">
+            <span>&#10024; Click &amp; drag any message card to toss with momentum</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dossier-footer">
+        <button type="button" id="arena-footer-close" class="btn btn-outline dossier-btn-cancel">CLOSE [ESC]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ACHIEVEMENT UNLOCK TOAST ==================== -->
+  <div id="achievement-toast" class="achievement-toast hidden" role="status" aria-live="polite">
+    <div class="achievement-toast-inner">
+      <span class="achievement-toast-tag">// BADGE UNLOCKED</span>
+      <strong id="achievement-toast-title" class="achievement-toast-title">First Responder</strong>
+      <span id="achievement-toast-desc" class="achievement-toast-desc">Quarantine your first phishing threat.</span>
+    </div>
+    <button type="button" id="achievement-toast-view" class="btn btn-outline btn-term-util">VIEW</button>
+  </div>
+</body>
+</html>
