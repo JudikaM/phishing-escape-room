@@ -558,6 +558,10 @@ body {
 
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
 
+  text-align: justify;
+
+  text-justify: inter-word;
+
 }
 
 .hero-tagline strong {
