@@ -34,7 +34,10 @@
           <button type="button" id="site-badges-btn" class="btn btn-outline btn-nav-util" aria-label="Open Cyber Defense Badges">BADGES <span id="site-badges-count" class="nav-badge-pill">0/9</span></button>
           <button type="button" id="site-arena-btn" class="btn btn-outline btn-nav-util" aria-label="Open Zero-G Antigravity Physics Arena">ZERO-G ARENA</button>
 <button type="button" id="mobile-menu-toggle" class="btn btn-outline btn-mobile-menu" aria-expanded="false" aria-controls="site-nav-links" aria-label="Toggle navigation menu">MENU</button>
-          <button type="button" id="nav-play-btn" class="btn btn-primary btn-nav-play">PLAY</button>
+          <button type="button" id="nav-play-btn" class="button-with-icon btn-nav-play" aria-label="Play game">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+              <span class="text">PLAY</span>
+            </button>
         </div>
       </div>
     </header>
@@ -71,9 +74,9 @@
 
             <!-- Quick Action Row matching the reference design -->
             <div class="hero-action-buttons">
-              <button type="button" id="hero-start-cta" class="btn-hero-primary" aria-label="Start escape run">
-                <span class="btn-icon" aria-hidden="true">&#x25B6;</span>
-                <span class="btn-text">Start escape run</span>
+              <button type="button" id="hero-start-cta" class="button-with-icon btn-hero-primary hero-play-btn" aria-label="Start escape run">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                <span class="text">PLAY RUN</span>
               </button>
               <a href="#about" class="btn-hero-secondary" aria-label="Incident briefing">
                 <img src="briefing-book.svg" alt="" class="btn-icon-svg" width="18" height="18" aria-hidden="true">
@@ -585,9 +588,9 @@
           <button type="button" id="dossier-cancel-btn" class="btn btn-outline dossier-btn-cancel">
             CANCEL
           </button>
-          <button type="button" id="dossier-play-btn" class="btn btn-primary dossier-btn-play">
-            <span class="btn-icon" aria-hidden="true">&#x25B6;</span>
-            <span id="dossier-play-text">START DOOR 01</span>
+          <button type="button" id="dossier-play-btn" class="button-with-icon dossier-btn-play" aria-label="Start selected door">
+            <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+            <span id="dossier-play-text" class="text">START DOOR 01</span>
           </button>
         </div>
       </div>
@@ -800,7 +803,10 @@
               <strong>No data ever leaves your browser</strong>—only your best score and unlocked-door progress are stored locally on your device.
             </p>
             <div class="action-row">
-              <button type="button" id="bottom-play-btn" class="btn btn-primary">LAUNCH ESCAPE ROOM</button>
+              <button type="button" id="bottom-play-btn" class="button-with-icon bottom-play-btn" aria-label="Play game now">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                <span class="text">PLAY NOW</span>
+              </button>
             </div>
           </div>
         </div>
@@ -1162,8 +1168,9 @@
           </div>
 
           <div class="action-row">
-            <button type="button" id="btn-restart" class="btn btn-primary">
-              PLAY AGAIN <span class="key-hint">[ENTER]</span>
+            <button type="button" id="btn-restart" class="button-with-icon restart-play-btn" aria-label="Play again">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+              <span class="text">PLAY AGAIN</span>
             </button>
             <button type="button" id="end-badges-btn" class="btn btn-outline">VIEW &amp; EXPORT BADGES</button>
             <button type="button" id="end-menu-btn" class="btn btn-outline">MAIN MENU</button>
