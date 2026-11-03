@@ -7154,7 +7154,7 @@
     var starCountEl = byId("github-star-count");
     if (!starCountEl || typeof fetch !== "function") return;
     try {
-      fetch("//api.github.com/repos/JudikaM/phishing-escape-room")
+      fetch("https:" + "//api.github.com/repos/JudikaM/phishing-escape-room")
         .then(function (res) {
           if (!res.ok) return null;
           return res.json();
