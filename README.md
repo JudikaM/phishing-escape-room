@@ -1,10 +1,18 @@
-# Phishing Escape Room
+# Sentinel: Phishing Escape Room
 
-Phishing Escape Room is an interactive browser-based security awareness game designed to train players in identifying modern social engineering and online scams across email, SMS, and chat channels.
+Sentinel is an interactive security awareness game by Judika Marpaung. You play a new SOC analyst locked inside a server room and must triage fictional emails, SMS, and chat messages to unlock three blast doors, learning to recognize phishing, disguised links, OTP requests, and other common online scams.
 
-Trapped inside a sealed server room during a late-night lockdown, players act as a security operations center (SOC) triage analyst, classifying incoming messages to unlock three successive blast doors before the timer or lives run out.
+**Live Demo:** [sentinel.judika.me](https://sentinel.judika.me)
+
+Built with Google Antigravity.
 
 > **Educational Simulation Notice:** This project is an educational simulation. All brands, organizations, people, email addresses, phone numbers, domain names, and scam scenarios are entirely fictional and created solely for cybersecurity training purposes. Links displayed within scenarios are shown as plain text and are not clickable.
+
+## About Sentinel
+
+**Sentinel** is the name of the game, an interactive security awareness game. Locked inside an automated server containment facility during a late-night shift, players step into the role of a frontline SOC analyst tasked with classifying incoming communications to override three successive blast doors before lives or time expire.
+
+**Sentinel Bot** is a robot companion that appears only on the desktop title screen (hidden on viewports 900 px or narrower). Scripted in vanilla JavaScript, its head tilts toward the cursor (rotateX/rotateY) and its eyes change expression (blink, wink, alert, happy, closed). It speaks only in three cases: rotating idle intel tips (every 9 s), an operator greeting when clicked, and contextual reactions when the cursor hovers title-menu items. It does not appear on mobile devices or during message triage; in-game hints come from the H key or hint button, not from the bot.
 
 ## Features
 
@@ -16,7 +24,7 @@ Trapped inside a sealed server room during a late-night lockdown, players act as
 - **SOC Decision Audit Log:** Live terminal log recording triage actions in real time, tracking delivery channels, timestamped decisions, point tallies, categorization outcomes (*Quarantined Threat*, *Verified Safe*, *False Alarm*, *Security Breach*), and live compliance accuracy rates.
 - **Cyber Defense Badges & PNG Credential Exporter:** 9 tiered achievements (Bronze, Silver, Gold, Platinum Clearance) with real-time unlock toast alerts and an integrated HTML5 Canvas exporter generating 1200×675 PNG credential cards complete with customizable agent call-signs and verification hashes.
 - **Zero-Dependency Web Audio Synthesizer:** Dynamic procedural sound effects generated natively using the browser's Web Audio API (sine, triangle, and sawtooth oscillators) with an audio toggle in the navbar and terminal header.
-- **Interactive Robot Companion:** Animated SOC droid reacting to cursor movement, title menu hover selections, and delivering rotational threat intel tips.
+- **Interactive Robot Companion (Sentinel Bot):** Desktop-only title-screen companion whose head tilts toward the cursor (rotateX/rotateY) and changes eye expressions, speaking via rotating idle intel tips (every 9 s), click greetings, and title-menu hover reactions.
 - **Zero-G Antigravity Physics Arena:** Real-time 2D physics simulation laboratory where threat message capsules float freely in zero gravity. Players can switch gravity vectors (*Zero-G Float*, *Earth 1G*, *Inverted -1G*), trigger gravitational pulse shockwaves, and drag or fling capsules with momentum into the **Quarantine Vortex** (Black Hole) or **Safe Shield Vault** for interactive triage scoring (+100 pts), audio effects, and audit log telemetry.
 - **Realistic Channel Interfaces:** Custom cyber terminal views tailored for Email (headers, subject, sender), SMS, and Instant Messaging.
 - **SOC Intelligence Debrief:** End-screen threat intelligence review detailing category-by-category accuracy, false alarms, and interactive wrong-answer inspections with highlighted quotes and security habit tips.
@@ -61,6 +69,7 @@ http://127.0.0.1:8000
 - Web Audio API (Native procedural synthesizer)
 - HTML5 2D Canvas (Client-side credential export)
 - Vercel Serverless Function (Node.js proxy for repository star count)
+- Built with Google Antigravity
 
 ## Serverless Star Count
 

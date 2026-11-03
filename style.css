@@ -1098,6 +1098,20 @@ body {
 
 }
 
+.about-overview-card {
+
+  margin-bottom: 24px;
+
+}
+
+.about-overview-card .code-editor {
+
+  height: auto;
+
+  min-height: 80px;
+
+}
+
 .about-doors-grid,
 
 .steps-grid,
