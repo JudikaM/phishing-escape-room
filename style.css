@@ -450,7 +450,7 @@ body {
 
   align-items: flex-start;
 
-  gap: 24px;
+  gap: 14px;
 
   padding: 0;
 
@@ -4249,7 +4249,7 @@ mark.quote-highlight {
 
   gap: 14px;
 
-  margin-bottom: 20px;
+  margin-bottom: 0;
 
   flex-wrap: wrap;
 
@@ -4381,7 +4381,7 @@ mark.quote-highlight {
 
   color: #8fa6c0;
 
-  margin-bottom: 22px;
+  margin-bottom: 0;
 
 }
 
