@@ -29,6 +29,9 @@
           <a href="#if-you-fell-for-it" class="nav-link">If You Fell For It</a>
         </nav>
         <div class="site-nav-actions">
+          <button type="button" id="site-sound-toggle" class="btn btn-outline btn-nav-util" aria-pressed="true" aria-label="Toggle audio effects">AUDIO: ON</button>
+          <button type="button" id="site-encyclopedia-btn" class="btn btn-outline btn-nav-util" aria-label="Open Security Threat Encyclopedia">ENCYCLOPEDIA</button>
+          <button type="button" id="site-badges-btn" class="btn btn-outline btn-nav-util" aria-label="Open Cyber Defense Badges">BADGES <span id="site-badges-count" class="nav-badge-pill">0/9</span></button>
 <button type="button" id="mobile-menu-toggle" class="btn btn-outline btn-mobile-menu" aria-expanded="false" aria-controls="site-nav-links" aria-label="Toggle navigation menu">MENU</button>
           <button type="button" id="nav-play-btn" class="btn btn-primary btn-nav-play">PLAY</button>
         </div>
@@ -133,6 +136,20 @@
                     <span class="menu-cursor" aria-hidden="true">-&gt;</span>
                     <span class="menu-label">ABOUT</span>
                     <span class="menu-meta">BRIEFING</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" id="menu-encyclopedia-btn" class="title-menu-btn" data-menu-item="true">
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span class="menu-label">THREAT ENCYCLOPEDIA</span>
+                    <span class="menu-meta">12 VECTORS</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" id="menu-badges-btn" class="title-menu-btn" data-menu-item="true">
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span class="menu-label">HONOR ROLL BADGES</span>
+                    <span id="menu-badges-meta" class="menu-meta">0 / 9</span>
                   </button>
                 </li>
               </ul>
@@ -661,10 +678,17 @@
         <img src="favicon.svg" alt="" class="site-brand-logo" width="20" height="20" aria-hidden="true">
         <span>// SOC ESCAPE TERMINAL</span>
       </div>
-      <div class="doors-progress" aria-label="Security doors status">
-        <div class="door-badge" id="door-1">DOOR 1 · LOCKED</div>
-        <div class="door-badge" id="door-2">DOOR 2 · LOCKED</div>
-        <div class="door-badge" id="door-3">DOOR 3 · LOCKED</div>
+      <div class="top-bar-right">
+        <div class="doors-progress" aria-label="Security doors status">
+          <div class="door-badge" id="door-1">DOOR 1 · LOCKED</div>
+          <div class="door-badge" id="door-2">DOOR 2 · LOCKED</div>
+          <div class="door-badge" id="door-3">DOOR 3 · LOCKED</div>
+        </div>
+        <div class="terminal-util-controls">
+          <button type="button" id="term-sound-toggle" class="btn btn-outline btn-term-util" aria-pressed="true" aria-label="Toggle audio effects">AUDIO: ON</button>
+          <button type="button" id="term-encyclopedia-btn" class="btn btn-outline btn-term-util" aria-label="Open Security Threat Encyclopedia">ENCYCLOPEDIA</button>
+          <button type="button" id="term-badges-btn" class="btn btn-outline btn-term-util" aria-label="Open Cyber Defense Badges">BADGES</button>
+        </div>
       </div>
     </header>
 
@@ -835,6 +859,26 @@
             <button type="button" id="btn-continue" class="btn btn-primary">
               CONTINUE <span class="key-hint">[ENTER]</span>
             </button>
+            <button type="button" id="btn-feedback-encyclopedia" class="btn btn-outline">
+              THREAT ENCYCLOPEDIA
+            </button>
+          </div>
+        </section>
+
+        <!-- Live SOC Decision Audit Log (Last 5 Triage Decisions) -->
+        <section id="soc-audit-panel" class="soc-audit-panel" aria-label="SOC Decision Audit Log">
+          <div class="soc-audit-header">
+            <div class="soc-audit-title-group">
+              <span class="terminal-tag">// live telemetry &middot; immutable event feed</span>
+              <h3 class="soc-audit-heading">SOC DECISION AUDIT LOG <span id="audit-count-badge" class="audit-count-pill">0 / 5</span></h3>
+            </div>
+            <div id="audit-compliance-pill" class="audit-compliance-pill hidden">
+              <span>RECENT ACCURACY:</span>
+              <strong id="audit-compliance-rate">100%</strong>
+            </div>
+          </div>
+          <div id="soc-audit-list" class="soc-audit-list">
+            <p class="soc-audit-empty">// no triage decisions audited in this session yet</p>
           </div>
         </section>
       </section>
@@ -976,11 +1020,141 @@
             <button type="button" id="btn-restart" class="btn btn-primary">
               PLAY AGAIN <span class="key-hint">[ENTER]</span>
             </button>
+            <button type="button" id="end-badges-btn" class="btn btn-outline">VIEW &amp; EXPORT BADGES</button>
             <button type="button" id="end-menu-btn" class="btn btn-outline">MAIN MENU</button>
           </div>
         </div>
       </section>
     </main>
+  </div>
+
+  <!-- ==================== SECURITY THREAT ENCYCLOPEDIA MODAL ==================== -->
+  <div id="encyclopedia-modal" class="dossier-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="encyclopedia-modal-title">
+    <div class="dossier-card encyclopedia-modal-card">
+      <div class="dossier-header">
+        <div class="dossier-header-left">
+          <span class="dossier-meta">// THREAT INTELLIGENCE REFERENCE &middot; 12 DOCUMENTED VECTORS</span>
+          <h2 id="encyclopedia-modal-title" class="dossier-title">SECURITY THREAT ENCYCLOPEDIA</h2>
+        </div>
+        <button type="button" id="encyclopedia-close-btn" class="dossier-close-btn" aria-label="Close encyclopedia">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="encyclopedia-layout">
+        <!-- Left Sidebar: Search, Category Filter & Concept List -->
+        <div class="encyclopedia-sidebar">
+          <div class="encyclopedia-search-box">
+            <input type="search" id="encyclopedia-search" class="encyclopedia-search-input" placeholder="Search vectors (e.g. typosquatting, vishing)..." aria-label="Search security concepts">
+            <div id="encyclopedia-categories" class="encyclopedia-cat-bar" role="tablist" aria-label="Concept categories"></div>
+          </div>
+          <div id="encyclopedia-term-list" class="encyclopedia-term-list" role="listbox" aria-label="Security threat concepts"></div>
+        </div>
+
+        <!-- Right Detail View -->
+        <div id="encyclopedia-detail-pane" class="encyclopedia-detail-pane">
+          <div class="encyclopedia-detail-header">
+            <div>
+              <span id="enc-detail-category" class="dossier-meta">DOMAIN &amp; URLS</span>
+              <h3 id="enc-detail-name" class="enc-detail-title">Typosquatting</h3>
+            </div>
+            <span id="enc-detail-threat" class="dossier-pill pill-status status-locked">HIGH THREAT</span>
+          </div>
+
+          <div class="enc-detail-block">
+            <h4 class="dossier-subtitle">// EXECUTIVE DEFINITION</h4>
+            <p id="enc-detail-def" class="dossier-text"></p>
+          </div>
+
+          <div class="enc-detail-block">
+            <h4 class="dossier-subtitle">// ATTACK ANATOMY &amp; MECHANICS</h4>
+            <p id="enc-detail-vector" class="dossier-text"></p>
+          </div>
+
+          <div class="enc-detail-block">
+            <h4 class="dossier-subtitle">// FICTIONAL SIMULATION SAMPLE</h4>
+            <p id="enc-detail-example" class="enc-sample-box"></p>
+          </div>
+
+          <div class="enc-detail-block enc-block-danger">
+            <h4 class="dossier-subtitle">// TRIAGE RED FLAGS TO SPOT</h4>
+            <ul id="enc-detail-flags" class="feedback-list"></ul>
+          </div>
+
+          <div class="enc-detail-block enc-block-safe">
+            <h4 class="dossier-subtitle">// ANALYST DEFENSE PROTOCOL</h4>
+            <p id="enc-detail-advice" class="dossier-text"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="dossier-footer">
+        <button type="button" id="encyclopedia-footer-close" class="btn btn-outline dossier-btn-cancel">CLOSE [ESC]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CYBER DEFENSE BADGES & CREDENTIAL EXPORT MODAL ==================== -->
+  <div id="badges-modal" class="dossier-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="badges-modal-title">
+    <div class="dossier-card badges-modal-card">
+      <div class="dossier-header">
+        <div class="dossier-header-left">
+          <span class="dossier-meta">// CYBER SENTINEL HONOR ROLL &middot; MILESTONE VERIFICATION</span>
+          <h2 id="badges-modal-title" class="dossier-title">SECURITY OPERATIONS BADGES</h2>
+        </div>
+        <button type="button" id="badges-close-btn" class="dossier-close-btn" aria-label="Close badges modal">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="badges-modal-body">
+        <!-- Summary Bar -->
+        <div class="badges-summary-bar">
+          <div class="badges-summary-info">
+            <span class="dossier-meta">// PROGRESS OVERVIEW</span>
+            <p id="badges-summary-text" class="badges-summary-lead">0 of 9 Badges Unlocked (0%)</p>
+          </div>
+          <div class="badges-callsign-box">
+            <label for="agent-callsign-input" class="dossier-meta">AGENT CALL-SIGN ON CREDENTIAL CARD:</label>
+            <input type="text" id="agent-callsign-input" class="encyclopedia-search-input" maxlength="28" value="SOC Analyst" placeholder="Enter your call-sign...">
+          </div>
+        </div>
+
+        <!-- Badges Grid -->
+        <div id="badges-grid" class="badges-grid"></div>
+
+        <!-- Credential Card Canvas Preview Section -->
+        <div id="badge-preview-section" class="badge-preview-section hidden">
+          <div class="badge-preview-header">
+            <div>
+              <span class="dossier-meta">// VERIFIED PNG CREDENTIAL GENERATOR</span>
+              <h3 id="badge-preview-title" class="enc-detail-title">Badge Credential Preview</h3>
+            </div>
+            <div class="action-row">
+              <button type="button" id="badge-download-btn" class="btn btn-primary btn-term-util">DOWNLOAD PNG CARD</button>
+              <button type="button" id="badge-preview-close" class="btn btn-outline btn-term-util">HIDE PREVIEW</button>
+            </div>
+          </div>
+          <div class="badge-canvas-wrap">
+            <canvas id="badge-export-canvas" width="1200" height="675" class="badge-export-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="dossier-footer">
+        <button type="button" id="badges-footer-close" class="btn btn-outline dossier-btn-cancel">CLOSE [ESC]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ACHIEVEMENT UNLOCK TOAST ==================== -->
+  <div id="achievement-toast" class="achievement-toast hidden" role="status" aria-live="polite">
+    <div class="achievement-toast-inner">
+      <span class="achievement-toast-tag">// BADGE UNLOCKED</span>
+      <strong id="achievement-toast-title" class="achievement-toast-title">First Responder</strong>
+      <span id="achievement-toast-desc" class="achievement-toast-desc">Quarantine your first phishing threat.</span>
+    </div>
+    <button type="button" id="achievement-toast-view" class="btn btn-outline btn-term-util">VIEW</button>
   </div>
 </body>
 </html>
