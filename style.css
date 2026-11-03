@@ -554,283 +554,255 @@ body {
 
 /* Kiri Bawah: Kotak Pilihan */
 
+/* ==================== UIVERSE.IO TERMINAL CARD (BY JAYDIPPRAJAPATI1910) ==================== */
+.hero-selection-card.card,
 .hero-selection-card {
-
   width: 100%;
-
   max-width: 520px;
-
-  background: rgba(8, 16, 32, 0.82);
-
-  border: 1px solid rgba(0, 229, 255, 0.25);
-
-  border-radius: 12px;
-
-  padding: 18px 20px;
-
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 24px rgba(0, 229, 255, 0.08);
-
+  min-height: 254px;
+  margin: 0 auto;
+  background: linear-gradient(0deg, #000, #272727);
+  border-radius: 8px;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 24px rgba(0, 229, 255, 0.08);
+  padding: 0;
+  overflow: hidden;
   backdrop-filter: blur(12px);
+}
 
+.tools {
+  display: flex;
+  align-items: center;
+  padding: 9px 12px;
+  background: rgba(0, 0, 0, 0.45);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.circle {
+  padding: 0 4px;
+}
+
+.box {
+  display: inline-block;
+  align-items: center;
+  width: 10px;
+  height: 10px;
+  padding: 1px;
+  border-radius: 50%;
+}
+
+.red {
+  background-color: #ff605c;
+}
+
+.yellow {
+  background-color: #ffbd44;
+}
+
+.green {
+  background-color: #00ca4e;
+}
+
+.tools-title {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: #7b9fc2;
+  margin-left: 8px;
+  font-weight: 700;
+}
+
+.terminal-menu-body {
+  padding: 16px 18px 18px;
 }
 
 /* Telemetry Stats Bar Inside Kotak Pilihan */
-
 .hero-telemetry {
-
   display: flex;
-
   align-items: center;
-
   gap: 12px;
-
   width: 100%;
-
   margin-bottom: 14px;
-
 }
 
 .telemetry-pill {
-
   flex: 1;
-
   background-color: rgba(5, 10, 22, 0.85);
-
   border: 1px solid rgba(0, 229, 255, 0.22);
-
   border-left: 3px solid var(--accent-cyan);
-
   padding: 8px 14px;
-
   display: inline-flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   gap: 10px;
-
   font-family: var(--font-mono);
-
   border-radius: 6px;
-
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-
 }
 
 .telemetry-label {
-
   font-size: 0.72rem;
-
   font-weight: 700;
-
   letter-spacing: 0.06em;
-
   color: var(--text-muted);
-
 }
 
 .telemetry-value {
-
   font-size: 0.95rem;
-
   font-weight: 700;
-
   color: var(--accent-cyan);
-
   font-family: var(--font-mono);
-
 }
 
 /* Vertical Game Action Title Menu */
-
 .title-menu {
-
   width: 100%;
-
 }
 
 .title-menu-list {
-
   list-style: none;
-
   margin: 0;
-
   padding: 0;
-
   display: flex;
-
   flex-direction: column;
-
   gap: 8px;
-
 }
 
-.title-menu-btn {
-
-  appearance: none;
-
-  width: 100%;
-
-  border-radius: 6px;
-
-  background: linear-gradient(90deg, rgba(12, 22, 42, 0.88) 0%, rgba(8, 15, 30, 0.88) 100%);
-
-  border: 1px solid rgba(0, 229, 255, 0.18);
-
-  border-left: 3px solid transparent;
-
-  padding: 12px 18px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  gap: 12px;
-
-  font-family: var(--font-mono);
-
-  font-size: 0.92rem;
-
+/* ==================== UIVERSE.IO MENU BUTTON (BY ADAMGIEBL) ==================== */
+/* Inspired by twitter.com/marina_uiux */
+.title-menu-btn.button,
+.button {
+  font-size: 15px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgb(56, 56, 56) 0%, rgb(36, 36, 36) 66%, rgb(41, 41, 41) 100%);
+  color: rgb(218, 218, 218);
+  border: none;
+  padding: 2px;
   font-weight: 700;
-
-  letter-spacing: 0.06em;
-
-  text-transform: uppercase;
-
-  color: #e2ecf8;
-
   cursor: pointer;
-
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
-
-}
-
-.title-menu-btn .menu-cursor {
-
-  color: var(--accent-cyan);
-
-  opacity: 0;
-
-  width: 20px;
-
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  display: block;
   text-align: left;
-
-  transition: opacity 0.12s ease, transform 0.12s ease;
-
-  transform: translateX(-4px);
-
+  font-family: var(--font-mono);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-.title-menu-btn .menu-label {
-
-  flex: 1;
-
-  text-align: left;
-
+.title-menu-btn.button span,
+.button span {
+  border-radius: 10px;
+  padding: 0.75em 1.2em;
+  padding-right: 1.2em;
+  text-shadow: 0px 0px 20px #4b4b4b;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  transition: all 0.3s;
+  background-color: rgb(29, 29, 29);
+  background-image: radial-gradient(at 95% 89%, rgb(15, 15, 15) 0px, transparent 50%), radial-gradient(at 0% 100%, rgb(17, 17, 17) 0px, transparent 50%), radial-gradient(at 0% 0%, rgb(29, 29, 29) 0px, transparent 50%);
 }
 
-.title-menu-btn .menu-meta {
-
-  font-size: 0.72rem;
-
-  color: var(--text-muted);
-
-  background: rgba(0, 0, 0, 0.35);
-
-  border: 1px solid rgba(0, 229, 255, 0.18);
-
-  padding: 2px 8px;
-
-  border-radius: 4px;
-
-  letter-spacing: 0.05em;
-
-  transition: border-color 0.15s ease, color 0.15s ease;
-
+.title-menu-btn.button:hover:not(:disabled) span,
+.button:hover span {
+  background-color: rgb(26, 25, 25);
+  color: #ffffff;
 }
 
-.title-menu-btn.is-selected,
-
-.title-menu-btn:hover:not(:disabled),
-
-.title-menu-btn:focus-visible {
-
-  background: linear-gradient(90deg, rgba(0, 229, 255, 0.2) 0%, rgba(10, 25, 48, 0.9) 100%);
-
-  border-color: var(--accent-cyan);
-
-  border-left: 3px solid var(--accent-cyan);
-
-  color: var(--accent-cyan);
-
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.25);
-
-  transform: translateX(3px);
-
+.title-menu-btn.button .button-overlay,
+.button-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-conic-gradient(rgb(48, 47, 47) 0.0000001%, rgb(51, 51, 51) 0.000104%) 60% 60%/600% 600%;
+  filter: opacity(10%) contrast(105%);
+  -webkit-filter: opacity(10%) contrast(105%);
 }
 
-.title-menu-btn.is-selected .menu-cursor,
-
-.title-menu-btn:hover:not(:disabled) .menu-cursor,
-
-.title-menu-btn:focus-visible .menu-cursor {
-
-  opacity: 1;
-
-  transform: translateX(0);
-
+.title-menu-btn.button svg,
+.button svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: #00e5ff;
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-.title-menu-btn.is-selected .menu-meta,
-
-.title-menu-btn:hover:not(:disabled) .menu-meta,
-
-.title-menu-btn:focus-visible .menu-meta {
-
-  border-color: var(--accent-cyan);
-
-  color: var(--accent-cyan);
-
+.title-menu-btn.button:hover:not(:disabled) svg {
+  transform: scale(1.18);
+  filter: drop-shadow(0 0 6px #00e5ff);
 }
 
-.title-menu-btn:focus,
+.title-menu-btn.button.is-selected {
+  background: linear-gradient(180deg, #00e5ff 0%, #0088aa 66%, #00e5ff 100%);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.45), 0 4px 14px rgba(0, 0, 0, 0.7);
+  transform: translateX(4px);
+}
 
-.title-menu-btn:focus-visible {
+.title-menu-btn.button.is-selected span {
+  background-color: rgb(20, 30, 42);
+  color: #ffffff;
+}
 
+.title-menu-btn.button.is-selected svg {
+  color: #00e5ff;
+  filter: drop-shadow(0 0 8px #00e5ff);
+}
+
+.title-menu-btn.button:focus,
+.title-menu-btn.button:focus-visible {
   outline: 2px solid var(--color-amber);
-
   outline-offset: 2px;
-
 }
 
-.title-menu-btn:disabled {
-
+.title-menu-btn.button:disabled {
   opacity: 0.42;
-
   cursor: not-allowed;
-
+  filter: grayscale(0.6);
   transform: none;
-
   box-shadow: none;
+}
 
+.title-menu-btn.button:disabled:hover span {
+  background-color: rgb(29, 29, 29);
+}
+
+.title-menu-btn.button .menu-label {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: left;
+}
+
+.title-menu-btn.button .menu-meta {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: #7b9fc2;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.title-menu-btn.button.is-selected .menu-meta {
+  color: #00e5ff;
+  border-color: rgba(0, 229, 255, 0.35);
+  background: rgba(0, 229, 255, 0.12);
 }
 
 .menu-key-hint {
-
-  margin: 10px 0 0;
-
+  margin: 12px 0 0;
   font-family: var(--font-mono);
-
   font-size: 0.74rem;
-
   color: var(--text-muted);
-
 }
+
 
 /* About Section Educational Simulation Disclaimer Callout */
 .about-disclaimer-callout {

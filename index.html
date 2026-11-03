@@ -89,83 +89,148 @@
             </div>
           </div>
 
-          <!-- Kiri Bawah: Kotak Pilihan -->
-          <div class="hero-selection-card">
-            <div class="hero-telemetry" aria-label="Player progress summary">
-              <div class="telemetry-pill">
-                <span class="telemetry-label">// BEST SCORE</span>
-                <span id="menu-best-score" class="telemetry-value">0</span>
+          <!-- Kiri Bawah: Kotak Pilihan (Uiverse.io Terminal Card by JaydipPrajapati1910) -->
+          <div class="hero-selection-card card uiverse-terminal-card">
+            <div class="tools">
+              <div class="circle">
+                <span class="red box" aria-hidden="true"></span>
               </div>
-              <div class="telemetry-pill">
-                <span class="telemetry-label">// DOORS CLEARED</span>
-                <span id="menu-progress" class="telemetry-value">0 / 3</span>
+              <div class="circle">
+                <span class="yellow box" aria-hidden="true"></span>
               </div>
+              <div class="circle">
+                <span class="green box" aria-hidden="true"></span>
+              </div>
+              <span class="tools-title" aria-hidden="true">// TERMINAL COMMAND MATRIX</span>
             </div>
 
-            <nav class="title-menu" aria-label="Game title menu">
-              <ul id="title-menu-list" class="title-menu-list">
-                <li>
-                  <button type="button" id="menu-start-btn" class="title-menu-btn is-selected" data-menu-item="true" disabled>
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span class="menu-label">START NEW RUN</span>
-                    <span class="menu-meta">DOOR 01</span>
-                  </button>
-                </li>
-                <li id="menu-continue-item" class="hidden">
-                  <button type="button" id="menu-continue-btn" class="title-menu-btn" data-menu-item="true" disabled>
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span id="menu-continue-label" class="menu-label">CONTINUE</span>
-                    <span id="menu-continue-meta" class="menu-meta">DOOR 02</span>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" id="menu-select-btn" class="title-menu-btn" data-menu-item="true" disabled>
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span class="menu-label">SELECT DOOR</span>
-                    <span class="menu-meta">01 - 03</span>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" id="menu-howto-btn" class="title-menu-btn" data-menu-item="true">
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span class="menu-label">HOW TO PLAY</span>
-                    <span class="menu-meta">CONTROLS</span>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" id="menu-about-btn" class="title-menu-btn" data-menu-item="true">
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span class="menu-label">ABOUT</span>
-                    <span class="menu-meta">BRIEFING</span>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" id="menu-encyclopedia-btn" class="title-menu-btn" data-menu-item="true">
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span class="menu-label">THREAT ENCYCLOPEDIA</span>
-                    <span class="menu-meta">12 VECTORS</span>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" id="menu-badges-btn" class="title-menu-btn" data-menu-item="true">
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span class="menu-label">HONOR ROLL BADGES</span>
-                    <span id="menu-badges-meta" class="menu-meta">0 / 9</span>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" id="menu-arena-btn" class="title-menu-btn" data-menu-item="true">
-                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                    <span class="menu-label">ZERO-G PHYSICS ARENA</span>
-                    <span class="menu-meta">INTERACTIVE LAB</span>
-                  </button>
-                </li>
-              </ul>
-              <p class="menu-key-hint">// use <kbd>&uarr;</kbd> <kbd>&darr;</kbd> arrow keys to select &middot; <kbd>Enter</kbd> to confirm</p>
-            </nav>
+            <div class="card__content terminal-menu-body">
+              <div class="hero-telemetry" aria-label="Player progress summary">
+                <div class="telemetry-pill">
+                  <span class="telemetry-label">// BEST SCORE</span>
+                  <span id="menu-best-score" class="telemetry-value">0</span>
+                </div>
+                <div class="telemetry-pill">
+                  <span class="telemetry-label">// DOORS CLEARED</span>
+                  <span id="menu-progress" class="telemetry-value">0 / 3</span>
+                </div>
+              </div>
 
-            <p id="menu-status" class="mono-note mono-note-warning hidden" role="alert"></p>
-            <p id="menu-storage-note" class="mono-note hidden">// browser storage is blocked: gameplay works normally, but progress will not persist after closing the tab</p>
+              <nav class="title-menu" aria-label="Game title menu">
+                <ul id="title-menu-list" class="title-menu-list">
+                  <li>
+                    <button type="button" id="menu-start-btn" class="title-menu-btn is-selected button" data-menu-item="true" disabled>
+                      <div class="button-overlay" aria-hidden="true"></div>
+                      <span>
+                        <svg class="menu-btn-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <polygon points="6 3 20 12 6 21 6 3"></polygon>
+                        </svg>
+                        <span class="menu-label">START NEW RUN</span>
+                        <span class="menu-meta">DOOR 01</span>
+                      </span>
+                    </button>
+                  </li>
+                  <li id="menu-continue-item" class="hidden">
+                    <button type="button" id="menu-continue-btn" class="title-menu-btn button" data-menu-item="true" disabled>
+                      <div class="button-overlay" aria-hidden="true"></div>
+                      <span>
+                        <svg class="menu-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                          <line x1="19" y1="5" x2="19" y2="19"></line>
+                        </svg>
+                        <span id="menu-continue-label" class="menu-label">CONTINUE</span>
+                        <span id="menu-continue-meta" class="menu-meta">DOOR 02</span>
+                      </span>
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" id="menu-select-btn" class="title-menu-btn button" data-menu-item="true" disabled>
+                      <div class="button-overlay" aria-hidden="true"></div>
+                      <span>
+                        <svg class="menu-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <rect x="3" y="3" width="7" height="7"></rect>
+                          <rect x="14" y="3" width="7" height="7"></rect>
+                          <rect x="14" y="14" width="7" height="7"></rect>
+                          <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span class="menu-label">SELECT DOOR</span>
+                        <span class="menu-meta">01 - 03</span>
+                      </span>
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" id="menu-howto-btn" class="title-menu-btn button" data-menu-item="true">
+                      <div class="button-overlay" aria-hidden="true"></div>
+                      <span>
+                        <svg class="menu-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <span class="menu-label">HOW TO PLAY</span>
+                        <span class="menu-meta">CONTROLS</span>
+                      </span>
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" id="menu-about-btn" class="title-menu-btn button" data-menu-item="true">
+                      <div class="button-overlay" aria-hidden="true"></div>
+                      <span>
+                        <svg class="menu-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="12" y1="16" x2="12" y2="12"></line>
+                          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <span class="menu-label">ABOUT</span>
+                        <span class="menu-meta">BRIEFING</span>
+                      </span>
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" id="menu-encyclopedia-btn" class="title-menu-btn button" data-menu-item="true">
+                      <div class="button-overlay" aria-hidden="true"></div>
+                      <span>
+                        <svg class="menu-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        </svg>
+                        <span class="menu-label">THREAT ENCYCLOPEDIA</span>
+                        <span class="menu-meta">12 VECTORS</span>
+                      </span>
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" id="menu-badges-btn" class="title-menu-btn button" data-menu-item="true">
+                      <div class="button-overlay" aria-hidden="true"></div>
+                      <span>
+                        <svg class="menu-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="8" r="6"></circle>
+                          <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                        </svg>
+                        <span class="menu-label">HONOR ROLL BADGES</span>
+                        <span id="menu-badges-meta" class="menu-meta">0 / 9</span>
+                      </span>
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" id="menu-arena-btn" class="title-menu-btn button" data-menu-item="true">
+                      <div class="button-overlay" aria-hidden="true"></div>
+                      <span>
+                        <svg class="menu-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                        <span class="menu-label">ZERO-G PHYSICS ARENA</span>
+                        <span class="menu-meta">INTERACTIVE LAB</span>
+                      </span>
+                    </button>
+                  </li>
+                </ul>
+                <p class="menu-key-hint">// use <kbd>&uarr;</kbd> <kbd>&darr;</kbd> arrow keys to select &middot; <kbd>Enter</kbd> to confirm</p>
+              </nav>
+
+              <p id="menu-status" class="mono-note mono-note-warning hidden" role="alert"></p>
+              <p id="menu-storage-note" class="mono-note hidden">// browser storage is blocked: gameplay works normally, but progress will not persist after closing the tab</p>
+            </div>
           </div>
         </div>
 
