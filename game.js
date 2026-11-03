@@ -7150,12 +7150,16 @@
 
 
 
+  var lastStarSyncTime = 0;
   function syncGitHubStars() {
     var starCountEl = byId("github-star-count");
     if (!starCountEl || typeof fetch !== "function") return;
+    var now = Date.now();
+    // Throttle requests to at most once per 15 seconds to prevent rate limiting
+    if (now - lastStarSyncTime < 15000) return;
+    lastStarSyncTime = now;
     try {
-      fetch("https:" + "//api.github.com/repos/JudikaM/phishing-escape-room?t=" + Date.now(), {
-        cache: "no-store",
+      fetch("https:" + "//api.github.com/repos/JudikaM/phishing-escape-room", {
         headers: { "Accept": "application/vnd.github.v3+json" }
       })
         .then(function (res) {
@@ -7185,7 +7189,7 @@
       if (typeof document === "undefined" || document.visibilityState === "visible") {
         syncGitHubStars();
       }
-    }, 30000);
+    }, 300000);
   }
   init();
 
