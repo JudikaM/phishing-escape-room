@@ -4332,6 +4332,20 @@ mark.quote-highlight {
 
 }
 
+.btn-icon-svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+  pointer-events: none;
+  transition: filter 0.2s ease;
+}
+
+.btn-hero-secondary:hover .btn-icon-svg {
+  filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.8));
+}
+
 .hero-meta-strip {
 
   display: inline-flex;
