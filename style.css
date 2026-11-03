@@ -7252,3 +7252,156 @@ mark.quote-highlight {
 .button-with-icon.restart-play-btn:hover .icon {
   transform: translate(36px);
 }
+
+/* ==================== UIVERSE.IO GITHUB STAR RAINBOW BUTTON (BY ELIJAHGUMMER) ==================== */
+.github-star-rainbow-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 500;
+  height: 40px;
+  padding: 0 14px;
+  cursor: pointer;
+  border: 0;
+  position: relative;
+  text-decoration: none;
+  color: #ffffff;
+  user-select: none;
+  font-family: var(--font-sans), sans-serif;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  line-height: 1;
+
+  background-image:
+    linear-gradient(#121213, #121213),
+    linear-gradient(#121213 50%, rgba(18, 18, 19, 0.6) 80%, rgba(18, 18, 19, 0)),
+    linear-gradient(90deg, hsl(0, 100%, 63%), hsl(90, 100%, 63%), hsl(210, 100%, 63%), hsl(195, 100%, 63%), hsl(270, 100%, 63%));
+  background-size: 200% 100%, 200% 100%, 200% 100%;
+  background-clip: padding-box, border-box, border-box;
+  background-origin: border-box;
+  border: calc(0.08 * 1rem) solid transparent;
+  animation: rainbow-border 3s linear infinite;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+.github-star-rainbow-btn:hover {
+  transform: scale(1.05);
+}
+
+.github-star-rainbow-btn:active {
+  transform: scale(0.95);
+}
+
+.github-star-rainbow-btn::before {
+  content: "";
+  position: absolute;
+  bottom: -20%;
+  left: 50%;
+  z-index: 0;
+  height: 20%;
+  width: 60%;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, hsl(0, 100%, 63%), hsl(90, 100%, 63%), hsl(210, 100%, 63%), hsl(195, 100%, 63%), hsl(270, 100%, 63%));
+  background-size: 200% 100%;
+  filter: blur(calc(0.8 * 1rem));
+  animation: rainbow-glow 3s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rainbow-border {
+  0% {
+    background-position: 0% 50%, 0% 50%, 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%, 100% 50%, 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%, 0% 50%, 0% 50%;
+  }
+}
+
+@keyframes rainbow-glow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.github-star-rainbow-btn .flex {
+  display: flex;
+}
+
+.github-star-rainbow-btn .items-center {
+  align-items: center;
+  z-index: 1;
+}
+
+.github-star-rainbow-btn .size-4 {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.github-star-rainbow-btn .ml-1 {
+  margin-left: 4px;
+}
+
+.github-star-rainbow-btn .ml-2 {
+  margin-left: 8px;
+  border-left: 1px solid rgba(255, 255, 255, 0.16);
+  padding-left: 8px;
+}
+
+.github-star-rainbow-btn .gap-1 {
+  gap: 4px;
+}
+
+.github-star-rainbow-btn .p-1 {
+  padding: 2px 4px;
+}
+
+.github-star-rainbow-btn .text-white {
+  color: #ffffff;
+}
+
+.github-star-rainbow-btn .text-gray-500 {
+  color: #9ca3af;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.github-star-rainbow-btn:hover .text-gray-500,
+.github-star-rainbow-btn:hover .group-hover\\:text-yellow-300 {
+  color: #fde047;
+  transform: scale(1.15);
+}
+
+.github-star-rainbow-btn .tabular-nums {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.github-star-rainbow-btn:focus-visible {
+  outline: 2px solid var(--color-amber);
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .github-star-rainbow-btn {
+    padding: 0 10px;
+    height: 36px;
+    font-size: 12px;
+  }
+  .github-star-rainbow-btn .ml-2 {
+    margin-left: 4px;
+    padding-left: 4px;
+  }
+}
