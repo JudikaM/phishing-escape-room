@@ -7268,10 +7268,11 @@ mark.quote-highlight {
 
 .button-with-icon.hero-play-btn:hover .text {
   transform: translateX(110px);
+  opacity: 0;
 }
 
 .button-with-icon.hero-play-btn:hover .icon {
-  transform: translate(40px);
+  transform: translate(47px);
 }
 
 .button-with-icon.dossier-btn-play {
@@ -7306,11 +7307,12 @@ mark.quote-highlight {
 }
 
 .button-with-icon.bottom-play-btn:hover .text {
-  transform: translateX(95px);
+  transform: translateX(110px);
+  opacity: 0;
 }
 
 .button-with-icon.bottom-play-btn:hover .icon {
-  transform: translate(32px);
+  transform: translate(41px);
 }
 
 .button-with-icon.restart-play-btn {
@@ -7320,11 +7322,12 @@ mark.quote-highlight {
 }
 
 .button-with-icon.restart-play-btn:hover .text {
-  transform: translateX(105px);
+  transform: translateX(115px);
+  opacity: 0;
 }
 
 .button-with-icon.restart-play-btn:hover .icon {
-  transform: translate(36px);
+  transform: translate(48px);
 }
 
 .button-with-icon.btn-nav-play {
