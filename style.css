@@ -7274,17 +7274,17 @@ mark.quote-highlight {
 }
 
 .button-with-icon.btn-nav-play {
-  width: 190px;
+  width: 108px;
   height: 40px;
   font-size: 13.5px;
 }
 
 .button-with-icon.btn-nav-play:hover .text {
-  transform: translateX(110px);
+  transform: translateX(75px);
 }
 
 .button-with-icon.btn-nav-play:hover .icon {
-  transform: translate(40px);
+  transform: translate(22px);
 }
 
 /* ==================== UIVERSE.IO GITHUB STAR RAINBOW BUTTON (BY ELIJAHGUMMER) ==================== */
