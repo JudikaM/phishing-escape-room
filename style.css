@@ -8089,7 +8089,15 @@ mark.quote-highlight {
 }
 
 
-/* ==================== SOUND TOGGLE ICON-ONLY & MUTED STYLES ==================== */
+/* ==================== TOOLBAR UTILITY BUTTONS (COMPACT ICON-ONLY) ==================== */
+.site-nav-toolbar,
+.terminal-util-controls {
+  gap: 6px !important;
+  padding: 3px 4px !important;
+}
+
+.site-nav-toolbar .btn-nav-util,
+.terminal-util-controls .btn-term-util,
 #site-sound-toggle,
 #term-sound-toggle,
 .btn-sound-toggle {
