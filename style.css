@@ -540,15 +540,31 @@ body {
 
   margin: 0;
 
-  max-width: 54ch;
+  max-width: 62ch;
 
-  font-size: 1.04rem;
+  font-size: 1.02rem;
 
-  line-height: 1.58;
+  line-height: 1.64;
 
   color: #b2c4da;
 
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
+
+}
+
+.hero-tagline strong {
+
+  color: #e6f1fc;
+
+  font-weight: 600;
+
+}
+
+.hero-tagline .hero-accent {
+
+  color: var(--accent-cyan);
+
+  font-weight: 700;
 
 }
 
