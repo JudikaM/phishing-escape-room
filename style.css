@@ -6954,7 +6954,7 @@ mark.quote-highlight {
   max-width: 330px;
   margin: 0 auto;
   border-radius: 20px;
-  background: #1b233d;
+  background: #090e1c;
   padding: 6px;
   overflow: hidden;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 229, 255, 0.12);
@@ -6977,32 +6977,32 @@ mark.quote-highlight {
   border-radius: 15px;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(45deg, rgba(14, 25, 42, 0.95) 0%, rgba(28, 48, 76, 0.9) 100%);
+  background: linear-gradient(45deg, rgba(8, 14, 26, 0.96) 0%, rgba(15, 26, 44, 0.92) 100%);
   position: relative;
   overflow: hidden;
   transition: background 0.3s ease;
 }
 
 .showcase-door-card.card:hover .top-section {
-  background: linear-gradient(45deg, rgba(16, 32, 54, 0.98) 0%, rgba(32, 58, 92, 0.95) 100%);
+  background: linear-gradient(45deg, rgba(10, 18, 34, 0.98) 0%, rgba(20, 36, 60, 0.95) 100%);
 }
 
 .showcase-door-card.card.is-locked .top-section {
-  background: linear-gradient(45deg, rgba(14, 25, 42, 0.95) 0%, rgba(28, 48, 76, 0.9) 100%);
+  background: linear-gradient(45deg, rgba(8, 14, 26, 0.96) 0%, rgba(15, 26, 44, 0.92) 100%);
 }
 
 .showcase-door-card.card.is-unlocked .top-section {
-  background: linear-gradient(45deg, rgba(10, 36, 28, 0.95) 0%, rgba(18, 56, 42, 0.9) 100%);
+  background: linear-gradient(45deg, rgba(6, 24, 18, 0.96) 0%, rgba(12, 38, 28, 0.92) 100%);
 }
 
 .showcase-door-card.card .top-section .border {
   border-bottom-right-radius: 10px;
   height: 32px;
   width: 135px;
-  background: #1b233d;
+  background: #090e1c;
   position: relative;
   transform: skew(-40deg);
-  box-shadow: -10px -10px 0 0 #1b233d;
+  box-shadow: -10px -10px 0 0 #090e1c;
   z-index: 2;
 }
 
@@ -7015,7 +7015,7 @@ mark.quote-highlight {
   right: -15px;
   background: transparent;
   border-top-left-radius: 10px;
-  box-shadow: -5px -5px 0 2px #1b233d;
+  box-shadow: -5px -5px 0 2px #090e1c;
 }
 
 .showcase-door-card.card .top-section::before {
@@ -7027,7 +7027,7 @@ mark.quote-highlight {
   height: 15px;
   width: 15px;
   border-top-left-radius: 15px;
-  box-shadow: -5px -5px 0 2px #1b233d;
+  box-shadow: -5px -5px 0 2px #090e1c;
   z-index: 2;
 }
 
