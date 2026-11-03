@@ -7537,3 +7537,155 @@ mark.quote-highlight {
   border-radius: 9999px;
   margin-left: 2px;
 }
+
+
+/* ==================== UIVERSE.IO MAC CODE EDITOR CARDS (BY MYMIAMO) ==================== */
+/* From Uiverse.io by mymiamo */
+.mac-code-card {
+  width: 100%;
+  padding: 20px;
+  border: 1px solid #0d1117 !important;
+  border-left: 1px solid #0d1117 !important;
+  border-radius: 10px;
+  background-color: #000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    border-color 0.2s;
+  position: relative;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.mac-code-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 245, 255, 0.12), 0 6px 12px rgba(0, 0, 0, 0.5);
+  border-color: rgba(0, 245, 255, 0.4) !important;
+}
+
+.mac-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.mac-header span {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.mac-header .red {
+  background-color: #ff5f57;
+}
+
+.mac-header .yellow {
+  background-color: #ffbd2e;
+}
+
+.mac-header .green {
+  background-color: #28c941;
+}
+
+.mac-code-card .card-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 0 10px;
+  color: #e6e6ef;
+  font-family: inherit;
+  letter-spacing: 0.03em;
+}
+
+.mac-code-card .card-description {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.mac-code-card .card-tag {
+  display: inline-block;
+  font-size: 10px;
+  border-radius: 5px;
+  background-color: #0d1117;
+  padding: 4px 8px;
+  margin-block-end: 12px;
+  color: #38bdf8;
+  border: 1px solid #21262d;
+  width: fit-content;
+  font-family: var(--font-mono, "SF Mono", monospace);
+}
+
+.mac-code-card .code-editor {
+  background-color: #0d1117;
+  color: #dcdcdc;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  border-radius: 5px;
+  padding: 15px;
+  overflow: auto;
+  height: 150px;
+  border: 1px solid #333;
+  box-sizing: border-box;
+}
+
+.mac-code-card .code-editor::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mac-code-card .code-editor::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.mac-code-card .code-editor pre {
+  margin: 0;
+  padding: 0;
+}
+
+.mac-code-card .code-editor pre code {
+  white-space: pre-wrap;
+  display: block;
+  font-family: inherit;
+  font-size: inherit;
+  color: #dcdcdc;
+}
+
+.mac-code-card .code-editor pre code kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 3px;
+  background: #00e5ff;
+  color: #0b0f19;
+}
