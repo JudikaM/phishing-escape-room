@@ -2714,7 +2714,7 @@
 
     ctx.fillStyle = tier.primary;
 
-    ctx.fillText("PHISHING ESCAPE ROOM // SOC CONTAINMENT CREDENTIAL", 75, 85);
+    ctx.fillText("SENTINEL: PHISHING ESCAPE ROOM // SOC CONTAINMENT CREDENTIAL", 75, 85);
 
 
 
@@ -5761,7 +5761,7 @@
 
     var clickGreetings = [
 
-      "// HELLO OPERATOR! Sentinel AI is calibrated and ready to assist.",
+      "// HELLO OPERATOR! Sentinel Bot is calibrated and ready to assist.",
 
       "// ALL SYSTEMS NOMINAL: Threat intelligence heuristics operational!",
 
