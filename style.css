@@ -4363,21 +4363,23 @@ mark.quote-highlight {
 
 .hero-meta-strip {
 
-  display: inline-flex;
+  display: flex;
+
+  flex-wrap: wrap;
 
   align-items: center;
 
-  gap: 14px;
+  gap: 12px 14px;
 
   font-family: var(--font-mono);
 
-  font-size: 0.7rem;
+  font-size: 0.72rem;
 
   font-weight: 700;
 
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
 
-  color: #7b99b6;
+  color: #8fa6c0;
 
   margin-bottom: 22px;
 
@@ -4391,11 +4393,35 @@ mark.quote-highlight {
 
   gap: 6px;
 
+  white-space: nowrap;
+
+}
+
+.meta-pill .meta-icon {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  color: var(--accent-cyan);
+
+}
+
+.meta-pill .meta-icon.meta-icon-gold {
+
+  color: #ffd24c;
+
 }
 
 .meta-divider {
 
   color: rgba(0, 229, 255, 0.25);
+
+  user-select: none;
 
 }
 
