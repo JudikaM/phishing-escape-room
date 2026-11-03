@@ -18,8 +18,8 @@
     <header class="site-nav" role="banner">
       <div class="site-nav-inner">
         <a href="#home" class="site-brand">
-          <img src="favicon.svg" alt="" class="site-brand-logo" width="22" height="22" aria-hidden="true">
-          <span>// PHISHING ESCAPE ROOM</span>
+          <img src="favicon.svg" alt="" class="site-brand-logo" width="24" height="24" aria-hidden="true">
+          <span class="brand-title">SENTINEL</span>
         </a>
         <nav id="site-nav-links" class="site-nav-links" aria-label="Primary website navigation">
           <a href="#home" class="nav-link">Home</a>
@@ -29,7 +29,7 @@
           <a href="#if-you-fell-for-it" class="nav-link">If You Fell For It</a>
         </nav>
         <div class="site-nav-actions">
-          <button type="button" id="mobile-menu-toggle" class="btn btn-outline btn-mobile-menu" aria-expanded="false" aria-controls="site-nav-links" aria-label="Toggle navigation menu">MENU</button>
+<button type="button" id="mobile-menu-toggle" class="btn btn-outline btn-mobile-menu" aria-expanded="false" aria-controls="site-nav-links" aria-label="Toggle navigation menu">MENU</button>
           <button type="button" id="nav-play-btn" class="btn btn-primary btn-nav-play">PLAY</button>
         </div>
       </div>
@@ -44,78 +44,418 @@
         <div class="scene-scanlines"></div>
       </div>
 
-      <div class="title-hero-content">
-        <p class="hero-tag">
-          <span class="beacon-dot" aria-hidden="true"></span>
-          // soc containment protocol &middot; alert level red
-        </p>
-        <h1 id="hero-title" class="hero-title">
-          PHISHING <span class="text-cyan">ESCAPE ROOM</span>
-        </h1>
-        <p class="hero-tagline">
-          Trapped inside a sealed server room on the night shift. Triage incoming Email, SMS, and Chat queues to unlock three security doors and break the lockdown.
-        </p>
+      <div class="title-hero-inner">
+        <!-- LEFT COLUMN: Top (Judul & About) + Bottom (Kotak Pilihan) -->
+        <div class="title-hero-content">
+          <!-- Kiri Atas: Judul dan Kontrol Taktis -->
+          <div class="hero-header-area">
+            <div class="hero-status-pill-row">
+              <span class="lockdown-alert-badge">
+                <span class="alert-square" aria-hidden="true">&#x25A0;</span>
+                LOCKDOWN ACTIVE
+              </span>
+              <span class="incident-code-tag">INCIDENT // 001</span>
+            </div>
 
-        <div class="hero-telemetry" aria-label="Player progress summary">
-          <div class="telemetry-pill">
-            <span class="telemetry-label">// best score</span>
-            <span id="menu-best-score" class="telemetry-value">0</span>
+            <h1 id="hero-title" class="hero-title">
+              PHISHING <span class="text-cyan">ESCAPE ROOM</span>
+            </h1>
+
+            <p class="hero-tagline">
+              The server room is sealed. Spot the phishing attempts in your inbox, texts, and chats to unlock three doors and escape.
+            </p>
+
+            <!-- Quick Action Row matching the reference design -->
+            <div class="hero-action-buttons">
+              <button type="button" id="hero-start-cta" class="btn-hero-primary" aria-label="Start mission">
+                <span class="btn-icon" aria-hidden="true">&#x25B6;</span>
+                <span class="btn-text">Start mission</span>
+              </button>
+              <a href="#about" class="btn-hero-secondary" aria-label="Mission briefing">
+                <img src="mission-briefing-book.svg" alt="" class="btn-icon-svg" width="18" height="18" aria-hidden="true">
+                <span class="btn-text">Mission briefing</span>
+              </a>
+            </div>
+
+            <!-- Tactical Meta Strip -->
+            <div class="hero-meta-strip">
+              <span class="meta-pill"><span class="meta-icon" aria-hidden="true">&#x1F5C4;</span> 3 SECURITY DOORS</span>
+              <span class="meta-divider" aria-hidden="true">|</span>
+              <span class="meta-pill"><span class="meta-icon" aria-hidden="true">&#x1F464;</span> SINGLE PLAYER</span>
+            </div>
           </div>
-          <div class="telemetry-pill">
-            <span class="telemetry-label">// doors cleared</span>
-            <span id="menu-progress" class="telemetry-value">0 / 3</span>
+
+          <!-- Kiri Bawah: Kotak Pilihan -->
+          <div class="hero-selection-card">
+            <div class="hero-telemetry" aria-label="Player progress summary">
+              <div class="telemetry-pill">
+                <span class="telemetry-label">// BEST SCORE</span>
+                <span id="menu-best-score" class="telemetry-value">0</span>
+              </div>
+              <div class="telemetry-pill">
+                <span class="telemetry-label">// DOORS CLEARED</span>
+                <span id="menu-progress" class="telemetry-value">0 / 3</span>
+              </div>
+            </div>
+
+            <nav class="title-menu" aria-label="Game title menu">
+              <ul id="title-menu-list" class="title-menu-list">
+                <li>
+                  <button type="button" id="menu-start-btn" class="title-menu-btn is-selected" data-menu-item="true" disabled>
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span class="menu-label">START NEW RUN</span>
+                    <span class="menu-meta">DOOR 01</span>
+                  </button>
+                </li>
+                <li id="menu-continue-item" class="hidden">
+                  <button type="button" id="menu-continue-btn" class="title-menu-btn" data-menu-item="true" disabled>
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span id="menu-continue-label" class="menu-label">CONTINUE</span>
+                    <span id="menu-continue-meta" class="menu-meta">DOOR 02</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" id="menu-select-btn" class="title-menu-btn" data-menu-item="true" disabled>
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span class="menu-label">SELECT DOOR</span>
+                    <span class="menu-meta">01 - 03</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" id="menu-howto-btn" class="title-menu-btn" data-menu-item="true">
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span class="menu-label">HOW TO PLAY</span>
+                    <span class="menu-meta">CONTROLS</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" id="menu-about-btn" class="title-menu-btn" data-menu-item="true">
+                    <span class="menu-cursor" aria-hidden="true">-&gt;</span>
+                    <span class="menu-label">ABOUT</span>
+                    <span class="menu-meta">BRIEFING</span>
+                  </button>
+                </li>
+              </ul>
+              <p class="menu-key-hint">// use <kbd>&uarr;</kbd> <kbd>&darr;</kbd> arrow keys to select &middot; <kbd>Enter</kbd> to confirm</p>
+            </nav>
+
+            <p id="menu-status" class="mono-note mono-note-warning hidden" role="alert"></p>
+            <p id="menu-storage-note" class="mono-note hidden">// browser storage is blocked: gameplay works normally, but progress will not persist after closing the tab</p>
+          </div>
+
+          <p class="hero-disclaimer" role="note">
+            <strong>Educational Simulation:</strong> All brands, people, domains, email addresses, phone numbers, and scenario content in this game are completely fictional.
+          </p>
+        </div>
+
+        <!-- RIGHT COLUMN: Robot Pane with Cam Feed & Companion Tag -->
+        <div class="title-hero-robot-pane" aria-hidden="true">
+          <div class="robot-stage">
+            <div class="robot-shadow"></div>
+
+            <div id="soc-robot" class="robot-character" title="Click to interact with Sentinel Bot">
+              <!-- 1. HEAD (Previous Beloved Cyber Droid Head with Smooth Tracking) -->
+              <div id="robot-head" class="robot-head">
+                <div class="robot-head-crest"></div>
+                <div class="robot-ear robot-ear-left"></div>
+                <div class="robot-ear robot-ear-right"></div>
+                <div class="robot-helmet">
+                  <div class="helmet-highlight"></div>
+                  <div class="robot-visor">
+                    <div class="visor-reflection"></div>
+                    <div id="robot-eyes-group" class="robot-face-screen">
+                      <div class="robot-eyes-row">
+                        <div class="robot-eye robot-eye-left"></div>
+                        <div class="robot-eye robot-eye-right"></div>
+                      </div>
+                      <div class="robot-mouth"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. BODY LAYER (High-Fidelity 3D Matched Cyber Body) -->
+              <div class="robot-body-layer">
+                <img src="assets/robot/robot-body.png" alt="" class="robot-body-img" width="240" height="148" draggable="false">
+              </div>
+            </div>
+
+            <!-- Floating Speech Bubble (Rounded Cyber Droid Bubble) -->
+            <div id="robot-speech-bubble" class="robot-speech-bubble" role="status" aria-live="polite">
+              <div class="speech-header">
+                <span class="speech-led" aria-hidden="true"></span>
+                <span class="speech-channel">// SENTINEL &middot; SOC</span>
+                <span id="speech-mode-tag" class="speech-status-tag">STANDBY</span>
+              </div>
+              <p id="robot-speech-text" class="speech-text">// SENTINEL BOT ONLINE &middot; READY FOR TRIAGE</p>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Tactical Environment Feed Divider -->
+    <div class="environment-feed-bar" aria-hidden="true">
+      <div class="site-container feed-bar-inner">
+        <div class="feed-left">
+          <span class="feed-slashes">///</span>
+          <span class="feed-label">ENVIRONMENT FEED</span>
+        </div>
+        <div class="feed-center-line"></div>
+        <div class="feed-right">
+          <span class="feed-location">SECTOR 07 / SERVER ROOM</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECURITY DOORS SHOWCASE (Matching reference design) -->
+    <section id="security-doors" class="security-doors-showcase" aria-labelledby="doors-showcase-heading">
+      <div class="site-container">
+        <div class="doors-showcase-header">
+          <div class="doors-header-titles">
+            <h2 id="doors-showcase-heading" class="doors-section-title">
+              SECURITY DOORS<span class="text-cyan">.</span>
+            </h2>
+            <p class="doors-section-lead">Three channels. Clear each door to break the lockdown.</p>
+          </div>
+          <div class="doors-header-telemetry" aria-label="Mission door status summary">
+            <div class="showcase-telemetry-pill">
+              <span class="telemetry-glyph" aria-hidden="true">&#x1F3C6;</span>
+              <span class="telemetry-tag">PRACTICE BEST</span>
+              <span id="showcase-best-score" class="telemetry-digit">0</span>
+            </div>
+            <div class="showcase-telemetry-pill">
+              <span class="telemetry-glyph" aria-hidden="true">&#x1F6AA;</span>
+              <span class="telemetry-tag">CLEARED</span>
+              <span id="showcase-progress" class="telemetry-digit">0 / 3</span>
+            </div>
           </div>
         </div>
 
-        <nav class="title-menu" aria-label="Game title menu">
-          <ul id="title-menu-list" class="title-menu-list">
-            <li>
-              <button type="button" id="menu-start-btn" class="title-menu-btn is-selected" data-menu-item="true" disabled>
-                <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                <span class="menu-label">START NEW RUN</span>
-                <span class="menu-meta">DOOR 01</span>
-              </button>
-            </li>
-            <li id="menu-continue-item" class="hidden">
-              <button type="button" id="menu-continue-btn" class="title-menu-btn" data-menu-item="true" disabled>
-                <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                <span id="menu-continue-label" class="menu-label">CONTINUE</span>
-                <span id="menu-continue-meta" class="menu-meta">DOOR 02</span>
-              </button>
-            </li>
-            <li>
-              <button type="button" id="menu-select-btn" class="title-menu-btn" data-menu-item="true" disabled>
-                <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                <span class="menu-label">SELECT DOOR</span>
-                <span class="menu-meta">01 - 03</span>
-              </button>
-            </li>
-            <li>
-              <button type="button" id="menu-howto-btn" class="title-menu-btn" data-menu-item="true">
-                <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                <span class="menu-label">HOW TO PLAY</span>
-                <span class="menu-meta">CONTROLS</span>
-              </button>
-            </li>
-            <li>
-              <button type="button" id="menu-about-btn" class="title-menu-btn" data-menu-item="true">
-                <span class="menu-cursor" aria-hidden="true">-&gt;</span>
-                <span class="menu-label">ABOUT</span>
-                <span class="menu-meta">BRIEFING</span>
-              </button>
-            </li>
-          </ul>
-          <p class="menu-key-hint">// use <kbd>&uarr;</kbd> <kbd>&darr;</kbd> arrow keys to select &middot; <kbd>Enter</kbd> to confirm</p>
-        </nav>
+        <div class="doors-showcase-grid">
+          <!-- DOOR 01: EMAIL GATEWAY -->
+          <article id="showcase-card-1" class="showcase-door-card is-available" data-showcase-door="1" tabindex="0" role="button" aria-label="Door 01: Email Gateway. Status: Available. Click to launch.">
+            <div class="card-status-bar">
+              <span class="card-door-number">DOOR / 01</span>
+              <span class="card-status-tag tag-available">
+                <span class="status-beacon-dot"></span>AVAILABLE
+              </span>
+            </div>
+            <div class="card-blueprint-canvas" aria-hidden="true">
+                <svg class="blueprint-svg" viewBox="0 0 400 140" fill="none" aria-hidden="true" shape-rendering="geometricPrecision">
+                  <g stroke="#3a999c" stroke-width=".65" opacity=".46">
+                    <path d="m88 106 113-27 112 24-113 29z" stroke-dasharray="4 5"/>
+                    <path d="m111 106 90-21 89 18-90 22z" />
+                    <path d="m136 100 89 19m-65-25 90 19m-65-25 90 19m-142 5 91-22m-68 27 91-22m-68 27 91-22" opacity=".48"/>
+                    <path d="M77 55h6m-3-3v6m229 5h6m-3-3v6M101 128h6m-3-3v6m187-116h6m-3-3v6"/>
+                    <path d="M98 35v-9h12m191 90v9h-13M76 96h11m226-64h11" />
+                  </g>
+                  <g class="blueprint-asset-body" stroke-linejoin="round" stroke-linecap="round">
+                    <path d="m111 45 154-31 10 4 9 64-156 33-9-5z" fill="#102f37" stroke="#4aa9ac" stroke-width="1"/>
+                    <path d="m111 45 8 3 155-30-9-4z" fill="#365c62" stroke="#86d5d2"/>
+                    <path d="m111 45 8 3 9 67-9-5z" fill="#132932" stroke="#4a8f99"/>
+                    <g transform="matrix(1,-.2,.14,1,119,48)">
+                      <path d="M2 0h151l2 2v63l-2 2H2l-2-2V2z" fill="#103743" stroke="#77d9d6" stroke-width="1.45"/>
+                      <path d="m2 63 52-40 23 14 24-15 51 40z" fill="#164652"/>
+                      <path d="m3 63 51-39m47-1 51 40" stroke="#51aeb6" stroke-width="1.25"/>
+                      <path d="m1 2 72 38q4 2 8-.5L153 2" fill="#245460" stroke="#88dcdb" stroke-width="1.45"/>
+                      <path d="m7 3 67 33q4 2 7-.4L146 3" stroke="#528c92" stroke-width=".8"/>
+                      <path d="M5 15V7h7m132 0h6v7m0 41v6h-9M15 61H6v-6" stroke="#91dfd8"/>
+                      <path d="M27 60h16m4 0h4m57-1h13" stroke="#4d8c94" stroke-width="1.4"/>
+                    </g>
+                    <path d="m99 64 8-2m-9 5 5-1m175 26 9-2m-10 5 5-1" stroke="#73bfc0" stroke-width=".75"/>
+                    <path d="M141 115v8m111-34v13" stroke="#46909b" stroke-dasharray="1 3"/>
+                  </g>
+                </svg>
+              </div>
+            <div class="card-footer-row">
+              <h3 class="channel-heading">EMAIL GATEWAY</h3>
+              <span class="action-arrow-icon" aria-hidden="true">&rarr;</span>
+            </div>
+          </article>
 
-        <p id="menu-status" class="mono-note mono-note-warning hidden" role="alert"></p>
-        <p id="menu-storage-note" class="mono-note hidden">// browser storage is blocked: gameplay works normally, but progress will not persist after closing the tab</p>
+          <!-- DOOR 02: SMS RELAY -->
+          <article id="showcase-card-2" class="showcase-door-card is-locked" data-showcase-door="2" tabindex="0" role="button" aria-label="Door 02: SMS Relay. Status: Locked.">
+            <div class="card-status-bar">
+              <span class="card-door-number">DOOR / 02</span>
+              <span id="showcase-card-status-2" class="card-status-tag tag-locked">
+                <span class="status-beacon-dot"></span>LOCKED
+              </span>
+            </div>
+            <div class="card-blueprint-canvas" aria-hidden="true">
+                <svg class="blueprint-svg" viewBox="0 0 400 140" fill="none" aria-hidden="true" shape-rendering="geometricPrecision">
+                  <g stroke="#3a999c" stroke-width=".65" opacity=".46">
+                    <path d="m88 106 113-27 112 24-113 29z" stroke-dasharray="4 5"/>
+                    <path d="m111 106 90-21 89 18-90 22z" />
+                    <path d="m136 100 89 19m-65-25 90 19m-65-25 90 19m-142 5 91-22m-68 27 91-22m-68 27 91-22" opacity=".48"/>
+                    <path d="M77 55h6m-3-3v6m229 5h6m-3-3v6M101 128h6m-3-3v6m187-116h6m-3-3v6"/>
+                    <path d="M98 35v-9h12m191 90v9h-13M76 96h11m226-64h11" />
+                  </g>
+                  <g class="blueprint-asset-body" stroke-linejoin="round" stroke-linecap="round">
+                    <g transform="matrix(.97,-.215,-.56,.76,198,27)">
+                      <path d="M8 4h65q7 0 7 7v105q0 8-9 9H8q-8-.3-10-7L-3 14Q-3 7 8 4z" fill="#0c2933" stroke="#64abad" stroke-width="1.2"/>
+                      <path d="M6 0h64q8 0 8 8v104q0 7-8 7H6q-8 0-8-8V9q0-8 8-9z" fill="#2a4d55" stroke="#92d7d4" stroke-width="1.6"/>
+                      <path d="m0 112 2 7m63 .5 2.5 5m-43-2h12" stroke="#54858c" stroke-width="1.15"/>
+                      <rect x="3.8" y="5" width="68.4" height="107.8" rx="4.8" fill="#102f3c" stroke="#529aa3" stroke-width="1.1"/>
+                      <path d="M24 5h29l-2 4H26z" fill="#54858c" />
+                      <path d="M9 90h57m-58 7h39m-39 4h21m22 0h14" stroke="#50858c" stroke-width=".85" />
+                      <path d="M31 109h13" stroke="#b3e5df" stroke-width="1.8"/>
+                      <g transform="translate(8,31)">
+                        <path d="M1 5 4 2h52l-2 35H19l-6 5-.5-5H2z" fill="#0e222d" />
+                        <path d="M2 0h53l2 2v29l-3 3H20l-9 7 1-7H2l-2-2V3z" fill="#27616b" stroke="#83dcd9" stroke-width="1.45"/>
+                        <path d="M8 9h37m-37 6h28m-28 6h16" stroke="#9cd8d6" stroke-width="2.2"/>
+                      </g>
+                      <path d="M80 22v17m0 6v8m-82 7v10" stroke="#64a3a7" stroke-width="1.2"/>
+                    </g>
+                    <path d="m144 59-11 3m12 1-7 2m134-8 11-3m-10 6 6-1" stroke="#68a6ae" stroke-width=".8"/>
+                    <path d="M151 107v13m99-57v36" stroke="#40909a" stroke-width=".75" stroke-dasharray="2 4"/>
+                  </g>
+                </svg>
+              </div>
+            <div class="card-footer-row">
+              <h3 class="channel-heading">SMS RELAY</h3>
+              <span id="showcase-card-lock-2" class="action-lock-icon" aria-hidden="true">&#x1F512;</span>
+            </div>
+          </article>
 
-        <p class="hero-disclaimer" role="note">
-          <strong>Educational Simulation:</strong> All brands, people, domains, email addresses, phone numbers, and scenario content in this game are completely fictional.
-        </p>
+          <!-- DOOR 03: CHAT TERMINAL -->
+          <article id="showcase-card-3" class="showcase-door-card is-locked" data-showcase-door="3" tabindex="0" role="button" aria-label="Door 03: Chat Terminal. Status: Locked.">
+            <div class="card-status-bar">
+              <span class="card-door-number">DOOR / 03</span>
+              <span id="showcase-card-status-3" class="card-status-tag tag-locked">
+                <span class="status-beacon-dot"></span>LOCKED
+              </span>
+            </div>
+            <div class="card-blueprint-canvas" aria-hidden="true">
+                <svg class="blueprint-svg" viewBox="0 0 400 140" fill="none" aria-hidden="true" shape-rendering="geometricPrecision">
+                  <g stroke="#3a999c" stroke-width=".65" opacity=".46">
+                    <path d="m88 106 113-27 112 24-113 29z" stroke-dasharray="4 5"/>
+                    <path d="m111 106 90-21 89 18-90 22z" />
+                    <path d="m136 100 89 19m-65-25 90 19m-65-25 90 19m-142 5 91-22m-68 27 91-22m-68 27 91-22" opacity=".48"/>
+                    <path d="M77 55h6m-3-3v6m229 5h6m-3-3v6M101 128h6m-3-3v6m187-116h6m-3-3v6"/>
+                    <path d="M98 35v-9h12m191 90v9h-13M76 96h11m226-64h11" />
+                  </g>
+                  <g class="blueprint-asset-body" stroke-linejoin="round" stroke-linecap="round">
+                    <g transform="matrix(1,-.20,.06,1,169,34)">
+                      <path d="m3 0 6-3h96l4 4v47l-4 5-5 1H88v12l-10-5-9-8H4l-4-4V5z" fill="#173c47" stroke="#5eaaaf" stroke-width="1"/>
+                      <path d="m3 0 6-3h96l4 4-6 2-2-3z" fill="#375b62" stroke="#80c6c6" stroke-width="1"/>
+                      <path d="M3 0h97l3 3v44l-3 3H85v13L68 50H3l-3-3V4z" fill="#17434f" stroke="#6fb8c0" stroke-width="1.3"/>
+                      <path d="M21 13h62m-62 6h41" stroke="#619397" stroke-width="1.3"/>
+                      <path d="M83 39h12v-6" stroke="#78afb0" stroke-width="1"/>
+                    </g>
+                    <g transform="matrix(1,-.20,.055,1,115,61)">
+                      <path d="m0 3 9-5 4-2h102l4 4v44l-2 4-8 6H38L16 68l-4-3 1-14H3l-3-3z" fill="#13303a" stroke="#5bafb0" stroke-width="1"/>
+                      <path d="m1 2 8-5h105l5 3-8 5-3-3z" fill="#395e65" stroke="#94d9d4" stroke-width="1"/>
+                      <path d="M4 2h104l4 4v43l-4 5H36L14 68l2-14H4l-4-4V6z" fill="#1b4d57" stroke="#84d7d4" stroke-width="1.6"/>
+                      <path d="M6 15V9h9m81 0h9v6m-1 25v7h-9" stroke="#75b5ba" stroke-width="1"/>
+                      <path d="m12 52-5-.2-4-3" stroke="#477f89" stroke-width="1"/>
+                      <g fill="#9cdedb" stroke="#a7dfda" stroke-width=".65">
+                        <path d="m31 25 2-2h5l2 2v5l-2 2h-5l-2-2z"/>
+                        <path d="m51 25 2-2h5l2 2v5l-2 2h-5l-2-2z"/>
+                        <path d="m71 25 2-2h5l2 2v5l-2 2h-5l-2-2z"/>
+                      </g>
+                    </g>
+                    <path d="m101 74 7-2m-7 6 4-1m180-40 8-2m-7 5 5-1" stroke="#70afb2" stroke-width=".8"/>
+                    <path d="M152 111v11m102-55v34" stroke="#468d98" stroke-width=".75" stroke-dasharray="2 4"/>
+                  </g>
+                </svg>
+              </div>
+            <div class="card-footer-row">
+              <h3 class="channel-heading">CHAT TERMINAL</h3>
+              <span id="showcase-card-lock-3" class="action-lock-icon" aria-hidden="true">&#x1F512;</span>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
+
+
+    <!-- Mission Dossier Modal for Showcase Cards -->
+    <div id="door-dossier-modal" class="dossier-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="dossier-door-title">
+      <div class="dossier-card">
+        <div class="dossier-header">
+          <div class="dossier-header-left">
+            <span class="dossier-meta">// MISSION INTEL &middot; THREAT BRIEFING</span>
+            <h2 id="dossier-door-title" class="dossier-title">DOOR 01 // EMAIL GATEWAY</h2>
+          </div>
+          <button type="button" id="dossier-close-btn" class="dossier-close-btn" aria-label="Close dossier">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="dossier-body">
+          <div class="dossier-tags-row">
+            <span id="dossier-channel-tag" class="dossier-pill pill-cyan">EMAIL GATEWAY</span>
+            <span id="dossier-tier-tag" class="dossier-pill pill-tier">TIER 1 &middot; CRUDE SCAMS</span>
+            <span id="dossier-status-badge" class="dossier-pill pill-status status-avail">AVAILABLE</span>
+          </div>
+
+          <div class="dossier-section">
+            <h3 class="dossier-subtitle">// OPERATOR OVERVIEW</h3>
+            <p id="dossier-desc" class="dossier-text">
+              Automated phishing campaigns, mass sweepstakes, and crude payload drops targeting corporate inboxes on the night shift. Separate real vendor receipts from social engineering traps.
+            </p>
+          </div>
+
+          <div class="dossier-section">
+            <h3 class="dossier-subtitle">// KEY THREAT SIGNALS TO INSPECT</h3>
+            <div class="dossier-flags-grid">
+              <div class="dossier-flag-item">
+                <span class="flag-icon" aria-hidden="true">&#x25C6;</span>
+                <div class="flag-text-group">
+                  <strong id="dossier-flag-1-title">Lookalike Domains</strong>
+                  <span id="dossier-flag-1-desc">Check sender addresses for character swaps and unverified hosts.</span>
+                </div>
+              </div>
+              <div class="dossier-flag-item">
+                <span class="flag-icon" aria-hidden="true">&#x25C6;</span>
+                <div class="flag-text-group">
+                  <strong id="dossier-flag-2-title">Artificial Urgency</strong>
+                  <span id="dossier-flag-2-desc">Threats of account suspension designed to bypass careful inspection.</span>
+                </div>
+              </div>
+              <div class="dossier-flag-item">
+                <span class="flag-icon" aria-hidden="true">&#x25C6;</span>
+                <div class="flag-text-group">
+                  <strong id="dossier-flag-3-title">Disguised Attachments</strong>
+                  <span id="dossier-flag-3-desc">Executable files or mobile installer packages (.apk, .scr).</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dossier-parameters-bar">
+            <div class="param-chip"><span class="param-label">QUEUE:</span> <span class="param-value">6 Messages</span></div>
+            <div class="param-chip"><span class="param-label">TIME:</span> <span class="param-value">120 Seconds</span></div>
+            <div class="param-chip"><span class="param-label">LIVES:</span> <span class="param-value">3 Shield Lives</span></div>
+            <div class="param-chip"><span class="param-label">HINTS:</span> <span class="param-value">1 Analyst Hint</span></div>
+          </div>
+        </div>
+
+        <div class="dossier-footer">
+          <button type="button" id="dossier-cancel-btn" class="btn btn-outline dossier-btn-cancel">
+            CANCEL
+          </button>
+          <button type="button" id="dossier-play-btn" class="btn btn-primary dossier-btn-play">
+            <span class="btn-icon" aria-hidden="true">&#x25B6;</span>
+            <span id="dossier-play-text">START DOOR 01</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tactical Bottom Bar matching screenshot footer -->
+    <div class="showcase-bottom-bar">
+      <div class="site-container bottom-bar-inner">
+        <span class="simulation-note">
+          <span class="diamond-glyph" aria-hidden="true">&#x25C7;</span>
+          Educational simulation / All messages and identities are fictional.
+        </span>
+        <a href="#if-you-fell-for-it" class="fell-phish-link">Fell for a phish? &#x2197;</a>
+      </div>
+    </div>
 
     <!-- 2. Website Sections Below the Title Screen -->
     <div class="site-sections">
@@ -363,7 +703,7 @@
 
           <div class="action-row">
             <button type="button" id="howto-back-btn" class="btn btn-primary">
-              TITLE SCREEN <span class="key-hint">[ESC]</span>
+              MAIN MENU <span class="key-hint">[ESC]</span>
             </button>
           </div>
         </div>
@@ -396,7 +736,7 @@
 
           <div class="action-row">
             <button type="button" id="select-back-btn" class="btn btn-outline">
-              TITLE SCREEN <span class="key-hint">[ESC]</span>
+              MAIN MENU <span class="key-hint">[ESC]</span>
             </button>
           </div>
         </div>
@@ -510,9 +850,9 @@
               RESUME <span class="key-hint">[ESC]</span>
             </button>
             <button type="button" id="pause-restart-btn" class="btn btn-outline btn-block">RESTART DOOR</button>
-            <button type="button" id="pause-menu-btn" class="btn btn-outline btn-block">TITLE SCREEN</button>
+            <button type="button" id="pause-menu-btn" class="btn btn-outline btn-block">MAIN MENU</button>
           </div>
-          <p class="mono-note">// restart door or title screen discards progress on this door</p>
+          <p class="mono-note">// restart door or main menu discards progress on this door</p>
         </div>
       </section>
 
@@ -542,7 +882,7 @@
             <button type="button" id="unlocked-next-btn" class="btn btn-primary">
               NEXT DOOR <span class="key-hint">[ENTER]</span>
             </button>
-            <button type="button" id="unlocked-menu-btn" class="btn btn-outline">TITLE SCREEN</button>
+            <button type="button" id="unlocked-menu-btn" class="btn btn-outline">MAIN MENU</button>
           </div>
         </div>
       </section>
@@ -561,7 +901,7 @@
             <button type="button" id="failed-retry-btn" class="btn btn-primary">
               RETRY DOOR <span class="key-hint">[ENTER]</span>
             </button>
-            <button type="button" id="failed-menu-btn" class="btn btn-outline">TITLE SCREEN</button>
+            <button type="button" id="failed-menu-btn" class="btn btn-outline">MAIN MENU</button>
           </div>
         </div>
       </section>
@@ -636,7 +976,7 @@
             <button type="button" id="btn-restart" class="btn btn-primary">
               PLAY AGAIN <span class="key-hint">[ENTER]</span>
             </button>
-            <button type="button" id="end-menu-btn" class="btn btn-outline">TITLE SCREEN</button>
+            <button type="button" id="end-menu-btn" class="btn btn-outline">MAIN MENU</button>
           </div>
         </div>
       </section>

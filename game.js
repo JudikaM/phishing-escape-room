@@ -191,9 +191,13 @@
     }
   }
 
-  function focusElement(node) {
+  function focusElement(node, options) {
     if (node && typeof node.focus === "function") {
-      node.focus();
+      try {
+        node.focus(options !== undefined ? options : { preventScroll: true });
+      } catch (err) {
+        node.focus();
+      }
     }
   }
 
@@ -524,6 +528,33 @@
     elMenuBest.textContent = String(getBestScore());
     elMenuProgress.textContent = state.clearedDoors + " / " + LEVEL_COUNT;
 
+    var elShowcaseBest = byId("showcase-best-score");
+    var elShowcaseProgress = byId("showcase-progress");
+    if (elShowcaseBest) {
+      elShowcaseBest.textContent = String(getBestScore());
+    }
+    if (elShowcaseProgress) {
+      elShowcaseProgress.textContent = state.clearedDoors + " / " + LEVEL_COUNT;
+    }
+
+    var highest = highestAvailableDoor();
+    [2, 3].forEach(function (d) {
+      var card = byId("showcase-card-" + d);
+      var statusTag = byId("showcase-card-status-" + d);
+      var lockIcon = byId("showcase-card-lock-" + d);
+      if (card && statusTag) {
+        var isAvail = d <= highest;
+        card.classList.toggle("is-available", isAvail);
+        card.classList.toggle("is-locked", !isAvail);
+        statusTag.className = "card-status-tag " + (isAvail ? "tag-available" : "tag-locked");
+        statusTag.textContent = isAvail ? "AVAILABLE" : "LOCKED";
+        if (lockIcon) {
+          lockIcon.textContent = isAvail ? "\u2192" : "\uD83D\uDD12";
+          lockIcon.className = isAvail ? "action-arrow-icon" : "action-lock-icon";
+        }
+      }
+    });
+
     var continueDoor = getContinueDoor();
     elMenuContinueItem.classList.toggle("hidden", continueDoor === 0);
     if (continueDoor) {
@@ -555,9 +586,9 @@
     scrollToTop();
     var activeButtons = getActiveTitleMenuButtons();
     if (activeButtons[state.selectedMenuIndex]) {
-      focusElement(activeButtons[state.selectedMenuIndex]);
+      setSelectedMenuButton(activeButtons[state.selectedMenuIndex], false);
     }
-    announce("Title screen.");
+    announce("Main menu.");
   }
 
   function scrollToSiteSection(sectionId, announcement) {
@@ -1409,9 +1440,277 @@
     }
   }
 
+  /* ---------- Interactive Robot Companion (Beloved Cyber Droid) ---------- */
+  function initRobotCompanion() {
+    var elHead = document.getElementById("robot-head");
+    var elEyesGroup = document.getElementById("robot-eyes-group");
+    var elSpeech = document.getElementById("robot-speech-text");
+    var elSpeechTag = document.getElementById("speech-mode-tag");
+    var elRobot = document.getElementById("soc-robot");
+
+    if (!elHead || !elRobot) {
+      return;
+    }
+
+    var isInteractive = false;
+    var idleTipIndex = 0;
+
+    var idleTips = [
+      "// TIP: Legitimate security teams will never ask for your SMS OTP code.",
+      "// TIP: Check sender domains carefully (.example vs lookalike typos).",
+      "// TIP: Scammers create fake urgency to make you click without thinking.",
+      "// TIP: In Door 01-03, press [H] to get an analyst hint (1 per door).",
+      "// TIP: Never run unexpected attachments (.apk, .exe, .scr).",
+      "// TIP: Use keyboard shortcuts: [P] Phishing \u00B7 [S] Safe \u00B7 [Enter] Next."
+    ];
+
+    var clickGreetings = [
+      "// HELLO OPERATOR! Sentinel AI is calibrated and ready to assist.",
+      "// ALL SYSTEMS NOMINAL: Threat intelligence heuristics operational!",
+      "// READY WHEN YOU ARE! Let's breach these blast doors together.",
+      "// TIP: Stay alert! Attackers disguise links and impersonate staff on Door 02 & 03."
+    ];
+    var clickGreetingIndex = 0;
+
+    function setSpeech(text, modeTag) {
+      if (elSpeech) {
+        elSpeech.style.opacity = "0.4";
+        setTimeout(function () {
+          elSpeech.textContent = text;
+          elSpeech.style.opacity = "1";
+        }, 120);
+      }
+      if (elSpeechTag && modeTag) {
+        elSpeechTag.textContent = modeTag;
+      }
+    }
+
+    function setEyeExpression(className) {
+      if (!elEyesGroup) return;
+      elEyesGroup.classList.remove("is-closed", "is-happy", "is-alert", "is-wink", "is-blinking");
+      if (className) {
+        elEyesGroup.classList.add(className);
+      }
+    }
+
+    // Check accessibility: prefers-reduced-motion
+    var prefersReducedMotion = false;
+    try {
+      prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch (e) {}
+
+    // Cursor tracking state variables in full 3D (Pitch, Yaw, Roll, Parallax)
+    var targetRotX = 0; // Vertical pitch (nod down / up)
+    var targetRotY = 0; // Horizontal turn (yaw left / right)
+    var targetRotZ = 0; // Subtle curious roll
+    var targetHeadX = 0;
+    var targetHeadY = 0;
+    var targetEyeX = 0;
+    var targetEyeY = 0;
+
+    var curRotX = 0;
+    var curRotY = 0;
+    var curRotZ = 0;
+    var curHeadX = 0;
+    var curHeadY = 0;
+    var curEyeX = 0;
+    var curEyeY = 0;
+
+    var rafId = null;
+
+    function clamp(val, min, max) {
+      return Math.max(min, Math.min(max, val));
+    }
+
+    function onPointerMove(e) {
+      if (prefersReducedMotion || !elHead) return;
+
+      var rect = elHead.getBoundingClientRect();
+      var centerX = rect.left + rect.width / 2;
+      var centerY = rect.top + rect.height / 2;
+
+      var dx = e.clientX - centerX;
+      var dy = e.clientY - centerY;
+
+      // Dynamic viewport reach scaling for natural, responsive tracking
+      var maxDistX = Math.max(window.innerWidth * 0.45, 360);
+      var maxDistY = Math.max(window.innerHeight * 0.45, 300);
+
+      var normX = clamp(dx / maxDistX, -1, 1);
+      var normY = clamp(dy / maxDistY, -1, 1);
+
+      // 1. Horizontal Turn (Yaw in 3D: -16deg to +16deg)
+      // Turning head in 3D space to face cursor direction
+      targetRotY = normX * 16;
+
+      // 2. Vertical Nod / Pitch (Looking Down / Up: -13deg to +10deg)
+      // When cursor is below the head (dy > 0, normY > 0), head tilts DOWN (negative rotateX)
+      // When cursor is above the head (dy < 0, normY < 0), head tilts UP (positive rotateX)
+      targetRotX = normY > 0 ? -normY * 13 : -normY * 10;
+
+      // 3. Subtle Curious Cock (Roll Z: -3.5deg to +3.5deg)
+      targetRotZ = normX * 3.5;
+
+      // 4. Parallax Translation
+      targetHeadX = normX * 6;
+      // Head dips downward when looking down (+6px) and lifts when looking up (-5px)
+      targetHeadY = normY > 0 ? normY * 6 : normY * 5;
+
+      // 5. Visor Gaze & Eye Tracking (Independent Eye Glance inside Visor)
+      targetEyeX = normX * 13;
+      targetEyeY = normY > 0 ? normY * 10 : normY * 7;
+    }
+
+    function onPointerLeave() {
+      // Smooth return to neutral forward-facing pose
+      targetRotX = 0;
+      targetRotY = 0;
+      targetRotZ = 0;
+      targetHeadX = 0;
+      targetHeadY = 0;
+      targetEyeX = 0;
+      targetEyeY = 0;
+    }
+
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    document.documentElement.addEventListener("mouseleave", onPointerLeave);
+    window.addEventListener("blur", onPointerLeave);
+
+    // Smooth Lerp Animation Loop with requestAnimationFrame
+    function updateTracking() {
+      if (!prefersReducedMotion) {
+        var lerpFactor = 0.09;
+        curRotX += (targetRotX - curRotX) * lerpFactor;
+        curRotY += (targetRotY - curRotY) * lerpFactor;
+        curRotZ += (targetRotZ - curRotZ) * lerpFactor;
+        curHeadX += (targetHeadX - curHeadX) * lerpFactor;
+        curHeadY += (targetHeadY - curHeadY) * lerpFactor;
+
+        curEyeX += (targetEyeX - curEyeX) * 0.12;
+        curEyeY += (targetEyeY - curEyeY) * 0.12;
+
+        if (elHead) {
+          elHead.style.transform =
+            "translate3d(" + curHeadX.toFixed(2) + "px, " + curHeadY.toFixed(2) + "px, 0px) " +
+            "rotateX(" + curRotX.toFixed(2) + "deg) " +
+            "rotateY(" + curRotY.toFixed(2) + "deg) " +
+            "rotateZ(" + curRotZ.toFixed(2) + "deg)";
+        }
+
+        if (elEyesGroup) {
+          elEyesGroup.style.transform =
+            "translate3d(" + curEyeX.toFixed(2) + "px, " + curEyeY.toFixed(2) + "px, 0px)";
+        }
+      }
+      rafId = requestAnimationFrame(updateTracking);
+    }
+
+    rafId = requestAnimationFrame(updateTracking);
+
+    // Pause tracking when tab is hidden to conserve CPU
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) {
+        if (rafId) cancelAnimationFrame(rafId);
+      } else {
+        rafId = requestAnimationFrame(updateTracking);
+      }
+    });
+
+    // Natural blinking timer
+    var blinkCounter = 0;
+    setInterval(function () {
+      if (isInteractive) return;
+      blinkCounter += 1;
+      var blinkClass = blinkCounter % 6 === 0 ? "is-wink" : "is-blinking";
+      setEyeExpression(blinkClass);
+      setTimeout(function () {
+        setEyeExpression(null);
+      }, 160);
+    }, 3800);
+
+    // Rotating Idle Intel Tips (every 9s)
+    setInterval(function () {
+      if (isInteractive) return;
+      var pool = idleTips.slice();
+      if (state.bestScore > 0) {
+        pool.push("// RECORD: Current best triage score on record: " + state.bestScore + " PTS.");
+      }
+      if (state.unlockedDoors && state.unlockedDoors.length > 0) {
+        pool.push("// CLEARANCE: Door 0" + state.unlockedDoors.length + " unlocked. Continue anytime!");
+      }
+      idleTipIndex = (idleTipIndex + 1) % pool.length;
+      setSpeech(pool[idleTipIndex], "INTEL");
+    }, 9000);
+
+    // Click reaction: close eyes, deliver greeting
+    var isBotClosed = false;
+
+    function resetBotToNormal() {
+      if (isBotClosed) {
+        isBotClosed = false;
+        isInteractive = false;
+        setEyeExpression(null);
+        setSpeech("// SENTINEL BOT ONLINE \u00B7 READY FOR TRIAGE", "STANDBY");
+      }
+    }
+
+    if (elRobot) {
+      elRobot.addEventListener("click", function (e) {
+        e.stopPropagation();
+        isBotClosed = true;
+        isInteractive = true;
+        setEyeExpression("is-closed");
+
+        var greeting = clickGreetings[clickGreetingIndex % clickGreetings.length];
+        clickGreetingIndex += 1;
+        setSpeech(greeting, "COMMS");
+      });
+    }
+
+    window.addEventListener("click", function (e) {
+      if (isBotClosed && elRobot && !elRobot.contains(e.target)) {
+        resetBotToNormal();
+      }
+    });
+
+    window.addEventListener("pointerdown", function (e) {
+      if (isBotClosed && elRobot && !elRobot.contains(e.target)) {
+        resetBotToNormal();
+      }
+    });
+
+    // Menu reaction buttons
+    var startBtn = document.getElementById("menu-start-btn");
+    var continueBtn = document.getElementById("menu-continue-btn");
+    var selectBtn = document.getElementById("menu-select-btn");
+    var howtoBtn = document.getElementById("menu-howto-btn");
+    var aboutBtn = document.getElementById("menu-about-btn");
+
+    function attachMenuReaction(btn, text, modeTag, eyeClass) {
+      if (!btn) return;
+      btn.addEventListener("mouseenter", function () {
+        isInteractive = true;
+        setEyeExpression(eyeClass || "is-alert");
+        setSpeech(text, modeTag || "TACTICAL");
+      });
+      btn.addEventListener("mouseleave", function () {
+        isInteractive = false;
+        setEyeExpression(null);
+        setSpeech("// SENTINEL BOT ONLINE \u00B7 READY FOR TRIAGE", "STANDBY");
+      });
+    }
+
+    attachMenuReaction(startBtn, "// BREACH PROTOCOL: Commencing Door 01 containment triage!", "DEPLOY", "is-alert");
+    attachMenuReaction(continueBtn, "// PROTOCOL: Resuming run from your latest cleared blast door.", "RESUME", "is-happy");
+    attachMenuReaction(selectBtn, "// ACCESS OVERRIDE: Select clearance door (01 to 03).", "OVERRIDE", null);
+    attachMenuReaction(howtoBtn, "// BRIEFING: [P] Phish \u00B7 [S] Safe \u00B7 [H] Hint \u00B7 [Esc] Pause.", "BRIEF", null);
+    attachMenuReaction(aboutBtn, "// DIRECTIVE: Reviewing server room lockdown containment notes.", "INTEL", null);
+  }
+
   /* ---------- Init ---------- */
 
   function init() {
+    initRobotCompanion();
     elMenuStart.addEventListener("click", function () {
       startNewRun(1);
     });
@@ -1455,6 +1754,178 @@
           startNewRun(door);
         }
       });
+    });
+
+    var elHeroStartCta = byId("hero-start-cta");
+    if (elHeroStartCta) {
+      elHeroStartCta.addEventListener("click", function () {
+        if (!state.loaded) {
+          return;
+        }
+        var continueDoor = getContinueDoor();
+        if (continueDoor) {
+          startNewRun(continueDoor);
+        } else {
+          startNewRun(1);
+        }
+      });
+    }
+
+    // Door Dossier Briefing Data & Modal Handling
+    var DOOR_DOSSIERS = {
+      1: {
+        doorNum: 1,
+        title: "DOOR 01 // EMAIL GATEWAY",
+        channel: "EMAIL GATEWAY",
+        tier: "TIER 1 \u00B7 CRUDE SCAMS",
+        desc: "Mass automated phishing campaigns, lottery giveaways, and crude payload drops targeting corporate inboxes on the night shift. Scrutinize sender domains, fake delivery APKs, and urgency traps.",
+        flags: [
+          { title: "Lookalike Domains", desc: "Check sender addresses for typosquatting, generic handles, and unverified domains." },
+          { title: "Artificial Urgency", desc: "Threats of instant account suspension crafted to bypass careful verification." },
+          { title: "Disguised APK / Installers", desc: "Unexpected mobile package names (.apk) or executable attachments pretending to be tracking tools." }
+        ],
+        playText: "LAUNCH DOOR 01 (EMAIL)"
+      },
+      2: {
+        doorNum: 2,
+        title: "DOOR 02 // SMS RELAY",
+        channel: "SMS RELAY",
+        tier: "TIER 2 \u00B7 SPEAR PHISHING",
+        desc: "Targeted smishing attacks, disguised subdomain links, and executive impersonation sent directly to analyst mobile relays. Separate urgent authentic updates from crafted traps.",
+        flags: [
+          { title: "Executive Impersonation", desc: "Private numbers claiming to be company executives demanding immediate action." },
+          { title: "Subdomain Traps", desc: "URLs containing legitimate company names inside a subdomain on an untrusted host." },
+          { title: "Sensitive OTP Demands", desc: "Direct messages asking you to reply with one-time passcodes or account passwords." }
+        ],
+        playText: "LAUNCH DOOR 02 (SMS)"
+      },
+      3: {
+        doorNum: 3,
+        title: "DOOR 03 // CHAT TERMINAL",
+        channel: "CHAT TERMINAL",
+        tier: "TIER 3 \u00B7 MIXED SIGNALS",
+        desc: "Sophisticated workplace chat lures where authentic infrastructure alerts and carefully disguised credential harvesters look nearly identical. Exercise maximum scrutiny.",
+        flags: [
+          { title: "High-Pressure Recruitment", desc: "Unsolicited job placements, instant interviews, and escrow incentives skipping normal verification." },
+          { title: "Internal Channel Handoffs", desc: "Chat handles requesting private channel handoffs and external direct downloads." },
+          { title: "Mixed Legitimate Alerts", desc: "Carefully distinguish authentic system security notices from crafted social engineering." }
+        ],
+        playText: "LAUNCH DOOR 03 (CHAT)"
+      }
+    };
+
+    var activeDossierDoor = 1;
+    var elDossierModal = byId("door-dossier-modal");
+    var elDossierTitle = byId("dossier-door-title");
+    var elDossierChannel = byId("dossier-channel-tag");
+    var elDossierTier = byId("dossier-tier-tag");
+    var elDossierStatus = byId("dossier-status-badge");
+    var elDossierDesc = byId("dossier-desc");
+    var elDossierFlag1Title = byId("dossier-flag-1-title");
+    var elDossierFlag1Desc = byId("dossier-flag-1-desc");
+    var elDossierFlag2Title = byId("dossier-flag-2-title");
+    var elDossierFlag2Desc = byId("dossier-flag-2-desc");
+    var elDossierFlag3Title = byId("dossier-flag-3-title");
+    var elDossierFlag3Desc = byId("dossier-flag-3-desc");
+    var elDossierPlayBtn = byId("dossier-play-btn");
+    var elDossierPlayText = byId("dossier-play-text");
+    var elDossierCloseBtn = byId("dossier-close-btn");
+    var elDossierCancelBtn = byId("dossier-cancel-btn");
+
+    function openDoorDossier(doorNum) {
+      var data = DOOR_DOSSIERS[doorNum];
+      if (!data || !elDossierModal) return;
+
+      activeDossierDoor = doorNum;
+      var highest = highestAvailableDoor();
+      var isAvail = doorNum <= highest;
+
+      if (elDossierTitle) elDossierTitle.textContent = data.title;
+      if (elDossierChannel) elDossierChannel.textContent = data.channel;
+      if (elDossierTier) elDossierTier.textContent = data.tier;
+      if (elDossierStatus) {
+        elDossierStatus.textContent = isAvail ? "AVAILABLE" : "LOCKED";
+        elDossierStatus.className = "dossier-pill pill-status " + (isAvail ? "status-avail" : "status-locked");
+      }
+
+      if (elDossierDesc) elDossierDesc.textContent = data.desc;
+      if (elDossierFlag1Title) elDossierFlag1Title.textContent = data.flags[0].title;
+      if (elDossierFlag1Desc) elDossierFlag1Desc.textContent = data.flags[0].desc;
+      if (elDossierFlag2Title) elDossierFlag2Title.textContent = data.flags[1].title;
+      if (elDossierFlag2Desc) elDossierFlag2Desc.textContent = data.flags[1].desc;
+      if (elDossierFlag3Title) elDossierFlag3Title.textContent = data.flags[2].title;
+      if (elDossierFlag3Desc) elDossierFlag3Desc.textContent = data.flags[2].desc;
+
+      if (elDossierPlayBtn && elDossierPlayText) {
+        elDossierPlayBtn.disabled = !isAvail;
+        if (isAvail) {
+          elDossierPlayText.textContent = data.playText;
+        } else {
+          elDossierPlayText.textContent = "LOCKED - CLEAR DOOR 0" + (doorNum - 1) + " FIRST";
+        }
+      }
+
+      elDossierModal.classList.remove("hidden");
+      if (isAvail && elDossierPlayBtn) {
+        focusElement(elDossierPlayBtn);
+      } else if (elDossierCloseBtn) {
+        focusElement(elDossierCloseBtn);
+      }
+      announce("Opened briefing for Door 0" + doorNum);
+    }
+
+    function closeDoorDossier() {
+      if (elDossierModal) {
+        elDossierModal.classList.add("hidden");
+      }
+    }
+
+    if (elDossierCloseBtn) {
+      elDossierCloseBtn.addEventListener("click", closeDoorDossier);
+    }
+    if (elDossierCancelBtn) {
+      elDossierCancelBtn.addEventListener("click", closeDoorDossier);
+    }
+    if (elDossierModal) {
+      elDossierModal.addEventListener("click", function (e) {
+        if (e.target === elDossierModal) {
+          closeDoorDossier();
+        }
+      });
+    }
+
+    if (elDossierPlayBtn) {
+      elDossierPlayBtn.addEventListener("click", function () {
+        var highest = highestAvailableDoor();
+        if (activeDossierDoor <= highest) {
+          closeDoorDossier();
+          startNewRun(activeDossierDoor);
+        }
+      });
+    }
+
+    window.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && elDossierModal && !elDossierModal.classList.contains("hidden")) {
+        closeDoorDossier();
+      }
+    });
+
+    [1, 2, 3].forEach(function (doorNum) {
+      var card = byId("showcase-card-" + doorNum);
+      if (card) {
+        card.addEventListener("click", function () {
+          if (!state.loaded) {
+            return;
+          }
+          openDoorDossier(doorNum);
+        });
+        card.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            card.click();
+          }
+        });
+      }
     });
 
     elBtnPhishing.addEventListener("click", function () {
@@ -1509,6 +1980,28 @@
       }
     }
 
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+
+    var homeLinks = document.querySelectorAll('a[href="#home"]');
+    for (var hl = 0; hl < homeLinks.length; hl += 1) {
+      homeLinks[hl].addEventListener("click", function (e) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        if (window.history && window.history.pushState) {
+          window.history.pushState(null, "", window.location.pathname + window.location.search);
+        }
+      });
+    }
+
+    if (window.location.hash === "#home" || window.location.hash === "") {
+      window.scrollTo(0, 0);
+      requestAnimationFrame(function () {
+        window.scrollTo(0, 0);
+      });
+    }
+
     document.addEventListener("keydown", handleKeyDown);
 
     state.clearedDoors = loadClearedDoors();
@@ -1529,7 +2022,7 @@
         if (state.screen === "menu") {
           var activeButtons = getActiveTitleMenuButtons();
           if (activeButtons[state.selectedMenuIndex]) {
-            focusElement(activeButtons[state.selectedMenuIndex]);
+            setSelectedMenuButton(activeButtons[state.selectedMenuIndex], false);
           }
         }
       })

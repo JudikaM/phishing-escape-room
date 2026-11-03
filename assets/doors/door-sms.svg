@@ -1,0 +1,28 @@
+<svg viewBox="0 0 400 140" fill="none" aria-hidden="true" shape-rendering="geometricPrecision">
+  <g stroke="#3a999c" stroke-width=".65" opacity=".46">
+    <path d="m88 106 113-27 112 24-113 29z" stroke-dasharray="4 5"/>
+    <path d="m111 106 90-21 89 18-90 22z" />
+    <path d="m136 100 89 19m-65-25 90 19m-65-25 90 19m-142 5 91-22m-68 27 91-22m-68 27 91-22" opacity=".48"/>
+    <path d="M77 55h6m-3-3v6m229 5h6m-3-3v6M101 128h6m-3-3v6m187-116h6m-3-3v6"/>
+    <path d="M98 35v-9h12m191 90v9h-13M76 96h11m226-64h11" />
+  </g>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <g transform="matrix(.97,-.215,-.56,.76,198,27)">
+      <path d="M8 4h65q7 0 7 7v105q0 8-9 9H8q-8-.3-10-7L-3 14Q-3 7 8 4z" fill="#0c2933" stroke="#64abad" stroke-width="1.2"/>
+      <path d="M6 0h64q8 0 8 8v104q0 7-8 7H6q-8 0-8-8V9q0-8 8-9z" fill="#2a4d55" stroke="#92d7d4" stroke-width="1.6"/>
+      <path d="m0 112 2 7m63 .5 2.5 5m-43-2h12" stroke="#54858c" stroke-width="1.15"/>
+      <rect x="3.8" y="5" width="68.4" height="107.8" rx="4.8" fill="#102f3c" stroke="#529aa3" stroke-width="1.1"/>
+      <path d="M24 5h29l-2 4H26z" fill="#54858c" />
+      <path d="M9 90h57m-58 7h39m-39 4h21m22 0h14" stroke="#50858c" stroke-width=".85" />
+      <path d="M31 109h13" stroke="#b3e5df" stroke-width="1.8"/>
+      <g transform="translate(8,31)">
+        <path d="M1 5 4 2h52l-2 35H19l-6 5-.5-5H2z" fill="#0e222d" />
+        <path d="M2 0h53l2 2v29l-3 3H20l-9 7 1-7H2l-2-2V3z" fill="#27616b" stroke="#83dcd9" stroke-width="1.45"/>
+        <path d="M8 9h37m-37 6h28m-28 6h16" stroke="#9cd8d6" stroke-width="2.2"/>
+      </g>
+      <path d="M80 22v17m0 6v8m-82 7v10" stroke="#64a3a7" stroke-width="1.2"/>
+    </g>
+    <path d="m144 59-11 3m12 1-7 2m134-8 11-3m-10 6 6-1" stroke="#68a6ae" stroke-width=".8"/>
+    <path d="M151 107v13m99-57v36" stroke="#40909a" stroke-width=".75" stroke-dasharray="2 4"/>
+  </g>
+</svg>

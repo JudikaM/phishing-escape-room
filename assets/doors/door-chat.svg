@@ -1,0 +1,32 @@
+<svg viewBox="0 0 400 140" fill="none" aria-hidden="true" shape-rendering="geometricPrecision">
+  <g stroke="#3a999c" stroke-width=".65" opacity=".46">
+    <path d="m88 106 113-27 112 24-113 29z" stroke-dasharray="4 5"/>
+    <path d="m111 106 90-21 89 18-90 22z" />
+    <path d="m136 100 89 19m-65-25 90 19m-65-25 90 19m-142 5 91-22m-68 27 91-22m-68 27 91-22" opacity=".48"/>
+    <path d="M77 55h6m-3-3v6m229 5h6m-3-3v6M101 128h6m-3-3v6m187-116h6m-3-3v6"/>
+    <path d="M98 35v-9h12m191 90v9h-13M76 96h11m226-64h11" />
+  </g>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <g transform="matrix(1,-.20,.06,1,169,34)">
+      <path d="m3 0 6-3h96l4 4v47l-4 5-5 1H88v12l-10-5-9-8H4l-4-4V5z" fill="#173c47" stroke="#5eaaaf" stroke-width="1"/>
+      <path d="m3 0 6-3h96l4 4-6 2-2-3z" fill="#375b62" stroke="#80c6c6" stroke-width="1"/>
+      <path d="M3 0h97l3 3v44l-3 3H85v13L68 50H3l-3-3V4z" fill="#17434f" stroke="#6fb8c0" stroke-width="1.3"/>
+      <path d="M21 13h62m-62 6h41" stroke="#619397" stroke-width="1.3"/>
+      <path d="M83 39h12v-6" stroke="#78afb0" stroke-width="1"/>
+    </g>
+    <g transform="matrix(1,-.20,.055,1,115,61)">
+      <path d="m0 3 9-5 4-2h102l4 4v44l-2 4-8 6H38L16 68l-4-3 1-14H3l-3-3z" fill="#13303a" stroke="#5bafb0" stroke-width="1"/>
+      <path d="m1 2 8-5h105l5 3-8 5-3-3z" fill="#395e65" stroke="#94d9d4" stroke-width="1"/>
+      <path d="M4 2h104l4 4v43l-4 5H36L14 68l2-14H4l-4-4V6z" fill="#1b4d57" stroke="#84d7d4" stroke-width="1.6"/>
+      <path d="M6 15V9h9m81 0h9v6m-1 25v7h-9" stroke="#75b5ba" stroke-width="1"/>
+      <path d="m12 52-5-.2-4-3" stroke="#477f89" stroke-width="1"/>
+      <g fill="#9cdedb" stroke="#a7dfda" stroke-width=".65">
+        <path d="m31 25 2-2h5l2 2v5l-2 2h-5l-2-2z"/>
+        <path d="m51 25 2-2h5l2 2v5l-2 2h-5l-2-2z"/>
+        <path d="m71 25 2-2h5l2 2v5l-2 2h-5l-2-2z"/>
+      </g>
+    </g>
+    <path d="m101 74 7-2m-7 6 4-1m180-40 8-2m-7 5 5-1" stroke="#70afb2" stroke-width=".8"/>
+    <path d="M152 111v11m102-55v34" stroke="#468d98" stroke-width=".75" stroke-dasharray="2 4"/>
+  </g>
+</svg>
