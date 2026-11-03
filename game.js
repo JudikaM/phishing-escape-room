@@ -7154,7 +7154,10 @@
     var starCountEl = byId("github-star-count");
     if (!starCountEl || typeof fetch !== "function") return;
     try {
-      fetch("https:" + "//api.github.com/repos/JudikaM/phishing-escape-room")
+      fetch("https:" + "//api.github.com/repos/JudikaM/phishing-escape-room?t=" + Date.now(), {
+        cache: "no-store",
+        headers: { "Accept": "application/vnd.github.v3+json" }
+      })
         .then(function (res) {
           if (!res.ok) return null;
           return res.json();
@@ -7165,14 +7168,25 @@
           }
         })
         .catch(function () {
-          // Fallback gracefully on network error or offline
+          // Fallback gracefully on network error, rate limit, or offline
         });
     } catch (e) {
       // Non-blocking
     }
   }
 
+  // Real-time synchronization: on load, when returning to tab, and periodic background poll
   syncGitHubStars();
+  if (typeof window !== "undefined" && window.addEventListener) {
+    window.addEventListener("focus", function () {
+      syncGitHubStars();
+    });
+    setInterval(function () {
+      if (typeof document === "undefined" || document.visibilityState === "visible") {
+        syncGitHubStars();
+      }
+    }, 30000);
+  }
   init();
 
 })();
