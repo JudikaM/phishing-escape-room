@@ -5911,6 +5911,8 @@
 
     var elEncClose = byId("encyclopedia-close-btn");
 
+    var elEncFooterClose = byId("encyclopedia-footer-close");
+    if (elEncFooterClose) elEncFooterClose.addEventListener("click", closeEncyclopediaModal);
     if (elEncClose) elEncClose.addEventListener("click", closeEncyclopediaModal);
 
     var elEncModal = byId("encyclopedia-modal");
@@ -5953,6 +5955,15 @@
 
     var elBadgesClose = byId("badges-close-btn");
 
+    var elBadgesFooterClose = byId("badges-footer-close");
+    if (elBadgesFooterClose) elBadgesFooterClose.addEventListener("click", closeBadgesModal);
+    var elBadgePreviewClose = byId("badge-preview-close");
+    if (elBadgePreviewClose) {
+      elBadgePreviewClose.addEventListener("click", function () {
+        var elSection = byId("badge-preview-section");
+        if (elSection) elSection.classList.add("hidden");
+      });
+    }
     if (elBadgesClose) elBadgesClose.addEventListener("click", closeBadgesModal);
 
     var elBadgesModal = byId("badges-modal");
