@@ -3364,7 +3364,7 @@ mark.quote-highlight {
 
   width: 320px;
 
-  height: 380px;
+  height: 410px;
 
   display: flex;
 
@@ -3384,7 +3384,7 @@ mark.quote-highlight {
 
   position: absolute;
 
-  top: 335px;
+  top: 365px;
 
   width: 130px;
 
@@ -3426,7 +3426,7 @@ mark.quote-highlight {
 
   cursor: pointer;
 
-  margin-top: 4px;
+  margin-top: 18px;
 
   margin-bottom: 8px;
 
@@ -3823,7 +3823,7 @@ mark.quote-highlight {
   max-width: 236px;
 
   margin-top: 0;
-  margin-bottom: 14px;
+  margin-bottom: 26px;
 
   padding: 8px 12px 7px;
 
@@ -4004,7 +4004,7 @@ mark.quote-highlight {
 
   50% {
 
-    transform: translateY(-14px);
+    transform: translateY(-10px);
 
   }
 
