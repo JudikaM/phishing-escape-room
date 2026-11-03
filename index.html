@@ -29,11 +29,109 @@
           <a href="#if-you-fell-for-it" class="nav-link">If You Fell For It</a>
         </nav>
         <div class="site-nav-actions">
-          <button type="button" id="site-sound-toggle" class="btn btn-outline btn-nav-util" aria-pressed="true" aria-label="Toggle audio effects">AUDIO: ON</button>
-          <button type="button" id="site-encyclopedia-btn" class="btn btn-outline btn-nav-util" aria-label="Open Security Threat Encyclopedia">ENCYCLOPEDIA</button>
-          <button type="button" id="site-badges-btn" class="btn btn-outline btn-nav-util" aria-label="Open Cyber Defense Badges">BADGES <span id="site-badges-count" class="nav-badge-pill">0/9</span></button>
-          <button type="button" id="site-arena-btn" class="btn btn-outline btn-nav-util" aria-label="Open Zero-G Antigravity Physics Arena">ZERO-G ARENA</button>
-<button type="button" id="mobile-menu-toggle" class="btn btn-outline btn-mobile-menu" aria-expanded="false" aria-controls="site-nav-links" aria-label="Toggle navigation menu">MENU</button>
+          <div class="site-nav-toolbar flex items-center gap-2 bg-gray-900 rounded-lg">
+            <button
+              type="button"
+              id="site-sound-toggle"
+              class="btn-nav-util cursor-pointer bg-gray-800 relative inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 hover:text-emerald-400 h-9 px-3"
+              aria-pressed="true"
+              aria-label="Toggle audio effects"
+            >
+              <svg
+                class="lucide lucide-volume-2 text-emerald-400"
+                stroke-linejoin="round"
+                stroke-linecap="round"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 24 24"
+                height="18"
+                width="18"
+                aria-hidden="true"
+              >
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+              <span class="sound-label">AUDIO: ON</span>
+            </button>
+
+            <button
+              type="button"
+              id="site-encyclopedia-btn"
+              class="btn-nav-util cursor-pointer bg-gray-800 relative inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 hover:text-blue-400 h-9 px-3"
+              aria-label="Open Security Threat Encyclopedia"
+            >
+              <svg
+                class="lucide lucide-book-open text-blue-400"
+                stroke-linejoin="round"
+                stroke-linecap="round"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 24 24"
+                height="18"
+                width="18"
+                aria-hidden="true"
+              >
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+              </svg>
+              <span>ENCYCLOPEDIA</span>
+            </button>
+
+            <button
+              type="button"
+              id="site-badges-btn"
+              class="btn-nav-util cursor-pointer bg-gray-800 relative inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 hover:text-yellow-400 h-9 px-3"
+              aria-label="Open Cyber Defense Badges"
+            >
+              <svg
+                class="lucide lucide-award text-yellow-400"
+                stroke-linejoin="round"
+                stroke-linecap="round"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 24 24"
+                height="18"
+                width="18"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="8" r="6"></circle>
+                <path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path>
+              </svg>
+              <span>BADGES</span>
+              <span id="site-badges-count" class="nav-badge-pill">0/9</span>
+            </button>
+
+            <button
+              type="button"
+              id="site-arena-btn"
+              class="btn-nav-util cursor-pointer bg-gray-800 relative inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 hover:text-cyan-400 h-9 px-3"
+              aria-label="Open Zero-G Antigravity Physics Arena"
+            >
+              <svg
+                class="lucide lucide-rocket text-cyan-400"
+                stroke-linejoin="round"
+                stroke-linecap="round"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 24 24"
+                height="18"
+                width="18"
+                aria-hidden="true"
+              >
+                <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
+                <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path>
+                <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
+                <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
+              </svg>
+              <span>ZERO-G ARENA</span>
+            </button>
+          </div>
+          <button type="button" id="mobile-menu-toggle" class="btn btn-outline btn-mobile-menu" aria-expanded="false" aria-controls="site-nav-links" aria-label="Toggle navigation menu">MENU</button>
           <a
             href="//github.com/JudikaM/phishing-escape-room"
             target="_blank"
@@ -872,11 +970,106 @@
           <div class="door-badge" id="door-2">DOOR 2 · LOCKED</div>
           <div class="door-badge" id="door-3">DOOR 3 · LOCKED</div>
         </div>
-        <div class="terminal-util-controls">
-          <button type="button" id="term-sound-toggle" class="btn btn-outline btn-term-util" aria-pressed="true" aria-label="Toggle audio effects">AUDIO: ON</button>
-          <button type="button" id="term-encyclopedia-btn" class="btn btn-outline btn-term-util" aria-label="Open Security Threat Encyclopedia">ENCYCLOPEDIA</button>
-          <button type="button" id="term-badges-btn" class="btn btn-outline btn-term-util" aria-label="Open Cyber Defense Badges">BADGES</button>
-          <button type="button" id="term-arena-btn" class="btn btn-outline btn-term-util" aria-label="Open Zero-G Antigravity Physics Arena">ZERO-G ARENA</button>
+        <div class="terminal-util-controls site-nav-toolbar flex items-center gap-2 bg-gray-900 rounded-lg">
+          <button
+            type="button"
+            id="term-sound-toggle"
+            class="btn-nav-util btn-term-util cursor-pointer bg-gray-800 relative inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 hover:text-emerald-400 h-9 px-3"
+            aria-pressed="true"
+            aria-label="Toggle audio effects"
+          >
+            <svg
+              class="lucide lucide-volume-2 text-emerald-400"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              stroke-width="2"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 24 24"
+              height="18"
+              width="18"
+              aria-hidden="true"
+            >
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+            <span class="sound-label">AUDIO: ON</span>
+          </button>
+
+          <button
+            type="button"
+            id="term-encyclopedia-btn"
+            class="btn-nav-util btn-term-util cursor-pointer bg-gray-800 relative inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 hover:text-blue-400 h-9 px-3"
+            aria-label="Open Security Threat Encyclopedia"
+          >
+            <svg
+              class="lucide lucide-book-open text-blue-400"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              stroke-width="2"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 24 24"
+              height="18"
+              width="18"
+              aria-hidden="true"
+            >
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>ENCYCLOPEDIA</span>
+          </button>
+
+          <button
+            type="button"
+            id="term-badges-btn"
+            class="btn-nav-util btn-term-util cursor-pointer bg-gray-800 relative inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 hover:text-yellow-400 h-9 px-3"
+            aria-label="Open Cyber Defense Badges"
+          >
+            <svg
+              class="lucide lucide-award text-yellow-400"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              stroke-width="2"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 24 24"
+              height="18"
+              width="18"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="8" r="6"></circle>
+              <path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path>
+            </svg>
+            <span>BADGES</span>
+          </button>
+
+          <button
+            type="button"
+            id="term-arena-btn"
+            class="btn-nav-util btn-term-util cursor-pointer bg-gray-800 relative inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 hover:text-cyan-400 h-9 px-3"
+            aria-label="Open Zero-G Antigravity Physics Arena"
+          >
+            <svg
+              class="lucide lucide-rocket text-cyan-400"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              stroke-width="2"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 24 24"
+              height="18"
+              width="18"
+              aria-hidden="true"
+            >
+              <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
+              <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path>
+              <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
+              <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
+            </svg>
+            <span>ZERO-G ARENA</span>
+          </button>
         </div>
       </div>
     </header>

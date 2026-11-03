@@ -828,7 +828,12 @@
 
     if (elSiteSoundToggle) {
 
-      elSiteSoundToggle.textContent = label;
+      var sText = elSiteSoundToggle.querySelector(".sound-label");
+      if (sText) {
+        sText.textContent = label;
+      } else {
+        elSiteSoundToggle.textContent = label;
+      }
 
       elSiteSoundToggle.setAttribute("aria-pressed", pressed);
 
@@ -838,7 +843,12 @@
 
     if (elTermSoundToggle) {
 
-      elTermSoundToggle.textContent = label;
+      var tText = elTermSoundToggle.querySelector(".sound-label");
+      if (tText) {
+        tText.textContent = label;
+      } else {
+        elTermSoundToggle.textContent = label;
+      }
 
       elTermSoundToggle.setAttribute("aria-pressed", pressed);
 

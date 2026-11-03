@@ -7405,3 +7405,135 @@ mark.quote-highlight {
     padding-left: 4px;
   }
 }
+
+/* ==================== UIVERSE.IO TOOLBAR & NAV BUTTONS (BY MAHIATLINUX) ==================== */
+.site-nav-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #111827; /* bg-gray-900 */
+  padding: 4px 6px;
+  border-radius: 8px; /* rounded-lg */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.btn-nav-util,
+.btn-term-util {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 6px; /* rounded-md */
+  background-color: #1f2937; /* bg-gray-800 */
+  color: #d1d5db; /* text-gray-300 */
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: var(--font-mono), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.12s ease, border-color 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.btn-nav-util:hover,
+.btn-term-util:hover {
+  background-color: #374151; /* hover:bg-gray-700 */
+  transform: translateY(-1px);
+}
+
+.btn-nav-util:focus-visible,
+.btn-term-util:focus-visible {
+  outline: 2px solid var(--color-amber);
+  outline-offset: 2px;
+}
+
+.btn-nav-util:active,
+.btn-term-util:active {
+  transform: translateY(1px);
+}
+
+.btn-nav-util .lucide,
+.btn-term-util .lucide {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.btn-nav-util:hover .lucide,
+.btn-term-util:hover .lucide {
+  transform: scale(1.1);
+}
+
+.lucide.text-emerald-400 {
+  color: #34d399;
+}
+
+.lucide.text-blue-400 {
+  color: #60a5fa;
+}
+
+.lucide.text-yellow-400 {
+  color: #facc15;
+}
+
+.lucide.text-cyan-400 {
+  color: #22d3ee;
+}
+
+#site-sound-toggle:hover,
+#term-sound-toggle:hover {
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.35);
+}
+
+#site-encyclopedia-btn:hover,
+#term-encyclopedia-btn:hover {
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.35);
+}
+
+#site-badges-btn:hover,
+#term-badges-btn:hover {
+  color: #facc15;
+  border-color: rgba(250, 204, 21, 0.35);
+}
+
+#site-arena-btn:hover,
+#term-arena-btn:hover {
+  color: #22d3ee;
+  border-color: rgba(34, 211, 238, 0.35);
+}
+
+.btn-nav-util.is-muted,
+.btn-term-util.is-muted {
+  color: #9ca3af;
+  opacity: 0.75;
+}
+
+.btn-nav-util.is-muted .lucide,
+.btn-term-util.is-muted .lucide {
+  color: #9ca3af;
+}
+
+.nav-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background-color: rgba(16, 185, 129, 0.22);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  border-radius: 9999px;
+  margin-left: 2px;
+}
