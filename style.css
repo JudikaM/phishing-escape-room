@@ -8087,3 +8087,56 @@ mark.quote-highlight {
     max-width: 100%;
   }
 }
+
+
+/* ==================== SOUND TOGGLE ICON-ONLY & MUTED STYLES ==================== */
+#site-sound-toggle,
+#term-sound-toggle,
+.btn-sound-toggle {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0;
+  gap: 0;
+}
+
+#site-sound-toggle .sound-icon-on,
+#term-sound-toggle .sound-icon-on {
+  display: block;
+}
+
+#site-sound-toggle .sound-icon-off,
+#term-sound-toggle .sound-icon-off {
+  display: none;
+}
+
+#site-sound-toggle.is-muted .sound-icon-on,
+#term-sound-toggle.is-muted .sound-icon-on {
+  display: none;
+}
+
+#site-sound-toggle.is-muted .sound-icon-off,
+#term-sound-toggle.is-muted .sound-icon-off {
+  display: block;
+  color: #fb7185;
+}
+
+.lucide.text-rose-400 {
+  color: #fb7185;
+}
+
+#site-sound-toggle.is-muted,
+#term-sound-toggle.is-muted {
+  border-color: rgba(251, 113, 133, 0.3);
+}
+
+#site-sound-toggle.is-muted:hover,
+#term-sound-toggle.is-muted:hover {
+  border-color: rgba(251, 113, 133, 0.55);
+  color: #fb7185;
+}
+
+#site-sound-toggle.is-muted:hover .lucide,
+#term-sound-toggle.is-muted:hover .lucide {
+  color: #f43f5e;
+}

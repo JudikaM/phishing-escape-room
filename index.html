@@ -33,12 +33,13 @@
             <button
               type="button"
               id="site-sound-toggle"
-              class="btn-nav-util cursor-pointer bg-gray-800 relative inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 hover:text-emerald-400 h-9 px-3"
+              class="btn-nav-util btn-sound-toggle cursor-pointer bg-gray-800 relative inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 h-9"
               aria-pressed="true"
               aria-label="Toggle audio effects"
+              title="Mute audio"
             >
               <svg
-                class="lucide lucide-volume-2 text-emerald-400"
+                class="sound-icon-on lucide lucide-volume-2 text-emerald-400"
                 stroke-linejoin="round"
                 stroke-linecap="round"
                 stroke-width="2"
@@ -53,7 +54,23 @@
                 <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
                 <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
               </svg>
-              <span class="sound-label">AUDIO: ON</span>
+              <svg
+                class="sound-icon-off lucide lucide-volume-x text-rose-400"
+                stroke-linejoin="round"
+                stroke-linecap="round"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 24 24"
+                height="18"
+                width="18"
+                aria-hidden="true"
+              >
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <line x1="22" x2="16" y1="9" y2="15"></line>
+                <line x1="16" x2="22" y1="9" y2="15"></line>
+              </svg>
+              <span class="sound-label sr-only">AUDIO: ON</span>
             </button>
 
             <button
@@ -1168,12 +1185,13 @@
           <button
             type="button"
             id="term-sound-toggle"
-            class="btn-nav-util btn-term-util cursor-pointer bg-gray-800 relative inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 hover:text-emerald-400 h-9 px-3"
+            class="btn-nav-util btn-term-util btn-sound-toggle cursor-pointer bg-gray-800 relative inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 h-9"
             aria-pressed="true"
             aria-label="Toggle audio effects"
+            title="Mute audio"
           >
             <svg
-              class="lucide lucide-volume-2 text-emerald-400"
+              class="sound-icon-on lucide lucide-volume-2 text-emerald-400"
               stroke-linejoin="round"
               stroke-linecap="round"
               stroke-width="2"
@@ -1188,7 +1206,23 @@
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
               <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
             </svg>
-            <span class="sound-label">AUDIO: ON</span>
+            <svg
+              class="sound-icon-off lucide lucide-volume-x text-rose-400"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              stroke-width="2"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 24 24"
+              height="18"
+              width="18"
+              aria-hidden="true"
+            >
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="22" x2="16" y1="9" y2="15"></line>
+              <line x1="16" x2="22" y1="9" y2="15"></line>
+            </svg>
+            <span class="sound-label sr-only">AUDIO: ON</span>
           </button>
 
           <button
