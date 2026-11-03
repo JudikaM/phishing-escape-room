@@ -560,7 +560,7 @@ body {
   width: 100%;
   max-width: 520px;
   min-height: 254px;
-  margin: 0 auto;
+  margin: 0;
   background: #03060d; /* super dark background */
   border-radius: 8px;
   z-index: 1;
