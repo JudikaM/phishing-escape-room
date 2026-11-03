@@ -7235,47 +7235,31 @@
 
 
 
-  var lastStarSyncTime = 0;
-  function syncGitHubStars() {
+  function loadGitHubStars() {
     var starCountEl = byId("github-star-count");
     if (!starCountEl || typeof fetch !== "function") return;
-    var now = Date.now();
-    // Throttle requests to at most once per 15 seconds to prevent rate limiting
-    if (now - lastStarSyncTime < 15000) return;
-    lastStarSyncTime = now;
-    try {
-      fetch("https:" + "//api.github.com/repos/JudikaM/phishing-escape-room", {
-        headers: { "Accept": "application/vnd.github.v3+json" }
+    fetch("/api/stars")
+      .then(function (res) {
+        if (!res.ok) return null;
+        return res.json();
       })
-        .then(function (res) {
-          if (!res.ok) return null;
-          return res.json();
-        })
-        .then(function (repo) {
-          if (repo && typeof repo.stargazers_count === "number") {
-            starCountEl.textContent = String(repo.stargazers_count);
-          }
-        })
-        .catch(function () {
-          // Fallback gracefully on network error, rate limit, or offline
-        });
-    } catch (e) {
-      // Non-blocking
-    }
+      .then(function (data) {
+        if (
+          data &&
+          typeof data.stars === "number" &&
+          Number.isInteger(data.stars) &&
+          data.stars >= 0
+        ) {
+          starCountEl.textContent = String(data.stars);
+          starCountEl.classList.remove("hidden");
+        }
+      })
+      .catch(function () {
+        // Keep hidden on failure
+      });
   }
 
-  // Real-time synchronization: on load, when returning to tab, and periodic background poll
-  syncGitHubStars();
-  if (typeof window !== "undefined" && window.addEventListener) {
-    window.addEventListener("focus", function () {
-      syncGitHubStars();
-    });
-    setInterval(function () {
-      if (typeof document === "undefined" || document.visibilityState === "visible") {
-        syncGitHubStars();
-      }
-    }, 300000);
-  }
+  loadGitHubStars();
   init();
 
 })();

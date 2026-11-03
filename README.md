@@ -60,3 +60,23 @@ http://127.0.0.1:8000
 - Modern JavaScript (ES6+, zero frameworks or external dependencies)
 - Web Audio API (Native procedural synthesizer)
 - HTML5 2D Canvas (Client-side credential export)
+- Vercel Serverless Function (Node.js proxy for repository star count)
+
+## Serverless Star Count
+
+The live repository star count displayed in the navigation bar is fetched through a lightweight, serverless proxy function (`/api/stars`), which reads the public star count from the GitHub API on the server side to ensure strict client-side Content Security Policy compliance without exposing upstream details or requiring client-side external requests.
+
+## Third-Party Design Credits
+
+UI element patterns and CSS components were adapted from open-source design contributions on Uiverse.io:
+
+- **nazar-gavrylyk** — Code tab card design (Safety and Privacy section)
+- **Kemboi-Dun** — Linux terminal card design (Threat Intelligence and If You Fell For It sections)
+- **mymiamo** — Mac code editor card design (About and How-To-Play sections)
+- **mahiatlinux** — Toolbar and Lucide button designs (utility navigation controls)
+- **elijahgummer** — Animated rainbow GitHub star button and button-with-icon designs (header navigation and play buttons)
+- **JaydipPrajapati1910** — Terminal card design (main menu)
+- **adamgiebl** — Dark button designs (main menu)
+- **Smit-Prajapati** — Security door showcase cards
+
+*Note: Please verify the respective licenses for each third-party component before reusing in downstream or commercial distributions.*

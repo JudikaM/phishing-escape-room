@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Phishing Escape Room — an educational cybersecurity simulation game. Triage Email, SMS, and Chat messages to unlock three server room security doors.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https: api.github.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Phishing Escape Room — SOC Lockdown</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="style.css">
@@ -167,7 +167,7 @@
           </div>
           <button type="button" id="mobile-menu-toggle" class="btn btn-outline btn-mobile-menu" aria-expanded="false" aria-controls="site-nav-links" aria-label="Toggle navigation menu">MENU</button>
           <a
-            href="//github.com/JudikaM/phishing-escape-room"
+            href="https://github.com/JudikaM/phishing-escape-room"
             target="_blank"
             rel="noopener noreferrer"
             id="nav-github-btn"
@@ -200,8 +200,8 @@
               </svg>
               <span
                 id="github-star-count"
-                class="inline-block tabular-nums tracking-wider font-display font-medium text-black dark:text-white"
-              >1</span>
+                class="inline-block tabular-nums tracking-wider font-display font-medium text-black dark:text-white hidden"
+              ></span>
             </div>
           </a>
 
