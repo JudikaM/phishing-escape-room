@@ -7026,20 +7026,123 @@
 
 
 
-      var navLinks = elSiteNavLinks.querySelectorAll(".nav-link");
+      var isManualClickScroll = false;
+      var clickScrollTimeout = null;
 
-      for (var nl = 0; nl < navLinks.length; nl += 1) {
-
-        navLinks[nl].addEventListener("click", function () {
-
-          elSiteNavLinks.classList.remove("is-open");
-
-          elMobileMenuToggle.setAttribute("aria-expanded", "false");
-
-        });
-
+      function setActiveNavLink(targetId) {
+        var links = elSiteNavLinks ? elSiteNavLinks.querySelectorAll(".nav-link") : [];
+        for (var i = 0; i < links.length; i += 1) {
+          var href = links[i].getAttribute("href") || "";
+          if (href === "#" + targetId || (targetId === "home" && href === "#home")) {
+            links[i].classList.add("is-active");
+          } else {
+            links[i].classList.remove("is-active");
+          }
+        }
       }
 
+      function updateScrollSpy() {
+        if (isManualClickScroll) return;
+        var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+        var docHeight = document.documentElement.scrollHeight;
+        var winHeight = window.innerHeight;
+
+        // If near top, home is active
+        if (scrollY < 200) {
+          setActiveNavLink("home");
+          return;
+        }
+
+        // If at bottom of page, last section is active
+        if (scrollY + winHeight >= docHeight - 60) {
+          setActiveNavLink("if-you-fell-for-it");
+          return;
+        }
+
+        var sectionIds = ["home", "about", "how-to-play", "what-youll-learn", "if-you-fell-for-it"];
+        var currentSection = "home";
+
+        for (var s = 0; s < sectionIds.length; s += 1) {
+          var el = document.getElementById(sectionIds[s]);
+          if (el) {
+            var rect = el.getBoundingClientRect();
+            if (rect.top <= 160) {
+              currentSection = sectionIds[s];
+            }
+          }
+        }
+
+        setActiveNavLink(currentSection);
+      }
+
+      var scrollTicking = false;
+      window.addEventListener("scroll", function () {
+        if (!scrollTicking) {
+          window.requestAnimationFrame(function () {
+            updateScrollSpy();
+            scrollTicking = false;
+          });
+          scrollTicking = true;
+        }
+      }, { passive: true });
+
+      var navLinks = elSiteNavLinks.querySelectorAll(".nav-link");
+      for (var nl = 0; nl < navLinks.length; nl += 1) {
+        (function (link) {
+          link.addEventListener("click", function (e) {
+            var href = link.getAttribute("href") || "";
+            if (href.charAt(0) === "#") {
+              var targetId = href.substring(1);
+              var targetEl = document.getElementById(targetId);
+              if (targetEl) {
+                e.preventDefault();
+                isManualClickScroll = true;
+                clearTimeout(clickScrollTimeout);
+                setActiveNavLink(targetId);
+
+                if (targetId === "home") {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                } else {
+                  var targetTop = targetEl.getBoundingClientRect().top + window.pageYOffset - 68;
+                  window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+                }
+
+                if (window.history && window.history.pushState) {
+                  window.history.pushState(null, "", href);
+                }
+
+                clickScrollTimeout = setTimeout(function () {
+                  isManualClickScroll = false;
+                }, 800);
+              }
+            }
+
+            elSiteNavLinks.classList.remove("is-open");
+            if (elMobileMenuToggle) {
+              elMobileMenuToggle.setAttribute("aria-expanded", "false");
+            }
+          });
+        })(navLinks[nl]);
+      }
+
+      var brandLinks = document.querySelectorAll(".site-brand");
+      for (var bl = 0; bl < brandLinks.length; bl += 1) {
+        brandLinks[bl].addEventListener("click", function (e) {
+          e.preventDefault();
+          isManualClickScroll = true;
+          clearTimeout(clickScrollTimeout);
+          setActiveNavLink("home");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          if (window.history && window.history.pushState) {
+            window.history.pushState(null, "", window.location.pathname + window.location.search);
+          }
+          clickScrollTimeout = setTimeout(function () {
+            isManualClickScroll = false;
+          }, 800);
+        });
+      }
+
+      updateScrollSpy();
     }
 
 
@@ -7052,25 +7155,7 @@
 
 
 
-    var homeLinks = document.querySelectorAll('a[href="#home"]');
 
-    for (var hl = 0; hl < homeLinks.length; hl += 1) {
-
-      homeLinks[hl].addEventListener("click", function (e) {
-
-        e.preventDefault();
-
-        window.scrollTo({ top: 0, behavior: "smooth" });
-
-        if (window.history && window.history.pushState) {
-
-          window.history.pushState(null, "", window.location.pathname + window.location.search);
-
-        }
-
-      });
-
-    }
 
 
 
