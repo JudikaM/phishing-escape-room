@@ -7930,14 +7930,14 @@ mark.quote-highlight {
 /* From Uiverse.io by nazar-gavrylyk */
 .safety-code-card {
   width: 100%;
-  max-width: 900px;
+  max-width: 100%;
   margin: 0 auto;
-  background-color: #1e293b;
+  background-color: #090e1c;
   border-radius: 10px;
   display: grid;
   grid-template-rows: 42px auto;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
-  border: 1px solid #334155;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.22);
   box-sizing: border-box;
   overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
@@ -7945,8 +7945,8 @@ mark.quote-highlight {
 
 .safety-code-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(125, 211, 252, 0.12), 0 6px 16px rgba(0, 0, 0, 0.5);
-  border-color: rgba(125, 211, 252, 0.4);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 229, 255, 0.25);
+  border-color: rgba(0, 229, 255, 0.45);
 }
 
 .safety-code-card .header {
@@ -7955,11 +7955,12 @@ mark.quote-highlight {
   position: relative;
   height: 42px;
   box-sizing: border-box;
-  background-color: #0f172a;
+  background-color: #050811;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.15);
 }
 
 .safety-code-card .header .title {
-  color: #7dd3fc;
+  color: #00e5ff;
   font-family: var(--font-mono, monospace);
   font-size: 13px;
   font-weight: 700;
@@ -7977,7 +7978,7 @@ mark.quote-highlight {
   top: 50%;
   right: 18px;
   transform: translateY(-50%);
-  color: rgb(100, 116, 139);
+  color: #8da4be;
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 102;
@@ -7991,11 +7992,11 @@ mark.quote-highlight {
 }
 
 .safety-code-card .header .copy:hover {
-  color: #7dd3fc;
+  color: #00e5ff;
 }
 
 .safety-code-card .header .copy svg {
-  color: #38bdf8;
+  color: #00e5ff;
 }
 
 .safety-code-card .header::before {
@@ -8003,11 +8004,11 @@ mark.quote-highlight {
   position: absolute;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
-  border: 1px solid #64748b4d;
+  border: 1px solid rgba(0, 229, 255, 0.2);
   border-bottom: none;
   right: 8px;
   bottom: 0;
-  background-color: #33415580;
+  background-color: rgba(9, 14, 28, 0.85);
   width: 220px;
   height: 33px;
   z-index: 100;
@@ -8019,7 +8020,7 @@ mark.quote-highlight {
   width: 260px;
   max-width: 45%;
   height: 2px;
-  background-color: #7dd3fc;
+  background-color: #00e5ff;
   bottom: 0;
   left: 0;
   z-index: 101;
@@ -8031,7 +8032,7 @@ mark.quote-highlight {
   justify-content: center;
   gap: 12px;
   padding: 18px 20px 22px;
-  background-color: #1e293b;
+  background-color: #090e1c;
   box-sizing: border-box;
 }
 
@@ -8065,11 +8066,11 @@ mark.quote-highlight {
 }
 
 .safety-code-card .footer .code .text code {
-  background: rgba(15, 23, 42, 0.6);
-  color: #38bdf8;
+  background: rgba(5, 8, 17, 0.8);
+  color: #00e5ff;
   padding: 1px 5px;
   border-radius: 3px;
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  border: 1px solid rgba(0, 229, 255, 0.25);
   font-family: var(--font-mono, monospace);
   font-size: 0.85em;
 }
@@ -8077,7 +8078,7 @@ mark.quote-highlight {
 .safety-code-card .footer .action-row {
   margin-top: 8px;
   padding-top: 12px;
-  border-top: 1px dashed rgba(100, 116, 139, 0.35);
+  border-top: 1px dashed rgba(0, 229, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: flex-start;
