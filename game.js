@@ -7154,6 +7154,29 @@
 
 
 
+  function syncGitHubStars() {
+    var starCountEl = byId("github-star-count");
+    if (!starCountEl || typeof fetch !== "function") return;
+    try {
+      fetch("//api.github.com/repos/JudikaM/phishing-escape-room")
+        .then(function (res) {
+          if (!res.ok) return null;
+          return res.json();
+        })
+        .then(function (repo) {
+          if (repo && typeof repo.stargazers_count === "number") {
+            starCountEl.textContent = String(repo.stargazers_count);
+          }
+        })
+        .catch(function () {
+          // Fallback gracefully on network error or offline
+        });
+    } catch (e) {
+      // Non-blocking
+    }
+  }
+
+  syncGitHubStars();
   init();
 
 })();
