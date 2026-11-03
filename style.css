@@ -3153,19 +3153,17 @@ mark.quote-highlight {
   }
 
   .site-brand {
-
-    font-size: 0.76rem;
-
     white-space: nowrap;
-
+    gap: 10px;
   }
 
-  .site-brand-logo {
+  .site-brand .site-brand-logo {
+    width: 24px;
+    height: 24px;
+  }
 
-    width: 18px;
-
-    height: 18px;
-
+  .site-brand .brand-title {
+    font-size: 1.1rem;
   }
 
   .site-nav-actions {
@@ -4132,18 +4130,23 @@ mark.quote-highlight {
 
 /* 1. Header & Navigation Brand Enhancements */
 
+.site-brand {
+  gap: 12px;
+}
+
+.site-brand .site-brand-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+}
+
 .site-brand .brand-title {
-
   font-family: var(--font-sans);
-
-  font-size: 1rem;
-
+  font-size: 1.25rem;
   font-weight: 900;
-
   letter-spacing: 0.12em;
-
   color: #ffffff;
-
 }
 
 .hero-status-pill-row {
