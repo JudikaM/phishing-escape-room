@@ -6954,7 +6954,7 @@ mark.quote-highlight {
   max-width: 330px;
   margin: 0 auto;
   border-radius: 20px;
-  background: #090e1c;
+  background: #050b14;
   padding: 6px;
   overflow: hidden;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 229, 255, 0.12);
@@ -6999,10 +6999,10 @@ mark.quote-highlight {
   border-bottom-right-radius: 10px;
   height: 32px;
   width: 135px;
-  background: #090e1c;
+  background: #050b14;
   position: relative;
   transform: skew(-40deg);
-  box-shadow: -10px -10px 0 0 #090e1c;
+  box-shadow: -10px -10px 0 0 #050b14;
   z-index: 2;
 }
 
@@ -7015,7 +7015,7 @@ mark.quote-highlight {
   right: -15px;
   background: transparent;
   border-top-left-radius: 10px;
-  box-shadow: -5px -5px 0 2px #090e1c;
+  box-shadow: -5px -5px 0 2px #050b14;
 }
 
 .showcase-door-card.card .top-section::before {
@@ -7027,7 +7027,7 @@ mark.quote-highlight {
   height: 15px;
   width: 15px;
   border-top-left-radius: 15px;
-  box-shadow: -5px -5px 0 2px #090e1c;
+  box-shadow: -5px -5px 0 2px #050b14;
   z-index: 2;
 }
 
@@ -7932,7 +7932,7 @@ mark.quote-highlight {
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
-  background-color: #090e1c;
+  background-color: #050b14;
   border-radius: 10px;
   display: grid;
   grid-template-rows: 42px auto;
@@ -8032,7 +8032,7 @@ mark.quote-highlight {
   justify-content: center;
   gap: 12px;
   padding: 18px 20px 22px;
-  background-color: #090e1c;
+  background-color: #050b14;
   box-sizing: border-box;
 }
 
