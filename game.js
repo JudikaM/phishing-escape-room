@@ -1662,44 +1662,61 @@
 
   function renderEncyclopediaModal() {
 
-    var elCatBar = byId("encyclopedia-categories");
+    var elCatWrap = byId("encyclopedia-categories");
 
     var elTermList = byId("encyclopedia-term-list");
 
-    if (!elCatBar || !elTermList) return;
+    if (!elCatWrap || !elTermList) return;
 
+    var elDropdownMenu = byId("enc-cat-dropdown-menu");
+    var elCurrentLabel = byId("enc-cat-current-label");
+    var elDropdownBtn = byId("enc-cat-dropdown-btn");
 
+    if (elCurrentLabel) {
+      elCurrentLabel.textContent = (activeEncyclopediaCategory === "All" ? "All Categories" : activeEncyclopediaCategory);
+    }
 
     var categories = ["All", "Domain & URLs", "Social Engineering", "Authentication & Identity", "Mobile & Messaging", "Payload & Execution"];
 
-    clearChildren(elCatBar);
+    if (elDropdownMenu) {
+      clearChildren(elDropdownMenu);
+      for (var c = 0; c < categories.length; c += 1) {
+        (function (catName) {
+          var itemBtn = document.createElement("button");
+          itemBtn.type = "button";
+          var isSelected = (activeEncyclopediaCategory === catName);
+          itemBtn.className = "enc-cat-dropdown-item" + (isSelected ? " is-selected" : "");
+          itemBtn.setAttribute("role", "option");
+          itemBtn.setAttribute("aria-selected", isSelected ? "true" : "false");
 
-    for (var c = 0; c < categories.length; c += 1) {
+          var labelSpan = document.createElement("span");
+          labelSpan.className = "enc-cat-dropdown-item-text";
+          labelSpan.textContent = (catName === "All" ? "All Categories" : catName);
+          itemBtn.appendChild(labelSpan);
 
-      (function (catName) {
+          if (isSelected) {
+            var checkSpan = document.createElement("span");
+            checkSpan.className = "enc-cat-dropdown-item-check";
+            checkSpan.textContent = "\u2713";
+            checkSpan.setAttribute("aria-hidden", "true");
+            itemBtn.appendChild(checkSpan);
+          }
 
-        var btn = document.createElement("button");
+          itemBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            activeEncyclopediaCategory = catName;
+            if (elDropdownMenu) elDropdownMenu.classList.add("hidden");
+            if (elDropdownBtn) {
+              elDropdownBtn.setAttribute("aria-expanded", "false");
+              elDropdownBtn.classList.remove("is-open");
+            }
+            playSoundInspect();
+            renderEncyclopediaModal();
+          });
 
-        btn.type = "button";
-
-        btn.className = "enc-cat-btn" + (activeEncyclopediaCategory === catName ? " is-active" : "");
-
-        btn.textContent = catName;
-
-        btn.addEventListener("click", function () {
-
-          activeEncyclopediaCategory = catName;
-
-          playSoundInspect();
-
-          renderEncyclopediaModal();
-
-        });
-
-        elCatBar.appendChild(btn);
-
-      })(categories[c]);
-
+          elDropdownMenu.appendChild(itemBtn);
+        })(categories[c]);
+      }
     }
 
 
@@ -1889,6 +1906,16 @@
 
     if (!elModal) return;
 
+    var elMenu = byId("enc-cat-dropdown-menu");
+    if (elMenu && !elMenu.classList.contains("hidden")) {
+      elMenu.classList.add("hidden");
+    }
+    var elDropdownBtn = byId("enc-cat-dropdown-btn");
+    if (elDropdownBtn) {
+      elDropdownBtn.setAttribute("aria-expanded", "false");
+      elDropdownBtn.classList.remove("is-open");
+    }
+
     if (termId) {
 
       activeEncyclopediaTermId = termId;
@@ -1920,6 +1947,16 @@
 
 
   function closeEncyclopediaModal() {
+
+    var elMenu = byId("enc-cat-dropdown-menu");
+    if (elMenu && !elMenu.classList.contains("hidden")) {
+      elMenu.classList.add("hidden");
+    }
+    var elDropdownBtn = byId("enc-cat-dropdown-btn");
+    if (elDropdownBtn) {
+      elDropdownBtn.setAttribute("aria-expanded", "false");
+      elDropdownBtn.classList.remove("is-open");
+    }
 
     var elModal = byId("encyclopedia-modal");
 
@@ -5545,6 +5582,17 @@
 
         event.preventDefault();
 
+        var encDropdown = byId("enc-cat-dropdown-menu");
+        if (encDropdown && !encDropdown.classList.contains("hidden")) {
+          encDropdown.classList.add("hidden");
+          var encBtn = byId("enc-cat-dropdown-btn");
+          if (encBtn) {
+            encBtn.setAttribute("aria-expanded", "false");
+            encBtn.classList.remove("is-open");
+          }
+          return;
+        }
+
         closeEncyclopediaModal();
 
         return;
@@ -6314,6 +6362,38 @@
       });
 
     }
+
+    var elEncDropdownBtn = byId("enc-cat-dropdown-btn");
+    var elEncDropdownMenu = byId("enc-cat-dropdown-menu");
+    if (elEncDropdownBtn && elEncDropdownMenu) {
+      elEncDropdownBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var isHidden = elEncDropdownMenu.classList.contains("hidden");
+        if (isHidden) {
+          elEncDropdownMenu.classList.remove("hidden");
+          elEncDropdownBtn.setAttribute("aria-expanded", "true");
+          elEncDropdownBtn.classList.add("is-open");
+        } else {
+          elEncDropdownMenu.classList.add("hidden");
+          elEncDropdownBtn.setAttribute("aria-expanded", "false");
+          elEncDropdownBtn.classList.remove("is-open");
+        }
+      });
+    }
+
+    window.addEventListener("click", function (e) {
+      var elMenu = byId("enc-cat-dropdown-menu");
+      var elBtn = byId("enc-cat-dropdown-btn");
+      if (elMenu && !elMenu.classList.contains("hidden")) {
+        if (!elMenu.contains(e.target) && (!elBtn || !elBtn.contains(e.target))) {
+          elMenu.classList.add("hidden");
+          if (elBtn) {
+            elBtn.setAttribute("aria-expanded", "false");
+            elBtn.classList.remove("is-open");
+          }
+        }
+      }
+    });
 
 
 

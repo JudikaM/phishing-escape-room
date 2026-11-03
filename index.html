@@ -1055,7 +1055,16 @@
         <div class="encyclopedia-sidebar">
           <div class="encyclopedia-search-box">
             <input type="search" id="encyclopedia-search" class="encyclopedia-search-input" placeholder="Search vectors (e.g. typosquatting, vishing)..." aria-label="Search security concepts">
-            <div id="encyclopedia-categories" class="encyclopedia-cat-bar" role="tablist" aria-label="Concept categories"></div>
+            <div id="encyclopedia-categories" class="enc-cat-dropdown-wrap">
+              <button type="button" id="enc-cat-dropdown-btn" class="enc-cat-dropdown-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Filter threat vectors by category">
+                <span class="enc-cat-btn-inner">
+                  <span class="enc-cat-prefix" aria-hidden="true">&#9670; CATEGORY:</span>
+                  <span id="enc-cat-current-label" class="enc-cat-label">All Categories</span>
+                </span>
+                <span id="enc-cat-chevron" class="enc-cat-chevron" aria-hidden="true">&#9662;</span>
+              </button>
+              <div id="enc-cat-dropdown-menu" class="enc-cat-dropdown-menu hidden" role="listbox" aria-label="Category options"></div>
+            </div>
           </div>
           <div id="encyclopedia-term-list" class="encyclopedia-term-list" role="listbox" aria-label="Security threat concepts"></div>
         </div>
