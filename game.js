@@ -1264,7 +1264,7 @@
 
       shortDefinition: "Registering deceptive domain names that closely mimic legitimate brand names to fool victims into trusting fraudulent portals or spoofed messages.",
 
-      attackVector: "Attackers exploit common visual similarities—such as substituting letters ('rn' for 'm', '0' for 'O') or appending words like '-verify', '-cancel', or '-prize' to a brand name.",
+      attackVector: "Attackers exploit common visual similarities, such as substituting letters ('rn' for 'm', '0' for 'O') or appending words like '-verify', '-cancel', or '-prize' to a brand name.",
 
       sampleText: "From: HarborBank Rewards <rewards@harborbank-prize.example> — Notice how '-prize.example' is a separate domain from 'harborbank.example'.",
 
@@ -1614,7 +1614,7 @@
 
       mappedCategories: [],
 
-      shortDefinition: "Distinguishing legitimate security alerts that look alarming at first glance from actual phishing attacks—preventing costly false alarms.",
+      shortDefinition: "Distinguishing legitimate security alerts that look alarming at first glance from actual phishing attacks, preventing costly false alarms.",
 
       attackVector: "Real security notices (such as password expiry reminders or new sign-in alerts) can look suspicious if you don't check how they ask you to act.",
 
@@ -1630,7 +1630,7 @@
 
       ],
 
-      defenseAdvice: "Legitimate security alerts never ask for your code or send reset links—they instruct you to use your own saved bookmarks or official app."
+      defenseAdvice: "Legitimate security alerts never ask for your code or send reset links. Instead, they instruct you to use your own saved bookmarks or official app."
 
     }
 
@@ -3140,41 +3140,44 @@
 
 
 
-        var footDiv = document.createElement("div");
+        var progWrap = document.createElement("div");
+        progWrap.className = "badge-progress-wrap";
 
-        footDiv.className = "badge-item-footer";
-
-
+        var hintRow = document.createElement("div");
+        hintRow.className = "badge-hint-row";
 
         var hintSpan = document.createElement("span");
-
         hintSpan.className = "badge-item-hint";
-
         hintSpan.textContent = badge.hint;
+        hintRow.appendChild(hintSpan);
 
-        footDiv.appendChild(hintSpan);
+        var pctSpan = document.createElement("span");
+        pctSpan.className = "badge-item-pct";
+        pctSpan.textContent = badge.progressPercentage + "%";
+        hintRow.appendChild(pctSpan);
 
+        progWrap.appendChild(hintRow);
 
+        var progEl = document.createElement("progress");
+        progEl.className = "badge-progress-bar tier-" + badge.tier + (badge.isUnlocked ? " is-complete" : "");
+        progEl.max = 100;
+        progEl.value = badge.progressPercentage;
+        progWrap.appendChild(progEl);
+
+        card.appendChild(progWrap);
+
+        var footDiv = document.createElement("div");
+        footDiv.className = "badge-item-footer";
 
         var previewBtn = document.createElement("button");
-
         previewBtn.type = "button";
-
-        previewBtn.className = "btn btn-outline btn-term-util";
-
-        previewBtn.textContent = "CREDENTIAL CARD";
-
+        previewBtn.className = "btn btn-outline btn-term-util badge-card-action-btn";
+        previewBtn.textContent = "View Credential Card ↗";
         previewBtn.addEventListener("click", function () {
-
           playSoundInspect();
-
           previewBadgeCard(badge);
-
         });
-
         footDiv.appendChild(previewBtn);
-
-
 
         card.appendChild(footDiv);
 
@@ -5714,548 +5717,371 @@
   /* ---------- Interactive Robot Companion (Beloved Cyber Droid) ---------- */
 
   function initRobotCompanion() {
-
     var elHead = document.getElementById("robot-head");
-
     var elEyesGroup = document.getElementById("robot-eyes-group");
-
     var elSpeech = document.getElementById("robot-speech-text");
-
     var elSpeechTag = document.getElementById("speech-mode-tag");
-
+    var elSpeechBubble = document.getElementById("robot-speech-bubble");
     var elRobot = document.getElementById("soc-robot");
-
-
+    var elBodyLayer = elRobot ? elRobot.querySelector(".robot-body-layer") : null;
+    var elStage = elRobot ? elRobot.closest(".robot-stage") : null;
+    var elShadow = elStage ? elStage.querySelector(".robot-shadow") : null;
 
     if (!elHead || !elRobot) {
-
       return;
-
     }
 
-
+    var STANDBY_TEXT = "// SENTINEL BOT ONLINE \u00B7 READY FOR TRIAGE";
+    var STANDBY_TAG = "STANDBY";
 
     var isInteractive = false;
-
+    var isBotClosed = false;
     var idleTipIndex = 0;
-
-
+    var speechFadeTimer = null;
+    var blinkTimeoutId = null;
+    var currentSpeechText = STANDBY_TEXT;
+    var currentSpeechTag = STANDBY_TAG;
 
     var idleTips = [
-
       "// TIP: Legitimate security teams will never ask for your SMS OTP code.",
-
       "// TIP: Check sender domains carefully (.example vs lookalike typos).",
-
       "// TIP: Scammers create fake urgency to make you click without thinking.",
-
       "// TIP: In Door 01-03, press [H] to get an analyst hint (1 per door).",
-
       "// TIP: Never run unexpected attachments (.apk, .exe, .scr).",
-
       "// TIP: Use keyboard shortcuts: [P] Phishing \u00B7 [S] Safe \u00B7 [Enter] Next."
-
     ];
-
-
 
     var clickGreetings = [
-
       "// HELLO OPERATOR! Sentinel Bot is calibrated and ready to assist.",
-
       "// ALL SYSTEMS NOMINAL: Threat intelligence heuristics operational!",
-
       "// READY WHEN YOU ARE! Let's breach these blast doors together.",
-
       "// TIP: Stay alert! Attackers disguise links and impersonate staff on Door 02 & 03."
-
     ];
-
     var clickGreetingIndex = 0;
 
-
-
     function setSpeech(text, modeTag) {
+      var nextTag = modeTag || STANDBY_TAG;
+      if (text === currentSpeechText && nextTag === currentSpeechTag) {
+        return;
+      }
+      currentSpeechText = text;
+      currentSpeechTag = nextTag;
+
+      if (speechFadeTimer) {
+        clearTimeout(speechFadeTimer);
+        speechFadeTimer = null;
+      }
+
+      if (elSpeechTag) {
+        elSpeechTag.textContent = nextTag;
+      }
 
       if (elSpeech) {
-
-        elSpeech.style.opacity = "0.4";
-
-        setTimeout(function () {
-
+        elSpeech.style.opacity = "0.35";
+        speechFadeTimer = setTimeout(function () {
           elSpeech.textContent = text;
-
           elSpeech.style.opacity = "1";
-
-        }, 120);
-
+          speechFadeTimer = null;
+        }, 95);
       }
-
-      if (elSpeechTag && modeTag) {
-
-        elSpeechTag.textContent = modeTag;
-
-      }
-
     }
-
-
 
     function setEyeExpression(className) {
-
       if (!elEyesGroup) return;
-
-      elEyesGroup.classList.remove("is-closed", "is-happy", "is-alert", "is-wink", "is-blinking");
-
-      if (className) {
-
-        elEyesGroup.classList.add(className);
-
+      if (blinkTimeoutId) {
+        clearTimeout(blinkTimeoutId);
+        blinkTimeoutId = null;
       }
-
+      elEyesGroup.classList.remove("is-closed", "is-happy", "is-alert", "is-wink", "is-blinking");
+      if (className) {
+        elEyesGroup.classList.add(className);
+      }
     }
 
-
-
-    // Check accessibility: prefers-reduced-motion
-
     var prefersReducedMotion = false;
-
     try {
-
       prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     } catch (e) {}
 
-
-
-    // Cursor tracking state variables in full 3D (Pitch, Yaw, Roll, Parallax)
-
-    var targetRotX = 0; // Vertical pitch (nod down / up)
-
-    var targetRotY = 0; // Horizontal turn (yaw left / right)
-
-    var targetRotZ = 0; // Subtle curious roll
-
+    // Cursor tracking state in 3D + springy click impulse + harmonic zero-G suspension
+    var targetRotX = 0;
+    var targetRotY = 0;
+    var targetRotZ = 0;
     var targetHeadX = 0;
-
     var targetHeadY = 0;
-
     var targetEyeX = 0;
-
     var targetEyeY = 0;
 
-
-
     var curRotX = 0;
-
     var curRotY = 0;
-
     var curRotZ = 0;
-
     var curHeadX = 0;
-
     var curHeadY = 0;
-
     var curEyeX = 0;
-
     var curEyeY = 0;
 
+    // Tactile spring impulse when clicking or waking the bot
+    var impulseY = 0;
+    var impulseVelY = 0;
+    var impulsePitch = 0;
+    var impulseRoll = 0;
 
+    function triggerBotImpulse(velY, pitchDeg, rollDeg) {
+      if (prefersReducedMotion) return;
+      impulseVelY = velY;
+      impulsePitch = pitchDeg;
+      impulseRoll = rollDeg;
+    }
 
     var rafId = null;
 
-
-
     function clamp(val, min, max) {
-
       return Math.max(min, Math.min(max, val));
-
     }
-
-
 
     function onPointerMove(e) {
-
       if (prefersReducedMotion || !elHead) return;
 
-
-
-      var rect = elHead.getBoundingClientRect();
-
-      var centerX = rect.left + rect.width / 2;
-
-      var centerY = rect.top + rect.height / 2;
-
-
+      // Measure relative to stable stage rect so floating bob never causes tracking feedback
+      var refEl = elStage || elRobot;
+      var rect = refEl.getBoundingClientRect();
+      var centerX = rect.left + rect.width * 0.5;
+      var centerY = rect.top + rect.height * 0.44;
 
       var dx = e.clientX - centerX;
-
       var dy = e.clientY - centerY;
 
-
-
-      // Dynamic viewport reach scaling for natural, responsive tracking
-
       var maxDistX = Math.max(window.innerWidth * 0.45, 360);
-
       var maxDistY = Math.max(window.innerHeight * 0.45, 300);
 
-
-
       var normX = clamp(dx / maxDistX, -1, 1);
-
       var normY = clamp(dy / maxDistY, -1, 1);
 
+      targetRotY = normX * 15;
+      targetRotX = normY > 0 ? -normY * 12 : -normY * 9.5;
+      targetRotZ = normX * 3.2;
 
+      targetHeadX = normX * 5.5;
+      targetHeadY = normY > 0 ? normY * 5.5 : normY * 4.5;
 
-      // 1. Horizontal Turn (Yaw in 3D: -16deg to +16deg)
-
-      // Turning head in 3D space to face cursor direction
-
-      targetRotY = normX * 16;
-
-
-
-      // 2. Vertical Nod / Pitch (Looking Down / Up: -13deg to +10deg)
-
-      // When cursor is below the head (dy > 0, normY > 0), head tilts DOWN (negative rotateX)
-
-      // When cursor is above the head (dy < 0, normY < 0), head tilts UP (positive rotateX)
-
-      targetRotX = normY > 0 ? -normY * 13 : -normY * 10;
-
-
-
-      // 3. Subtle Curious Cock (Roll Z: -3.5deg to +3.5deg)
-
-      targetRotZ = normX * 3.5;
-
-
-
-      // 4. Parallax Translation
-
-      targetHeadX = normX * 6;
-
-      // Head dips downward when looking down (+6px) and lifts when looking up (-5px)
-
-      targetHeadY = normY > 0 ? normY * 6 : normY * 5;
-
-
-
-      // 5. Visor Gaze & Eye Tracking (Independent Eye Glance inside Visor)
-
-      targetEyeX = normX * 13;
-
-      targetEyeY = normY > 0 ? normY * 10 : normY * 7;
-
+      targetEyeX = normX * 12;
+      targetEyeY = normY > 0 ? normY * 9 : normY * 6.5;
     }
-
-
 
     function onPointerLeave() {
-
-      // Smooth return to neutral forward-facing pose
-
       targetRotX = 0;
-
       targetRotY = 0;
-
       targetRotZ = 0;
-
       targetHeadX = 0;
-
       targetHeadY = 0;
-
       targetEyeX = 0;
-
       targetEyeY = 0;
-
     }
-
-
 
     window.addEventListener("pointermove", onPointerMove, { passive: true });
-
     document.documentElement.addEventListener("mouseleave", onPointerLeave);
-
     window.addEventListener("blur", onPointerLeave);
 
-
-
-    // Smooth Lerp Animation Loop with requestAnimationFrame
-
-    function updateTracking() {
-
+    function updateTracking(now) {
       if (!prefersReducedMotion) {
+        var t = (typeof now === "number" ? now : performance.now()) * 0.001;
 
-        var lerpFactor = 0.09;
+        // Smooth harmonic zero-G levitation (true sine/cosine waves with phase lag)
+        var primaryWave = Math.sin(t * 1.55);
+        var headWave = Math.sin(t * 1.55 - 0.48);
+        var secondarySway = Math.cos(t * 0.775);
 
+        // Spring damping for click/wake impulse
+        impulseVelY += (-impulseY * 0.18);
+        impulseVelY *= 0.82;
+        impulseY += impulseVelY;
+        impulsePitch *= 0.86;
+        impulseRoll *= 0.86;
+
+        var lerpFactor = 0.085;
         curRotX += (targetRotX - curRotX) * lerpFactor;
-
         curRotY += (targetRotY - curRotY) * lerpFactor;
-
         curRotZ += (targetRotZ - curRotZ) * lerpFactor;
-
         curHeadX += (targetHeadX - curHeadX) * lerpFactor;
-
         curHeadY += (targetHeadY - curHeadY) * lerpFactor;
 
-
-
         curEyeX += (targetEyeX - curEyeX) * 0.12;
-
         curEyeY += (targetEyeY - curEyeY) * 0.12;
 
+        // 1. Body levitation + subtle follow-through
+        var bodyX = secondarySway * 1.4 + curHeadX * 0.26;
+        var bodyY = primaryWave * 6.2 + curHeadY * 0.22 + impulseY * 0.65;
+        var bodyRoll = Math.sin(t * 0.775) * 1.1 + curRotZ * 0.22 + impulseRoll * 0.35;
 
+        if (elBodyLayer) {
+          elBodyLayer.style.transform =
+            "translate3d(" + bodyX.toFixed(2) + "px, " + bodyY.toFixed(2) + "px, 0px) " +
+            "rotateZ(" + bodyRoll.toFixed(2) + "deg)";
+        }
+
+        // 2. Head magnetic suspension (floats with phase lag behind body for organic overlap)
+        var headX = curHeadX + secondarySway * 1.8;
+        var headY = curHeadY + headWave * 7.6 + impulseY;
+        var headPitch = curRotX + Math.cos(t * 1.55 - 0.3) * 1.6 + impulsePitch;
+        var headYaw = curRotY + Math.sin(t * 0.775) * 1.2;
+        var headRoll = curRotZ + Math.cos(t * 0.775) * 0.9 + impulseRoll;
 
         if (elHead) {
-
           elHead.style.transform =
-
-            "translate3d(" + curHeadX.toFixed(2) + "px, " + curHeadY.toFixed(2) + "px, 0px) " +
-
-            "rotateX(" + curRotX.toFixed(2) + "deg) " +
-
-            "rotateY(" + curRotY.toFixed(2) + "deg) " +
-
-            "rotateZ(" + curRotZ.toFixed(2) + "deg)";
-
+            "translate3d(" + headX.toFixed(2) + "px, " + headY.toFixed(2) + "px, 0px) " +
+            "rotateX(" + headPitch.toFixed(2) + "deg) " +
+            "rotateY(" + headYaw.toFixed(2) + "deg) " +
+            "rotateZ(" + headRoll.toFixed(2) + "deg)";
         }
 
-
-
+        // 3. Visor gaze tracking
         if (elEyesGroup) {
-
           elEyesGroup.style.transform =
-
             "translate3d(" + curEyeX.toFixed(2) + "px, " + curEyeY.toFixed(2) + "px, 0px)";
-
         }
 
+        // 4. Synchronized floor shadow breathing
+        if (elShadow) {
+          var shadowScale = 0.92 + primaryWave * 0.09;
+          var shadowOpacity = 0.35 + primaryWave * 0.11;
+          elShadow.style.transform = "scale(" + shadowScale.toFixed(3) + ")";
+          elShadow.style.opacity = shadowOpacity.toFixed(3);
+        }
+
+        // 5. Subtle counter-float on speech bubble
+        if (elSpeechBubble) {
+          var bubbleY = Math.sin(t * 1.55 - 0.95) * 2.2;
+          elSpeechBubble.style.transform = "translate3d(0px, " + bubbleY.toFixed(2) + "px, 0px)";
+        }
       }
-
       rafId = requestAnimationFrame(updateTracking);
-
     }
-
-
 
     rafId = requestAnimationFrame(updateTracking);
 
-
-
-    // Pause tracking when tab is hidden to conserve CPU
-
     document.addEventListener("visibilitychange", function () {
-
       if (document.hidden) {
-
-        if (rafId) cancelAnimationFrame(rafId);
-
-      } else {
-
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+      } else if (!rafId) {
         rafId = requestAnimationFrame(updateTracking);
-
       }
-
     });
 
-
-
-    // Natural blinking timer
-
+    // Natural blinking timer (guarded against overriding active expressions)
     var blinkCounter = 0;
-
     setInterval(function () {
-
-      if (isInteractive) return;
-
+      if (isInteractive || isBotClosed) return;
       blinkCounter += 1;
-
       var blinkClass = blinkCounter % 6 === 0 ? "is-wink" : "is-blinking";
-
       setEyeExpression(blinkClass);
-
-      setTimeout(function () {
-
+      blinkTimeoutId = setTimeout(function () {
+        blinkTimeoutId = null;
+        if (isInteractive || isBotClosed) return;
         setEyeExpression(null);
-
       }, 160);
-
     }, 3800);
 
-
-
     // Rotating Idle Intel Tips (every 9s)
-
     setInterval(function () {
-
-      if (isInteractive) return;
-
+      if (isInteractive || isBotClosed) return;
       var pool = idleTips.slice();
-
       if (state.bestScore > 0) {
-
         pool.push("// RECORD: Current best triage score on record: " + state.bestScore + " PTS.");
-
       }
-
       if (state.unlockedDoors && state.unlockedDoors.length > 0) {
-
         pool.push("// CLEARANCE: Door 0" + state.unlockedDoors.length + " unlocked. Continue anytime!");
-
       }
-
       idleTipIndex = (idleTipIndex + 1) % pool.length;
-
       setSpeech(pool[idleTipIndex], "INTEL");
-
     }, 9000);
 
-
-
-    // Click reaction: close eyes, deliver greeting
-
-    var isBotClosed = false;
-
-
-
-    function resetBotToNormal() {
-
-      if (isBotClosed) {
-
-        isBotClosed = false;
-
-        isInteractive = false;
-
-        setEyeExpression(null);
-
-        setSpeech("// SENTINEL BOT ONLINE \u00B7 READY FOR TRIAGE", "STANDBY");
-
+    function resetBotToNormal(withImpulse) {
+      if (!isBotClosed && !isInteractive) return;
+      isBotClosed = false;
+      isInteractive = false;
+      setEyeExpression(null);
+      if (elSpeechBubble) {
+        elSpeechBubble.classList.remove("is-active-comms");
       }
-
+      if (withImpulse) {
+        triggerBotImpulse(-2.6, 4.5, 0);
+      }
+      setSpeech(STANDBY_TEXT, STANDBY_TAG);
     }
 
+    function handleBotActivate(e) {
+      e.stopPropagation();
+      isBotClosed = true;
+      isInteractive = true;
+      setEyeExpression("is-closed");
+      if (elSpeechBubble) {
+        elSpeechBubble.classList.add("is-active-comms");
+      }
+      var rollDir = clickGreetingIndex % 2 === 0 ? 4.2 : -4.2;
+      triggerBotImpulse(3.8, -6.5, rollDir);
 
-
-    if (elRobot) {
-
-      elRobot.addEventListener("click", function (e) {
-
-        e.stopPropagation();
-
-        isBotClosed = true;
-
-        isInteractive = true;
-
-        setEyeExpression("is-closed");
-
-
-
-        var greeting = clickGreetings[clickGreetingIndex % clickGreetings.length];
-
-        clickGreetingIndex += 1;
-
-        setSpeech(greeting, "COMMS");
-
-      });
-
+      var greeting = clickGreetings[clickGreetingIndex % clickGreetings.length];
+      clickGreetingIndex += 1;
+      setSpeech(greeting, "COMMS");
     }
 
-
+    elRobot.addEventListener("click", handleBotActivate);
+    if (elSpeechBubble) {
+      elSpeechBubble.addEventListener("click", handleBotActivate);
+    }
 
     window.addEventListener("click", function (e) {
-
-      if (isBotClosed && elRobot && !elRobot.contains(e.target)) {
-
-        resetBotToNormal();
-
-      }
-
+      if (!isBotClosed) return;
+      var target = e.target;
+      if (elRobot && elRobot.contains(target)) return;
+      if (elSpeechBubble && elSpeechBubble.contains(target)) return;
+      if (target && target.closest && target.closest("[data-bot-reaction]")) return;
+      resetBotToNormal(true);
     });
-
-
-
-    window.addEventListener("pointerdown", function (e) {
-
-      if (isBotClosed && elRobot && !elRobot.contains(e.target)) {
-
-        resetBotToNormal();
-
-      }
-
-    });
-
-
 
     // Menu reaction buttons
-
     var startBtn = document.getElementById("menu-start-btn");
-
     var continueBtn = document.getElementById("menu-continue-btn");
-
     var selectBtn = document.getElementById("menu-select-btn");
-
     var howtoBtn = document.getElementById("menu-howto-btn");
-
     var aboutBtn = document.getElementById("menu-about-btn");
 
-
-
     function attachMenuReaction(btn, text, modeTag, eyeClass) {
-
       if (!btn) return;
-
+      btn.setAttribute("data-bot-reaction", "true");
       btn.addEventListener("mouseenter", function () {
-
+        isBotClosed = false;
         isInteractive = true;
-
+        if (elSpeechBubble) {
+          elSpeechBubble.classList.remove("is-active-comms");
+        }
         setEyeExpression(eyeClass || "is-alert");
-
         setSpeech(text, modeTag || "TACTICAL");
-
       });
-
       btn.addEventListener("mouseleave", function () {
-
+        isBotClosed = false;
         isInteractive = false;
-
         setEyeExpression(null);
-
-        setSpeech("// SENTINEL BOT ONLINE \u00B7 READY FOR TRIAGE", "STANDBY");
-
+        setSpeech(STANDBY_TEXT, STANDBY_TAG);
       });
-
     }
 
-
-
     attachMenuReaction(startBtn, "// BREACH PROTOCOL: Commencing Door 01 containment triage!", "DEPLOY", "is-alert");
-
     attachMenuReaction(continueBtn, "// PROTOCOL: Resuming run from your latest cleared blast door.", "RESUME", "is-happy");
-
     attachMenuReaction(selectBtn, "// ACCESS OVERRIDE: Select clearance door (01 to 03).", "OVERRIDE", null);
-
     attachMenuReaction(howtoBtn, "// BRIEFING: [P] Phish \u00B7 [S] Safe \u00B7 [H] Hint \u00B7 [Esc] Pause.", "BRIEF", null);
-
     attachMenuReaction(aboutBtn, "// DIRECTIVE: Reviewing server room lockdown containment notes.", "INTEL", null);
 
-
-
     var encBtn = document.getElementById("menu-encyclopedia-btn");
-
     var badgesBtn = document.getElementById("menu-badges-btn");
-
     attachMenuReaction(encBtn, "// DATABASE: Threat Encyclopedia across 12 cyberattack vectors.", "INTEL", "is-alert");
-
     attachMenuReaction(badgesBtn, "// CLEARANCE: Review unlocked SOC badges and export credentials.", "HONORS", "is-happy");
     var arenaMenuBtn = document.getElementById("menu-arena-btn");
     attachMenuReaction(arenaMenuBtn, "// ZERO-G LAB: Fling message capsules in the Antigravity Arena!", "ZERO-G", "is-happy");
-
   }
-
-
 
   /* ---------- Init ---------- */
 
@@ -6295,6 +6121,51 @@
 
       elBottomPlayBtn.addEventListener("click", launchQuickPlay);
 
+    }
+
+    var elFooterCtaEncBtn = byId("footer-cta-enc-btn");
+    if (elFooterCtaEncBtn) {
+      elFooterCtaEncBtn.addEventListener("click", function () {
+        openEncyclopediaModal(null);
+      });
+    }
+    var elFooterCtaPlayBtn = byId("footer-cta-play-btn");
+    if (elFooterCtaPlayBtn) elFooterCtaPlayBtn.addEventListener("click", launchQuickPlay);
+
+    var elFooterLaunchTerminalBtn = byId("footer-launch-terminal-btn");
+    if (elFooterLaunchTerminalBtn) elFooterLaunchTerminalBtn.addEventListener("click", launchQuickPlay);
+
+    var elFooterOpenEncBtn = byId("footer-open-encyclopedia-btn");
+    if (elFooterOpenEncBtn) {
+      elFooterOpenEncBtn.addEventListener("click", function () {
+        openEncyclopediaModal(null);
+      });
+    }
+
+    var elFooterEncIconBtn = byId("footer-enc-icon-btn");
+    if (elFooterEncIconBtn) {
+      elFooterEncIconBtn.addEventListener("click", function () {
+        openEncyclopediaModal(null);
+      });
+    }
+
+    var elFooterBadgesIconBtn = byId("footer-badges-icon-btn");
+    if (elFooterBadgesIconBtn) elFooterBadgesIconBtn.addEventListener("click", openBadgesModal);
+
+    var footerActionBtns = document.querySelectorAll("[data-footer-action]");
+    for (var fa = 0; fa < footerActionBtns.length; fa += 1) {
+      (function (btn) {
+        btn.addEventListener("click", function () {
+          var action = btn.getAttribute("data-footer-action");
+          if (action === "encyclopedia") {
+            openEncyclopediaModal(null);
+          } else if (action === "badges") {
+            openBadgesModal();
+          } else if (action === "arena") {
+            openArenaModal();
+          }
+        });
+      })(footerActionBtns[fa]);
     }
 
 
@@ -6938,6 +6809,42 @@
 
     });
 
+    var tierCards = document.querySelectorAll(".editorial-tier-card[data-showcase-door]");
+    for (var tc = 0; tc < tierCards.length; tc += 1) {
+      (function (elCard) {
+        var dNum = parseInt(elCard.getAttribute("data-showcase-door"), 10);
+        if (!dNum) return;
+        elCard.addEventListener("click", function () {
+          if (!state.loaded) return;
+          openDoorDossier(dNum);
+        });
+        elCard.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            elCard.click();
+          }
+        });
+      })(tierCards[tc]);
+    }
+
+    var learnVectorCards = document.querySelectorAll(".threat-vector-card[data-learn-category]");
+    for (var vc = 0; vc < learnVectorCards.length; vc += 1) {
+      (function (elVector) {
+        var catKey = elVector.getAttribute("data-learn-category");
+        if (!catKey) return;
+        elVector.addEventListener("click", function () {
+          var termId = getEncyclopediaTermByCategory(catKey);
+          openEncyclopediaModal(termId);
+        });
+        elVector.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            elVector.click();
+          }
+        });
+      })(learnVectorCards[vc]);
+    }
+
 
 
     elBtnPhishing.addEventListener("click", function () {
@@ -7016,12 +6923,69 @@
 
     if (elMobileMenuToggle && elSiteNavLinks) {
 
-      elMobileMenuToggle.addEventListener("click", function () {
+      var elSiteNav = document.querySelector(".site-nav");
+      var elSiteNavInner = document.querySelector(".site-nav-inner");
+      var elSiteBrand = document.querySelector(".site-nav-left") || document.querySelector(".site-brand");
+      var elSiteNavActions = document.querySelector(".site-nav-actions");
+      var lastMeasuredLinksWidth = 610;
 
+      function syncAdaptiveTopNav() {
+        if (!elSiteNav || !elSiteNavInner) return;
+
+        var isCurrentlyCompact = elSiteNav.classList.contains("is-compact-nav") || window.innerWidth <= 1180;
+        if (!isCurrentlyCompact && elSiteNavLinks.offsetWidth > 0) {
+          lastMeasuredLinksWidth = Math.max(500, elSiteNavLinks.scrollWidth);
+        }
+
+        var innerWidth = elSiteNavInner.clientWidth || window.innerWidth;
+        var brandWidth = elSiteBrand ? elSiteBrand.offsetWidth : 280;
+        var menuBtnWidth = (elMobileMenuToggle.offsetWidth > 0) ? (elMobileMenuToggle.offsetWidth + 10) : 0;
+        var actionsWidth = elSiteNavActions ? Math.max(0, elSiteNavActions.offsetWidth - menuBtnWidth) : 210;
+        var safetyBuffer = 56; // padding + comfortable breathing room before colliding
+
+        var maxSideWidth = Math.max(brandWidth, actionsWidth);
+        var shouldCompact = (window.innerWidth <= 1180) || (innerWidth < (maxSideWidth * 2 + lastMeasuredLinksWidth + safetyBuffer));
+
+        if (shouldCompact) {
+          elSiteNav.classList.add("is-compact-nav");
+        } else {
+          elSiteNav.classList.remove("is-compact-nav");
+          if (elSiteNavLinks.classList.contains("is-open")) {
+            elSiteNavLinks.classList.remove("is-open");
+            elMobileMenuToggle.setAttribute("aria-expanded", "false");
+          }
+        }
+      }
+
+      syncAdaptiveTopNav();
+      window.addEventListener("resize", syncAdaptiveTopNav, { passive: true });
+      if (typeof ResizeObserver !== "undefined" && elSiteNavInner) {
+        var navResizeObserver = new ResizeObserver(function () {
+          syncAdaptiveTopNav();
+        });
+        navResizeObserver.observe(elSiteNavInner);
+      }
+
+      elMobileMenuToggle.addEventListener("click", function (e) {
+        e.stopPropagation();
         var isOpen = elSiteNavLinks.classList.toggle("is-open");
-
         elMobileMenuToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
 
+      document.addEventListener("click", function (e) {
+        if (elSiteNavLinks.classList.contains("is-open")) {
+          if (!elSiteNavLinks.contains(e.target) && e.target !== elMobileMenuToggle) {
+            elSiteNavLinks.classList.remove("is-open");
+            elMobileMenuToggle.setAttribute("aria-expanded", "false");
+          }
+        }
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && elSiteNavLinks.classList.contains("is-open")) {
+          elSiteNavLinks.classList.remove("is-open");
+          elMobileMenuToggle.setAttribute("aria-expanded", "false");
+        }
       });
 
 
