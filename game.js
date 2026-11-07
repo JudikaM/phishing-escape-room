@@ -991,8 +991,9 @@
     clearChildren(container);
     arenaBodies = [];
     var rect = stage.getBoundingClientRect();
-    var w = Math.max(700, rect.width || 800);
-    var h = Math.max(460, rect.height || 520);
+    var isCompactStage = rect.width > 0 && rect.width < 560;
+    var w = rect.width > 240 ? rect.width : (isCompactStage ? 340 : 800);
+    var h = rect.height > 260 ? rect.height : (isCompactStage ? 390 : 520);
 
     var scenarios = state.allMessages && state.allMessages.length > 0 ? state.allMessages : [];
     var pool = scenarios.slice(0, 8);
@@ -1000,8 +1001,8 @@
 
     for (var i = 0; i < pool.length; i += 1) {
       var msg = pool[i];
-      var bw = 240;
-      var bh = 118;
+      var bw = isCompactStage ? 156 : 240;
+      var bh = isCompactStage ? 88 : 118;
       var col = i % 3;
       var row = Math.floor(i / 3);
       var initX = 140 + col * ((w - 280) / 3) + (Math.random() - 0.5) * 30;
@@ -1010,8 +1011,8 @@
       var body = {
         id: "capsule-" + i,
         msg: msg,
-        x: Math.max(120, Math.min(w - bw - 120, initX)),
-        y: Math.max(50, Math.min(h - bh - 60, initY)),
+        x: Math.max(isCompactStage ? 12 : 120, Math.min(w - bw - (isCompactStage ? 12 : 120), initX)),
+        y: Math.max(isCompactStage ? 16 : 50, Math.min(h - bh - (isCompactStage ? 44 : 60), initY)),
         vx: (Math.random() - 0.5) * 2.2,
         vy: (Math.random() - 0.5) * 2.2,
         rotation: (Math.random() - 0.5) * 12,
@@ -1082,8 +1083,8 @@
     else if (arenaGravityMode === "up") gy = -0.26;
 
     // Quarantine Vortex Center (Left) & Safe Vault Center (Right)
-    var qVortex = { x: 74, y: boundsH / 2, radius: 80 };
-    var sVault = { x: boundsW - 74, y: boundsH / 2, radius: 80 };
+    var qVortex = { x: boundsW < 560 ? 38 : 74, y: boundsH / 2, radius: boundsW < 560 ? 56 : 80 };
+    var sVault = { x: boundsW - (boundsW < 560 ? 38 : 74), y: boundsH / 2, radius: boundsW < 560 ? 56 : 80 };
 
     for (var i = 0; i < arenaBodies.length; i += 1) {
       var body = arenaBodies[i];
@@ -1828,6 +1829,14 @@
 
           itemBtn.addEventListener("click", function () {
             activeEncyclopediaTermId = term.id;
+            setTimeout(function () {
+              if (window.innerWidth <= 920) {
+                var detailPane = byId("encyclopedia-detail-pane");
+                if (detailPane && typeof detailPane.scrollIntoView === "function") {
+                  detailPane.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                }
+              }
+            }, 30);
             playSoundInspect();
             renderEncyclopediaModal();
           });
@@ -4866,6 +4875,11 @@
 
 
     announce(verdictText + ". " + actualNature + " Tip: " + msg.tip);
+    if (window.innerWidth <= 640 && elFeedbackPanel && typeof elFeedbackPanel.scrollIntoView === "function") {
+      setTimeout(function () {
+        elFeedbackPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 60);
+    }
 
     focusElement(elBtnContinue);
 
@@ -5879,6 +5893,7 @@
     }
 
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerdown", onPointerMove, { passive: true });
     document.documentElement.addEventListener("mouseleave", onPointerLeave);
     window.addEventListener("blur", onPointerLeave);
 

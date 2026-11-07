@@ -9008,29 +9008,44 @@ mark.quote-highlight {
 }
 
 .footer-play-dock {
-  padding: 4px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, rgba(0, 229, 255, 0.22), rgba(21, 204, 190, 0.06));
-  border: 1px solid rgba(0, 229, 255, 0.32);
-  box-shadow: 0 0 28px rgba(0, 229, 255, 0.18);
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.footer-cta-actions .button-with-icon.bottom-play-btn {
+  height: 46px;
+  min-width: 164px;
+  padding: 0 22px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  box-shadow:
+    inset 0 30px 30px -15px rgba(255, 255, 255, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+    inset 0 -3px 0 #0f988e,
+    0 8px 20px rgba(21, 204, 190, 0.22);
 }
 
 .footer-cta-secondary-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 18px;
-  border-radius: 7px;
-  background: rgba(17, 24, 39, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  gap: 9px;
+  height: 46px;
+  min-width: 164px;
+  padding: 0 22px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  background: rgba(17, 24, 39, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.24);
   color: #e2e8f0;
   font-family: var(--font-sans);
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.18s ease;
@@ -9872,7 +9887,7 @@ body.is-modal-locked {
 }
 
 .site-section {
-  padding: 76px 0 !important;
+  padding: 76px clamp(16px, 4vw, 32px) !important;
   border-bottom: 1px solid rgba(148, 163, 184, 0.08) !important;
 }
 
@@ -10421,7 +10436,7 @@ body.is-modal-locked {
 
 @media (max-width: 768px) {
   .site-section {
-    padding: 52px 0 !important;
+    padding: 48px 16px !important;
   }
   .about-doors-grid,
   .steps-grid,
@@ -10431,5 +10446,1226 @@ body.is-modal-locked {
   }
   .about-overview-banner {
     padding: 20px;
+  }
+}
+
+/* Ensure Hero & Footer Primary/Secondary CTA Buttons Match Height Exactly */
+.hero-action-buttons .button-with-icon.hero-play-btn {
+  height: 46px !important;
+  border-radius: 6px !important;
+  box-sizing: border-box !important;
+  box-shadow:
+    inset 0 30px 30px -15px rgba(255, 255, 255, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+    inset 0 -3px 0 #0f988e,
+    0 8px 20px rgba(21, 204, 190, 0.22) !important;
+}
+
+.hero-action-buttons .btn-hero-secondary {
+  height: 46px !important;
+  padding: 0 22px !important;
+  border-radius: 6px !important;
+  box-sizing: border-box !important;
+}
+
+
+/* ==========================================================================
+   MOBILE UI/UX EXPERT OVERHAUL & RESPONSIVE ARCHITECTURE
+   ========================================================================== */
+
+/* 1. Fix mobile nav popover arrow & active indicator glyphs */
+.site-nav.is-compact-nav .site-nav-links.is-open .nav-link::after,
+.site-nav-links.is-open .nav-link::after {
+  content: "\2192" !important;
+}
+
+.site-nav.is-compact-nav .site-nav-links.is-open .nav-link.is-active::after,
+.site-nav-links.is-open .nav-link.is-active::after {
+  content: "\25CF" !important;
+}
+
+/* 2. Fix SOC Audit Row layout & End Screen Category/Review Cards (All Viewports) */
+.soc-audit-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 11px 14px !important;
+  background: rgba(15, 23, 42, 0.72) !important;
+  border: 1px solid rgba(148, 163, 184, 0.16) !important;
+  border-radius: 8px !important;
+}
+
+.soc-audit-row.audit-row-pass {
+  border-left: 3px solid #10b981 !important;
+}
+
+.soc-audit-row.audit-row-fail {
+  border-left: 3px solid #f43f5e !important;
+}
+
+.soc-audit-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.soc-audit-status {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.soc-audit-status.status-pass {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.soc-audit-status.status-fail {
+  color: #fb7185;
+  background: rgba(244, 63, 94, 0.14);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+}
+
+.soc-audit-meta {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #e2e8f0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.soc-audit-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.soc-audit-pts {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.soc-audit-time {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+/* End Screen Category Breakdown & Wrong Answer Review Cards */
+.category-accuracy-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 8px;
+}
+
+.category-accuracy-card.cat-acc-high {
+  border-left: 3px solid #10b981;
+}
+
+.category-accuracy-card.cat-acc-mid {
+  border-left: 3px solid #f59e0b;
+}
+
+.category-accuracy-card.cat-acc-low {
+  border-left: 3px solid #f43f5e;
+}
+
+.cat-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cat-card-name {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.cat-card-badge {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.cat-card-detail {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.wrong-card-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  text-align: left;
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(244, 63, 94, 0.28);
+  border-radius: 8px;
+  color: #f8fafc;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.wrong-card-btn:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(244, 63, 94, 0.55);
+  transform: translateY(-1px);
+}
+
+.wrong-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.wrong-card-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.wrong-card-err {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fb7185;
+}
+
+.wrong-card-snippet {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+  margin: 0;
+  word-break: break-word;
+}
+
+.wrong-card-cta {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #00e5ff;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   3. TABLET & MOBILE HERO + ROBOT HOLO-POD + ENCYCLOPEDIA (<= 920px)
+   ========================================================================== */
+@media (max-width: 920px) {
+  /* Encyclopedia Modal: scrollable unified layout so detail pane never clips */
+  .encyclopedia-modal-card {
+    max-height: 90dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .encyclopedia-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .encyclopedia-sidebar {
+    max-height: none !important;
+    flex: 0 0 auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.2) !important;
+  }
+
+  .encyclopedia-term-list {
+    max-height: 175px !important;
+    overflow-y: auto !important;
+    padding: 8px 12px !important;
+  }
+
+  .encyclopedia-detail-pane {
+    flex: 0 0 auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 18px 16px 24px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  /* Unwrap .title-hero-content so we can place the 3D Sentinel Bot Holo-Pod
+     right between the Hero Header Area and the Select Door Card */
+  .title-hero-inner {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 18px !important;
+    padding: 20px 0 12px !important;
+  }
+
+  .title-hero-content {
+    display: contents !important;
+  }
+
+  .hero-header-area {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+  }
+
+  /* Interactive 3D Sentinel Bot Companion Holo-Pod on Mobile/Tablet */
+  .title-hero-robot-pane {
+    display: flex !important;
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 560px !important;
+    min-height: 132px !important;
+    height: auto !important;
+    margin: 2px auto !important;
+    padding: 0 !important;
+    background: linear-gradient(135deg, rgba(10, 18, 34, 0.92) 0%, rgba(15, 27, 48, 0.85) 100%) !important;
+    border: 1px solid rgba(0, 229, 255, 0.26) !important;
+    border-radius: 14px !important;
+    box-shadow:
+      0 12px 30px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 0 24px rgba(0, 229, 255, 0.08) !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  .title-hero-robot-pane::before {
+    content: "SENTINEL UNIT // INTERACTIVE TACTICAL COMPANION";
+    position: absolute;
+    top: 8px;
+    right: 14px;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: rgba(56, 189, 248, 0.7);
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .title-hero-robot-pane .robot-stage {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-height: 132px !important;
+    padding: 20px 14px 12px 10px !important;
+    perspective: 700px !important;
+  }
+
+  .title-hero-robot-pane .robot-shadow {
+    display: none !important;
+  }
+
+  .title-hero-robot-pane .soc-robot {
+    order: 1 !important;
+    flex: 0 0 108px !important;
+    transform: scale(0.46) !important;
+    transform-origin: center center !important;
+    margin: -56px -56px !important;
+    z-index: 2 !important;
+  }
+
+  .title-hero-robot-pane .robot-speech-bubble {
+    order: 2 !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 10px 13px !important;
+    text-align: left !important;
+    font-size: 0.76rem !important;
+    line-height: 1.42 !important;
+    background: rgba(7, 13, 25, 0.88) !important;
+    border: 1px solid rgba(0, 229, 255, 0.35) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  }
+
+  /* Aim speech bubble pointer toward the robot on the left */
+  .title-hero-robot-pane .robot-speech-bubble::after {
+    left: -6px !important;
+    top: 50% !important;
+    bottom: auto !important;
+    transform: translateY(-50%) rotate(135deg) !important;
+  }
+
+  .hero-selection-card {
+    order: 3 !important;
+    width: 100% !important;
+    max-width: 560px !important;
+    margin: 0 auto !important;
+  }
+}
+
+/* ==========================================================================
+   4. MOBILE VIEWPORT OPTIMIZATION (<= 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Security Doors Showcase Section */
+  .doors-showcase-section {
+    padding: 48px 16px !important;
+  }
+
+  .doors-showcase-header {
+    gap: 16px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .doors-header-telemetry {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .doors-telemetry-chip {
+    padding: 10px 8px !important;
+    min-width: 0 !important;
+  }
+
+  .doors-telemetry-chip .telemetry-chip-label {
+    font-size: 0.58rem !important;
+    letter-spacing: 0.05em !important;
+  }
+
+  .doors-telemetry-chip .telemetry-chip-val {
+    font-size: 0.78rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .environment-feed-bar {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    padding: 12px 14px !important;
+  }
+
+  .showcase-door-card.card {
+    padding: 20px 16px !important;
+  }
+
+  .showcase-bottom-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+    padding: 16px !important;
+  }
+
+  .showcase-bottom-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .showcase-bottom-actions .btn,
+  .showcase-bottom-actions .button-with-icon {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Door Dossier Modal: scrollable body + sticky action footer */
+  #door-dossier-modal {
+    padding: 12px !important;
+  }
+
+  .dossier-card {
+    max-height: 90dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .dossier-header {
+    padding: 14px 16px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .dossier-body {
+    padding: 16px !important;
+    overflow-y: auto !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dossier-title {
+    font-size: 1.25rem !important;
+  }
+
+  .dossier-footer {
+    padding: 12px 16px !important;
+    flex-shrink: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1.35fr !important;
+    gap: 10px !important;
+  }
+
+  .dossier-footer .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 11px 12px !important;
+    font-size: 0.78rem !important;
+  }
+}
+
+/* ==========================================================================
+   5. PHONE UI/UX POLISH (<= 640px)
+   ========================================================================== */
+@media (max-width: 640px) {
+  /* --- A. Sticky Top Navigation Bar --- */
+  .site-nav {
+    min-height: 54px !important;
+  }
+
+  .site-nav-inner {
+    min-height: 54px !important;
+    padding: 6px 10px !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .site-nav-left {
+    gap: 6px !important;
+    min-width: 0 !important;
+    flex-shrink: 1 !important;
+  }
+
+  .site-brand {
+    gap: 7px !important;
+    padding-right: 2px !important;
+  }
+
+  .site-logo-badge {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 7px !important;
+  }
+
+  .site-logo-svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
+
+  .brand-name {
+    font-size: 0.94rem !important;
+    letter-spacing: 0.05em !important;
+  }
+
+  /* Compact Rainbow GitHub Button on Mobile */
+  #nav-github-btn.rainbow-github-btn {
+    height: 30px !important;
+    padding: 0 8px !important;
+    border-radius: 7px !important;
+    font-size: 0.72rem !important;
+  }
+
+  #nav-github-btn .flex.items-center.gap-2 {
+    gap: 5px !important;
+  }
+
+  #nav-github-btn .w-4.h-4 {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  #nav-github-btn .ml-2 {
+    margin-left: 4px !important;
+    padding-left: 5px !important;
+    gap: 3px !important;
+  }
+
+  /* Nav Actions & Utility Toolbar */
+  .site-nav-actions {
+    gap: 5px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .site-nav-toolbar {
+    padding: 2px !important;
+    gap: 2px !important;
+    border-radius: 7px !important;
+  }
+
+  .site-nav-toolbar .btn-audio-toggle {
+    width: 27px !important;
+    height: 27px !important;
+    min-width: 27px !important;
+    padding: 0 !important;
+    border-radius: 5px !important;
+  }
+
+  /* Hide badge counter text inside tiny mobile navbar icon to save 28px width */
+  #site-badges-count {
+    display: none !important;
+  }
+
+  #mobile-menu-toggle.mobile-menu-toggle {
+    height: 30px !important;
+    padding: 0 8px !important;
+    gap: 5px !important;
+    border-radius: 7px !important;
+  }
+
+  #mobile-menu-toggle .menu-toggle-label {
+    font-size: 0.66rem !important;
+  }
+
+  #nav-play-btn.button-with-icon.nav-play-btn {
+    height: 30px !important;
+    width: 64px !important;
+    min-width: 64px !important;
+    padding: 0 8px !important;
+    font-size: 11px !important;
+    border-radius: 7px !important;
+  }
+
+  #nav-play-btn.button-with-icon.nav-play-btn .icon {
+    width: 13px !important;
+    height: 13px !important;
+    margin-right: 2px !important;
+  }
+
+  /* Mobile Dropdown Popover Menu */
+  .site-nav.is-compact-nav .site-nav-links.is-open,
+  .site-nav-links.is-open {
+    top: calc(100% + 8px) !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    padding: 10px !important;
+    border-radius: 12px !important;
+  }
+
+  /* --- B. Hero Section Mobile Ergonomics --- */
+  .title-hero {
+    padding: 12px 14px 32px !important;
+  }
+
+  .hero-status-pill {
+    font-size: 0.62rem !important;
+    padding: 5px 11px !important;
+    margin-bottom: 10px !important;
+    max-width: 100% !important;
+    text-align: center !important;
+    line-height: 1.35 !important;
+  }
+
+  .game-title {
+    font-size: clamp(2.15rem, 10vw, 2.85rem) !important;
+    letter-spacing: 0.08em !important;
+    margin-bottom: 6px !important;
+  }
+
+  .game-subtitle-banner {
+    font-size: 0.72rem !important;
+    letter-spacing: 0.14em !important;
+    padding: 5px 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .game-tagline {
+    font-size: 0.9rem !important;
+    line-height: 1.55 !important;
+    margin-bottom: 16px !important;
+    padding: 0 4px !important;
+  }
+
+  /* Symmetrical 2-Column Hero Action Buttons */
+  .hero-action-buttons {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    margin-bottom: 18px !important;
+  }
+
+  .hero-action-buttons .button-with-icon.hero-play-btn {
+    width: 100% !important;
+    height: 46px !important;
+    padding: 0 14px !important;
+    justify-content: center !important;
+  }
+
+  .hero-action-buttons .btn-hero-secondary {
+    width: 100% !important;
+    height: 46px !important;
+    padding: 0 12px !important;
+    justify-content: center !important;
+    font-size: 0.8rem !important;
+    white-space: nowrap !important;
+  }
+
+  /* 2x2 Tactical Bento Grid for Hero Meta Strip */
+  .hero-meta-strip {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .hero-meta-strip .meta-divider {
+    display: none !important;
+  }
+
+  .hero-meta-strip .meta-chip {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 9px 10px !important;
+    font-size: 0.72rem !important;
+    background: rgba(15, 23, 42, 0.78) !important;
+    border: 1px solid rgba(56, 189, 248, 0.2) !important;
+    border-radius: 8px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+  }
+
+  /* Hero Selection Card */
+  .hero-selection-card {
+    padding: 16px 14px !important;
+    border-radius: 14px !important;
+  }
+
+  .selection-card-header {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .door-card {
+    padding: 12px 13px !important;
+  }
+
+  .start-card-footer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding-top: 12px !important;
+  }
+
+  .start-card-footer .disclaimer-inline {
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 0.72rem !important;
+  }
+
+  .start-card-footer #btn-reset-progress {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* --- C. Editorial Sections & Cards --- */
+  .section-title {
+    font-size: clamp(1.45rem, 6.2vw, 1.85rem) !important;
+    line-height: 1.25 !important;
+  }
+
+  .section-lead {
+    font-size: 0.92rem !important;
+    line-height: 1.6 !important;
+  }
+
+  .about-overview-banner,
+  .about-door-card,
+  .step-card,
+  .category-card,
+  .fell-step-card,
+  .recovery-checklist-banner,
+  .simulation-notice-card {
+    padding: 18px 16px !important;
+  }
+
+  /* --- D. Footer CTA Banner & Main Footer --- */
+  .site-footer-cta {
+    padding: 36px 14px 24px !important;
+  }
+
+  .footer-cta-card {
+    padding: 24px 16px !important;
+    border-radius: 16px !important;
+  }
+
+  .footer-cta-status-pill {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 8px 12px !important;
+    border-radius: 12px !important;
+    font-size: 0.65rem !important;
+    text-align: center !important;
+  }
+
+  .footer-cta-status-pill .cta-status-sep {
+    display: none !important;
+  }
+
+  .footer-cta-title {
+    font-size: clamp(1.35rem, 6vw, 1.75rem) !important;
+  }
+
+  .footer-decoy-strip {
+    gap: 6px !important;
+    padding: 10px !important;
+  }
+
+  .footer-decoy-label {
+    width: 100% !important;
+    text-align: center !important;
+    margin-bottom: 2px !important;
+  }
+
+  .footer-decoy-pill {
+    font-size: 0.68rem !important;
+    padding: 4px 9px !important;
+  }
+
+  .footer-cta-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .footer-cta-actions .button-with-icon.hero-play-btn,
+  .footer-cta-actions .btn-hero-secondary {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0 12px !important;
+  }
+
+  /* --- E. Focused Game Terminal View (#terminal-view) --- */
+  .terminal-view .app-shell {
+    padding: 8px 10px 24px !important;
+  }
+
+  /* Keep utility buttons (Audio, Badges, Encyclopedia, Arena) visible on mobile!
+     Row 1: Brand Title + Utility Controls
+     Row 2: 3-Column Door Progress Strip */
+  .top-bar {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+  }
+
+  .top-bar .brand-title {
+    order: 1 !important;
+    gap: 8px !important;
+  }
+
+  .top-bar-right {
+    display: contents !important;
+  }
+
+  .terminal-util-controls {
+    display: flex !important;
+    order: 2 !important;
+    gap: 4px !important;
+    margin-left: auto !important;
+  }
+
+  .terminal-util-controls .btn-audio-toggle {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    padding: 0 !important;
+  }
+
+  #badges-count-label {
+    display: none !important;
+  }
+
+  .doors-progress {
+    order: 3 !important;
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .door-chip {
+    padding: 6px 6px !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .door-chip .door-name {
+    display: none !important;
+  }
+
+  .door-chip .door-id {
+    font-size: 0.68rem !important;
+  }
+
+  /* HUD Cockpit Bar: 3x2 uniform grid on mobile */
+  .hud-bar {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    padding: 8px !important;
+  }
+
+  .hud-item,
+  .hud-streak-box {
+    grid-column: span 1 !important;
+    padding: 7px 6px !important;
+    min-width: 0 !important;
+  }
+
+  .hud-label {
+    font-size: 0.56rem !important;
+  }
+
+  .hud-value {
+    font-size: 0.82rem !important;
+  }
+
+  /* Message Terminal (Email / SMS / Chat) */
+  .message-terminal {
+    border-radius: 12px !important;
+  }
+
+  .terminal-window-bar {
+    padding: 8px 12px !important;
+  }
+
+  .email-headers {
+    padding: 12px 14px !important;
+  }
+
+  .email-meta-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 3px !important;
+    padding: 6px 0 !important;
+  }
+
+  .email-meta-value {
+    word-break: break-word !important;
+    font-size: 0.82rem !important;
+  }
+
+  .message-body-wrap {
+    padding: 14px !important;
+  }
+
+  /* Smart Fixed Decision Bar on Mobile:
+     Visible when classifying, automatically hidden when #feedback-panel is open */
+  #game-screen {
+    padding-bottom: 84px !important;
+  }
+
+  #game-screen:has(#feedback-panel:not(.hidden)) {
+    padding-bottom: 16px !important;
+  }
+
+  #game-screen:has(#feedback-panel:not(.hidden)) .decision-bar {
+    display: none !important;
+  }
+
+  .decision-bar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 90 !important;
+    margin: 0 !important;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    background: rgba(8, 13, 24, 0.96) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border-top: 1px solid rgba(0, 229, 255, 0.28) !important;
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.65) !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr auto !important;
+    gap: 8px !important;
+    align-items: center !important;
+  }
+
+  .decision-bar .decision-prompt {
+    display: none !important;
+  }
+
+  .decision-bar .decision-buttons {
+    grid-column: 1 / 3 !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .decision-bar .btn-phishing,
+  .decision-bar .btn-safe {
+    min-height: 44px !important;
+    padding: 8px 10px !important;
+    font-size: 0.8rem !important;
+    justify-content: center !important;
+  }
+
+  .decision-bar #btn-pause {
+    grid-column: 3 !important;
+    min-height: 44px !important;
+    padding: 8px 12px !important;
+    font-size: 0.74rem !important;
+  }
+
+  .decision-bar .key-hint {
+    display: none !important;
+  }
+
+  /* Feedback Panel Mobile Polish */
+  .feedback-panel {
+    padding: 16px 14px !important;
+    margin-top: 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .feedback-actions-row {
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .feedback-actions-row .btn {
+    width: 100% !important;
+    min-height: 46px !important;
+    justify-content: center !important;
+  }
+
+  /* SOC Audit Log & End Screen on Mobile */
+  .soc-audit-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+  }
+
+  .soc-audit-left {
+    width: 100% !important;
+  }
+
+  .soc-audit-meta {
+    white-space: normal !important;
+    line-height: 1.35 !important;
+  }
+
+  .soc-audit-right {
+    width: 100% !important;
+    justify-content: space-between !important;
+    padding-top: 6px !important;
+    border-top: 1px dashed rgba(148, 163, 184, 0.16) !important;
+  }
+
+  .score-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  /* --- F. Badges Modal & Zero-G Arena Modal on Mobile --- */
+  #badges-modal,
+  #arena-modal,
+  #encyclopedia-modal {
+    padding: 10px !important;
+  }
+
+  .badges-modal-card {
+    max-height: 92dvh !important;
+  }
+
+  .badges-summary-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 14px !important;
+  }
+
+  .badges-callsign-box {
+    width: 100% !important;
+  }
+
+  #agent-callsign-input {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .badges-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 14px !important;
+  }
+
+  /* Zero-G Physics Arena Mobile Fit */
+  .arena-modal-card {
+    max-height: 92dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .arena-controls-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+  }
+
+  .arena-gravity-btns {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  .arena-stage {
+    height: 390px !important;
+    min-height: 360px !important;
+  }
+
+  .arena-capsule-card {
+    width: 156px !important;
+    padding: 8px 10px !important;
+  }
+
+  .arena-capsule-card .capsule-snippet {
+    font-size: 0.66rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .arena-vortex .vortex-core {
+    width: 64px !important;
+    height: 64px !important;
+  }
+
+  /* Achievement Toast on Mobile */
+  .achievement-toast {
+    left: 12px !important;
+    right: 12px !important;
+    bottom: 16px !important;
+    max-width: none !important;
+  }
+}
+
+/* ==========================================================================
+   6. EXTRA-COMPACT PHONES (<= 440px)
+   ========================================================================== */
+@media (max-width: 440px) {
+  .site-section {
+    padding: 40px 14px !important;
+  }
+
+  /* Turn Rainbow GitHub button into a sleek icon-only pill on <= 440px
+     so Brand + GitHub + 4 Tools + Menu + Play fit with zero overflow at 360px */
+  #nav-github-btn .ml-2 {
+    display: none !important;
+  }
+
+  #nav-github-btn.rainbow-github-btn {
+    width: 28px !important;
+    min-width: 28px !important;
+    height: 28px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+  }
+
+  .brand-name {
+    font-size: 0.84rem !important;
+  }
+
+  .site-logo-badge {
+    width: 25px !important;
+    height: 25px !important;
+  }
+
+  #mobile-menu-toggle .menu-toggle-label {
+    display: none !important;
+  }
+
+  #mobile-menu-toggle.mobile-menu-toggle {
+    width: 28px !important;
+    min-width: 28px !important;
+    height: 28px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+  }
+
+  #nav-play-btn.button-with-icon.nav-play-btn {
+    height: 28px !important;
+    width: 58px !important;
+    min-width: 58px !important;
+    font-size: 10px !important;
+  }
+
+  /* Robot Holo-Pod compact sizing on <= 440px */
+  .title-hero-robot-pane .soc-robot {
+    flex: 0 0 92px !important;
+    transform: scale(0.41) !important;
+    margin: -62px -64px !important;
+  }
+
+  .title-hero-robot-pane .robot-speech-bubble {
+    font-size: 0.72rem !important;
+    padding: 9px 11px !important;
+  }
+
+  /* Stack Footer CTA buttons on narrow screens */
+  .footer-cta-actions {
+    grid-template-columns: 1fr !important;
   }
 }
