@@ -6538,7 +6538,7 @@
 
         ],
 
-        playText: "LAUNCH DOOR 01 (EMAIL)"
+        playText: "LAUNCH DOOR 01"
 
       },
 
@@ -6564,7 +6564,7 @@
 
         ],
 
-        playText: "LAUNCH DOOR 02 (SMS)"
+        playText: "LAUNCH DOOR 02"
 
       },
 
@@ -6590,7 +6590,7 @@
 
         ],
 
-        playText: "LAUNCH DOOR 03 (CHAT)"
+        playText: "LAUNCH DOOR 03"
 
       }
 
@@ -6692,7 +6692,7 @@
 
         } else {
 
-          elDossierPlayText.textContent = "LOCKED - CLEAR DOOR 0" + (doorNum - 1) + " FIRST";
+          elDossierPlayText.textContent = "LOCKED · CLEAR 0" + (doorNum - 1);
 
         }
 
@@ -6936,7 +6936,7 @@
 
 
 
-    if (elMobileMenuToggle && elSiteNavLinks) {
+    if (elSiteNavLinks) {
 
       var elSiteNav = document.querySelector(".site-nav");
       var elSiteNavInner = document.querySelector(".site-nav-inner");
@@ -6954,7 +6954,7 @@
 
         var innerWidth = elSiteNavInner.clientWidth || window.innerWidth;
         var brandWidth = elSiteBrand ? elSiteBrand.offsetWidth : 280;
-        var menuBtnWidth = (elMobileMenuToggle.offsetWidth > 0) ? (elMobileMenuToggle.offsetWidth + 10) : 0;
+        var menuBtnWidth = (elMobileMenuToggle && elMobileMenuToggle.offsetWidth > 0) ? (elMobileMenuToggle.offsetWidth + 10) : 0;
         var actionsWidth = elSiteNavActions ? Math.max(0, elSiteNavActions.offsetWidth - menuBtnWidth) : 210;
         var safetyBuffer = 56; // padding + comfortable breathing room before colliding
 
@@ -6967,7 +6967,7 @@
           elSiteNav.classList.remove("is-compact-nav");
           if (elSiteNavLinks.classList.contains("is-open")) {
             elSiteNavLinks.classList.remove("is-open");
-            elMobileMenuToggle.setAttribute("aria-expanded", "false");
+            if (elMobileMenuToggle) elMobileMenuToggle.setAttribute("aria-expanded", "false");
           }
         }
       }
@@ -6981,7 +6981,7 @@
         navResizeObserver.observe(elSiteNavInner);
       }
 
-      elMobileMenuToggle.addEventListener("click", function (e) {
+      if (elMobileMenuToggle) elMobileMenuToggle.addEventListener("click", function (e) {
         e.stopPropagation();
         var isOpen = elSiteNavLinks.classList.toggle("is-open");
         elMobileMenuToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
@@ -6991,7 +6991,7 @@
         if (elSiteNavLinks.classList.contains("is-open")) {
           if (!elSiteNavLinks.contains(e.target) && e.target !== elMobileMenuToggle) {
             elSiteNavLinks.classList.remove("is-open");
-            elMobileMenuToggle.setAttribute("aria-expanded", "false");
+            if (elMobileMenuToggle) elMobileMenuToggle.setAttribute("aria-expanded", "false");
           }
         }
       });
@@ -6999,7 +6999,7 @@
       document.addEventListener("keydown", function (e) {
         if (e.key === "Escape" && elSiteNavLinks.classList.contains("is-open")) {
           elSiteNavLinks.classList.remove("is-open");
-          elMobileMenuToggle.setAttribute("aria-expanded", "false");
+          if (elMobileMenuToggle) elMobileMenuToggle.setAttribute("aria-expanded", "false");
         }
       });
 
@@ -7009,7 +7009,7 @@
       var clickScrollTimeout = null;
 
       function setActiveNavLink(targetId) {
-        var links = elSiteNavLinks ? elSiteNavLinks.querySelectorAll(".nav-link") : [];
+        var links = document.querySelectorAll(".site-nav-links .nav-link, .mobile-bottom-nav .nav-link");
         for (var i = 0; i < links.length; i += 1) {
           var href = links[i].getAttribute("href") || "";
           if (href === "#" + targetId || (targetId === "home" && href === "#home")) {
@@ -7065,7 +7065,7 @@
         }
       }, { passive: true });
 
-      var navLinks = elSiteNavLinks.querySelectorAll(".nav-link");
+      var navLinks = document.querySelectorAll(".site-nav-links .nav-link, .mobile-bottom-nav .nav-link");
       for (var nl = 0; nl < navLinks.length; nl += 1) {
         (function (link) {
           link.addEventListener("click", function (e) {
@@ -7098,7 +7098,7 @@
 
             elSiteNavLinks.classList.remove("is-open");
             if (elMobileMenuToggle) {
-              elMobileMenuToggle.setAttribute("aria-expanded", "false");
+              if (elMobileMenuToggle) elMobileMenuToggle.setAttribute("aria-expanded", "false");
             }
           });
         })(navLinks[nl]);

@@ -8556,30 +8556,37 @@ mark.quote-highlight {
 }
 
 .footer-social-links {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  margin-top: 6px;
 }
 
 .footer-social-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  background: transparent;
-  border: none;
-  border-radius: 5px;
-  color: #8b949e;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  color: #b0aea5 !important;
   cursor: pointer;
   text-decoration: none;
-  transition: color 0.16s ease, background-color 0.16s ease;
+  line-height: 1;
+  transition: color 0.16s ease, opacity 0.16s ease;
+}
+
+.footer-social-btn svg {
+  display: block;
+  flex-shrink: 0;
 }
 
 .footer-social-btn:hover {
-  color: #f9fafb;
-  background-color: rgba(255, 255, 255, 0.06);
+  color: #faf9f5 !important;
+  background-color: transparent !important;
 }
 
 /* Center Column: Expandable Accordion Directory */
@@ -10468,20 +10475,36 @@ body.is-modal-locked {
   box-sizing: border-box !important;
 }
 
-
 /* ==========================================================================
    MOBILE UI/UX EXPERT OVERHAUL & RESPONSIVE ARCHITECTURE
    ========================================================================== */
 
-/* 1. Fix mobile nav popover arrow & active indicator glyphs */
-.site-nav.is-compact-nav .site-nav-links.is-open .nav-link::after,
-.site-nav-links.is-open .nav-link::after {
-  content: "\2192" !important;
+/* 1. Desktop & Global Top-Bar Adjustments (GitHub Star Button in Top-Right) */
+.site-nav-actions #nav-github-btn.github-star-rainbow-btn {
+  height: 36px !important;
+  padding: 0 12px !important;
+  font-size: 13px !important;
+  border-radius: 6px !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
 }
 
-.site-nav.is-compact-nav .site-nav-links.is-open .nav-link.is-active::after,
-.site-nav-links.is-open .nav-link.is-active::after {
-  content: "\25CF" !important;
+@media (min-width: 1120px) {
+  .site-nav-actions #nav-github-btn.github-star-rainbow-btn .github-star-label {
+    display: inline !important;
+  }
+}
+
+/* Hide Mobile App Bottom Navigation Bar on Desktop (> 1180px) & Hide MENU button globally */
+.mobile-bottom-nav {
+  display: none;
+}
+
+.site-nav .btn-mobile-menu,
+.site-nav.is-compact-nav .btn-mobile-menu,
+#mobile-menu-toggle,
+.site-nav.is-compact-nav #mobile-menu-toggle {
+  display: none !important;
 }
 
 /* 2. Fix SOC Audit Row layout & End Screen Category/Review Cards (All Viewports) */
@@ -10679,7 +10702,7 @@ body.is-modal-locked {
 }
 
 /* ==========================================================================
-   3. TABLET & MOBILE HERO + ROBOT HOLO-POD + ENCYCLOPEDIA (<= 920px)
+   3. TABLET & MOBILE APP ARCHITECTURE (<= 920px & <= 900px)
    ========================================================================== */
 @media (max-width: 920px) {
   /* Encyclopedia Modal: scrollable unified layout so detail pane never clips */
@@ -10720,123 +10743,181 @@ body.is-modal-locked {
   }
 }
 
-@media (max-width: 900px) {
-  /* Unwrap .title-hero-content so we can place the 3D Sentinel Bot Holo-Pod
-     right between the Hero Header Area and the Select Door Card */
+@media (max-width: 1180px) {
+  /* Reserve space at bottom of website view for the fixed Mobile App Bottom Navigation Bar */
+  .website-view {
+    padding-bottom: 0 !important;
+  }
+
+  /* Hide top-bar nav links & MENU button on <= 900px because Mobile Bottom Nav is active */
+  .site-nav .site-nav-links,
+  .site-nav.is-compact-nav .site-nav-links,
+  .site-nav .site-nav-links.is-open,
+  .site-nav.is-compact-nav .site-nav-links.is-open,
+  .site-nav .btn-mobile-menu,
+  .site-nav.is-compact-nav .btn-mobile-menu,
+  #mobile-menu-toggle {
+    display: none !important;
+  }
+
+  /* Hide Sentinel Bot completely on Mobile/Tablet as requested */
+  .title-hero-robot-pane,
+  #soc-robot {
+    display: none !important;
+  }
+
   .title-hero-inner {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    gap: 18px !important;
-    padding: 20px 0 12px !important;
+    gap: 20px !important;
+    padding: 16px 0 12px !important;
   }
 
   .title-hero-content {
-    display: contents !important;
-  }
-
-  .hero-header-area {
-    order: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 22px !important;
     width: 100% !important;
-    max-width: 600px !important;
+    max-width: 580px !important;
     margin: 0 auto !important;
   }
 
-  /* Interactive 3D Sentinel Bot Companion Holo-Pod on Mobile/Tablet */
-  .title-hero-robot-pane {
-    display: flex !important;
-    order: 2 !important;
+  .hero-header-area,
+  .hero-selection-card {
     width: 100% !important;
-    max-width: 560px !important;
-    min-height: 132px !important;
-    height: auto !important;
-    margin: 2px auto !important;
-    padding: 0 !important;
-    background: linear-gradient(135deg, rgba(10, 18, 34, 0.92) 0%, rgba(15, 27, 48, 0.85) 100%) !important;
-    border: 1px solid rgba(0, 229, 255, 0.26) !important;
-    border-radius: 14px !important;
-    box-shadow:
-      0 12px 30px rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 24px rgba(0, 229, 255, 0.08) !important;
-    position: relative !important;
-    overflow: hidden !important;
+    max-width: 580px !important;
+    margin: 0 auto !important;
   }
 
-  .title-hero-robot-pane::before {
-    content: "SENTINEL UNIT // INTERACTIVE TACTICAL COMPANION";
-    position: absolute;
-    top: 8px;
-    right: 14px;
-    font-family: var(--font-mono);
-    font-size: 0.58rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: rgba(56, 189, 248, 0.7);
-    pointer-events: none;
-    z-index: 3;
+  .website-view { padding-bottom: 0 !important; } .footer-main { padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)) !important; }
+  .website-view {
+    padding-bottom: 0 !important;
   }
 
-  .title-hero-robot-pane .robot-stage {
-    display: flex !important;
-    flex-direction: row !important;
+  .mobile-bottom-nav {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
     align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 12px !important;
-    width: 100% !important;
-    min-height: 132px !important;
-    padding: 20px 14px 12px 10px !important;
-    perspective: 700px !important;
+    gap: 5px !important;
+    position: fixed !important;
+    left: 12px !important;
+    right: 12px !important;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    max-width: 430px !important;
+    margin: 0 auto !important;
+    z-index: 88 !important;
+    padding: 6px 7px !important;
+    border-radius: 22px !important;
+    background:
+      linear-gradient(180deg, rgba(15, 25, 45, 0.88) 0%, rgba(7, 12, 24, 0.95) 100%) !important;
+    backdrop-filter: blur(22px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(180%) !important;
+    border: 1px solid rgba(56, 189, 248, 0.24) !important;
+    box-shadow:
+      0 18px 42px -6px rgba(0, 0, 0, 0.85),
+      0 0 26px rgba(0, 229, 255, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      inset 0 -1px 0 rgba(0, 229, 255, 0.08) !important;
   }
 
-  .title-hero-robot-pane .robot-shadow {
+  .mobile-bottom-nav .mobile-nav-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    padding: 7px 4px 6px !important;
+    border-radius: 16px !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #94a3b8 !important;
+    text-decoration: none !important;
+    position: relative !important;
+    min-width: 0 !important;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      background 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.22s ease,
+      box-shadow 0.22s ease,
+      transform 0.16s ease !important;
+  }
+
+  .mobile-bottom-nav .mobile-nav-item:active {
+    transform: scale(0.93) !important;
+  }
+
+  .mobile-bottom-nav .mobile-nav-icon-box {
+    width: 34px !important;
+    height: 24px !important;
+    border-radius: 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .mobile-bottom-nav .mobile-nav-item .nav-icon {
+    width: 18px !important;
+    height: 18px !important;
+    color: #94a3b8 !important;
+    stroke-width: 2px !important;
+    transition:
+      color 0.2s ease,
+      transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 0.22s ease !important;
+  }
+
+  .mobile-bottom-nav .mobile-nav-label {
+    font-family: var(--font-sans) !important;
+    font-size: 0.66rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.015em !important;
+    line-height: 1.1 !important;
+    text-transform: none !important;
+    color: #8fa6c0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    transition: color 0.2s ease, font-weight 0.2s ease !important;
+  }
+
+  /* Active Pill Capsule State */
+  .mobile-bottom-nav .mobile-nav-item.is-active {
+    background:
+      linear-gradient(180deg, rgba(0, 229, 255, 0.2) 0%, rgba(14, 165, 233, 0.06) 100%) !important;
+    border-color: rgba(0, 229, 255, 0.36) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 6px 16px -4px rgba(0, 229, 255, 0.22) !important;
+  }
+
+  .mobile-bottom-nav .mobile-nav-item::before,
+  .mobile-bottom-nav .mobile-nav-item.is-active::before {
+    content: none !important;
     display: none !important;
   }
 
-  .title-hero-robot-pane .soc-robot {
-    order: 1 !important;
-    flex: 0 0 108px !important;
-    transform: scale(0.46) !important;
-    transform-origin: center center !important;
-    margin: -56px -56px !important;
-    z-index: 2 !important;
+  .mobile-bottom-nav .mobile-nav-item.is-active .mobile-nav-icon-box {
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: translateY(1px) !important;
   }
 
-  .title-hero-robot-pane .robot-speech-bubble {
-    order: 2 !important;
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    transform: none !important;
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 10px 13px !important;
-    text-align: left !important;
-    font-size: 0.76rem !important;
-    line-height: 1.42 !important;
-    background: rgba(7, 13, 25, 0.88) !important;
-    border: 1px solid rgba(0, 229, 255, 0.35) !important;
-    border-radius: 10px !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  .mobile-bottom-nav .mobile-nav-item.is-active .nav-icon {
+    color: #00e5ff !important;
+    stroke-width: 2.25px !important;
+    filter: drop-shadow(0 0 7px rgba(0, 229, 255, 0.75)) !important;
+    transform: scale(1.06) !important;
   }
 
-  /* Aim speech bubble pointer toward the robot on the left */
-  .title-hero-robot-pane .robot-speech-bubble::after {
-    left: -6px !important;
-    top: 50% !important;
-    bottom: auto !important;
-    transform: translateY(-50%) rotate(135deg) !important;
-  }
-
-  .hero-selection-card {
-    order: 3 !important;
-    width: 100% !important;
-    max-width: 560px !important;
-    margin: 0 auto !important;
+  .mobile-bottom-nav .mobile-nav-item.is-active .mobile-nav-label {
+    color: #ecfeff !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.45) !important;
   }
 }
 
@@ -10854,28 +10935,57 @@ body.is-modal-locked {
     margin-bottom: 24px !important;
   }
 
+  .doors-showcase-header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 14px !important;
+    margin-bottom: 22px !important;
+  }
+
   .doors-header-telemetry {
     display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 8px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
     width: 100% !important;
   }
 
-  .doors-telemetry-chip {
-    padding: 10px 8px !important;
+  .showcase-telemetry-pill {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
     min-width: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    border-radius: 10px !important;
+    background: rgba(10, 22, 38, 0.82) !important;
+    border: 1px solid rgba(0, 229, 255, 0.24) !important;
+    box-sizing: border-box !important;
   }
 
-  .doors-telemetry-chip .telemetry-chip-label {
-    font-size: 0.58rem !important;
+  .showcase-telemetry-pill .telemetry-glyph {
+    font-size: 0.9rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .showcase-telemetry-pill .telemetry-tag {
+    font-size: 0.64rem !important;
     letter-spacing: 0.05em !important;
-  }
-
-  .doors-telemetry-chip .telemetry-chip-val {
-    font-size: 0.78rem !important;
+    color: #94a3b8 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    margin-right: auto !important;
+  }
+
+  .showcase-telemetry-pill .telemetry-digit {
+    font-size: 0.82rem !important;
+    font-weight: 800 !important;
+    color: #00e5ff !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
   }
 
   .environment-feed-bar {
@@ -10942,7 +11052,7 @@ body.is-modal-locked {
     padding: 12px 16px !important;
     flex-shrink: 0 !important;
     display: grid !important;
-    grid-template-columns: 1fr 1.35fr !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 10px !important;
   }
 
@@ -10958,133 +11068,93 @@ body.is-modal-locked {
    5. PHONE UI/UX POLISH (<= 640px)
    ========================================================================== */
 @media (max-width: 640px) {
-  /* --- A. Sticky Top Navigation Bar --- */
+  /* --- A. Sticky Top Navigation Bar (Clean Brand Left + Tools & GitHub Right) --- */
   .site-nav {
-    min-height: 54px !important;
+    min-height: 52px !important;
+    padding: 0 !important;
   }
 
   .site-nav-inner {
-    min-height: 54px !important;
-    padding: 6px 10px !important;
-    gap: 6px !important;
+    min-height: 52px !important;
+    padding: 6px 12px !important;
+    gap: 8px !important;
     flex-wrap: nowrap !important;
+    justify-content: space-between !important;
   }
 
   .site-nav-left {
-    gap: 6px !important;
+    gap: 8px !important;
     min-width: 0 !important;
-    flex-shrink: 1 !important;
+    flex-shrink: 0 !important;
   }
 
   .site-brand {
-    gap: 7px !important;
-    padding-right: 2px !important;
+    gap: 8px !important;
   }
 
-  .site-logo-badge {
+  .site-brand .site-brand-logo {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .site-brand .brand-title {
+    font-size: 1.02rem !important;
+    letter-spacing: 0.06em !important;
+  }
+
+  /* Nav Actions: 4 Utility Icons + Star on GitHub Button */
+  .site-nav-actions {
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
+  }
+
+  .site-nav-actions > .site-nav-toolbar {
+    height: 34px !important;
+    padding: 2px 3px !important;
+    gap: 3px !important;
+    border-radius: 7px !important;
+  }
+
+  .site-nav-actions > .site-nav-toolbar .btn-nav-util,
+  .site-nav-actions > .site-nav-toolbar #site-sound-toggle {
     width: 28px !important;
+    min-width: 28px !important;
     height: 28px !important;
+    border-radius: 5px !important;
+    padding: 0 !important;
+  }
+
+  .site-nav-actions > .site-nav-toolbar .btn-nav-util .lucide {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  /* Star on GitHub Button at Top-Right on Mobile */
+  .site-nav-actions #nav-github-btn.github-star-rainbow-btn {
+    height: 34px !important;
+    padding: 0 10px !important;
     border-radius: 7px !important;
+    font-size: 12px !important;
   }
 
-  .site-logo-svg {
-    width: 17px !important;
-    height: 17px !important;
+  .site-nav-actions #nav-github-btn.github-star-rainbow-btn .github-star-label {
+    display: none !important;
   }
 
-  .brand-name {
-    font-size: 0.94rem !important;
-    letter-spacing: 0.05em !important;
-  }
-
-  /* Compact Rainbow GitHub Button on Mobile */
-  #nav-github-btn.rainbow-github-btn {
-    height: 30px !important;
-    padding: 0 8px !important;
-    border-radius: 7px !important;
-    font-size: 0.72rem !important;
-  }
-
-  #nav-github-btn .flex.items-center.gap-2 {
-    gap: 5px !important;
-  }
-
-  #nav-github-btn .w-4.h-4 {
+  .site-nav-actions #nav-github-btn.github-star-rainbow-btn .size-4 {
     width: 14px !important;
     height: 14px !important;
   }
 
-  #nav-github-btn .ml-2 {
-    margin-left: 4px !important;
-    padding-left: 5px !important;
-    gap: 3px !important;
-  }
-
-  /* Nav Actions & Utility Toolbar */
-  .site-nav-actions {
-    gap: 5px !important;
-    flex-shrink: 0 !important;
-  }
-
-  .site-nav-toolbar {
-    padding: 2px !important;
-    gap: 2px !important;
-    border-radius: 7px !important;
-  }
-
-  .site-nav-toolbar .btn-audio-toggle {
-    width: 27px !important;
-    height: 27px !important;
-    min-width: 27px !important;
-    padding: 0 !important;
-    border-radius: 5px !important;
-  }
-
-  /* Hide badge counter text inside tiny mobile navbar icon to save 28px width */
-  #site-badges-count {
-    display: none !important;
-  }
-
-  #mobile-menu-toggle.mobile-menu-toggle {
-    height: 30px !important;
-    padding: 0 8px !important;
-    gap: 5px !important;
-    border-radius: 7px !important;
-  }
-
-  #mobile-menu-toggle .menu-toggle-label {
-    font-size: 0.66rem !important;
-  }
-
-  #nav-play-btn.button-with-icon.nav-play-btn {
-    height: 30px !important;
-    width: 64px !important;
-    min-width: 64px !important;
-    padding: 0 8px !important;
-    font-size: 11px !important;
-    border-radius: 7px !important;
-  }
-
-  #nav-play-btn.button-with-icon.nav-play-btn .icon {
-    width: 13px !important;
-    height: 13px !important;
-    margin-right: 2px !important;
-  }
-
-  /* Mobile Dropdown Popover Menu */
-  .site-nav.is-compact-nav .site-nav-links.is-open,
-  .site-nav-links.is-open {
-    top: calc(100% + 8px) !important;
-    left: 10px !important;
-    right: 10px !important;
-    width: auto !important;
-    padding: 10px !important;
-    border-radius: 12px !important;
+  .site-nav-actions #nav-github-btn.github-star-rainbow-btn .ml-2 {
+    margin-left: 6px !important;
+    padding-left: 6px !important;
   }
 
   /* --- B. Hero Section Mobile Ergonomics --- */
   .title-hero {
-    padding: 12px 14px 32px !important;
+    padding: 14px 14px 32px !important;
   }
 
   .hero-status-pill {
@@ -11292,9 +11362,6 @@ body.is-modal-locked {
     padding: 8px 10px 24px !important;
   }
 
-  /* Keep utility buttons (Audio, Badges, Encyclopedia, Arena) visible on mobile!
-     Row 1: Brand Title + Utility Controls
-     Row 2: 3-Column Door Progress Strip */
   .top-bar {
     display: flex !important;
     flex-direction: row !important;
@@ -11321,15 +11388,12 @@ body.is-modal-locked {
     margin-left: auto !important;
   }
 
-  .terminal-util-controls .btn-audio-toggle {
+  .terminal-util-controls .btn-term-util,
+  .terminal-util-controls #term-sound-toggle {
     width: 30px !important;
     height: 30px !important;
     min-width: 30px !important;
     padding: 0 !important;
-  }
-
-  #badges-count-label {
-    display: none !important;
   }
 
   .doors-progress {
@@ -11593,79 +11657,609 @@ body.is-modal-locked {
     height: 64px !important;
   }
 
-  /* Achievement Toast on Mobile */
+  /* Achievement Toast on Mobile (above Bottom Nav Bar) */
   .achievement-toast {
     left: 12px !important;
     right: 12px !important;
-    bottom: 16px !important;
+    bottom: calc(74px + env(safe-area-inset-bottom, 0px)) !important;
     max-width: none !important;
   }
 }
 
 /* ==========================================================================
-   6. EXTRA-COMPACT PHONES (<= 440px)
+   6. EXTRA-COMPACT PHONES (<= 420px)
    ========================================================================== */
-@media (max-width: 440px) {
+@media (max-width: 420px) {
   .site-section {
     padding: 40px 14px !important;
   }
 
-  /* Turn Rainbow GitHub button into a sleek icon-only pill on <= 440px
-     so Brand + GitHub + 4 Tools + Menu + Play fit with zero overflow at 360px */
-  #nav-github-btn .ml-2 {
-    display: none !important;
+  .site-nav-inner {
+    padding: 6px 10px !important;
   }
 
-  #nav-github-btn.rainbow-github-btn {
-    width: 28px !important;
-    min-width: 28px !important;
-    height: 28px !important;
-    padding: 0 !important;
-    justify-content: center !important;
+  .site-brand .brand-title {
+    font-size: 0.94rem !important;
   }
 
-  .brand-name {
-    font-size: 0.84rem !important;
+  .site-nav-actions > .site-nav-toolbar .btn-nav-util,
+  .site-nav-actions > .site-nav-toolbar #site-sound-toggle {
+    width: 26px !important;
+    min-width: 26px !important;
+    height: 26px !important;
   }
 
-  .site-logo-badge {
-    width: 25px !important;
-    height: 25px !important;
-  }
-
-  #mobile-menu-toggle .menu-toggle-label {
-    display: none !important;
-  }
-
-  #mobile-menu-toggle.mobile-menu-toggle {
-    width: 28px !important;
-    min-width: 28px !important;
-    height: 28px !important;
-    padding: 0 !important;
-    justify-content: center !important;
-  }
-
-  #nav-play-btn.button-with-icon.nav-play-btn {
-    height: 28px !important;
-    width: 58px !important;
-    min-width: 58px !important;
-    font-size: 10px !important;
-  }
-
-  /* Robot Holo-Pod compact sizing on <= 440px */
-  .title-hero-robot-pane .soc-robot {
-    flex: 0 0 92px !important;
-    transform: scale(0.41) !important;
-    margin: -62px -64px !important;
-  }
-
-  .title-hero-robot-pane .robot-speech-bubble {
-    font-size: 0.72rem !important;
-    padding: 9px 11px !important;
+  .site-nav-actions #nav-github-btn.github-star-rainbow-btn {
+    height: 32px !important;
+    padding: 0 8px !important;
   }
 
   /* Stack Footer CTA buttons on narrow screens */
   .footer-cta-actions {
     grid-template-columns: 1fr !important;
+  }
+}
+
+.footer-wordmark {
+  gap: 10px !important;
+}
+
+.footer-wordmark .footer-brand-logo {
+  width: 28px !important;
+  height: 28px !important;
+  flex-shrink: 0 !important;
+  display: block !important;
+}
+
+/* ==========================================================================
+   7. SECURITY DOORS MISSION DOSSIER MODAL REDESIGN (DESKTOP & MOBILE)
+   ========================================================================== */
+#door-dossier-modal {
+  padding: 16px !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+#door-dossier-modal > .dossier-card {
+  max-width: 600px !important;
+  width: 100% !important;
+  max-height: 90dvh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  border-radius: 16px !important;
+  background: linear-gradient(180deg, #0b1220 0%, #070b14 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.26) !important;
+  box-shadow:
+    0 28px 68px rgba(0, 0, 0, 0.88),
+    0 0 32px rgba(0, 229, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+#door-dossier-modal > .dossier-card > .dossier-header {
+  padding: 18px 22px 15px !important;
+  background: linear-gradient(180deg, rgba(15, 25, 45, 0.85) 0%, rgba(10, 16, 29, 0.95) 100%) !important;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.16) !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  flex-shrink: 0 !important;
+}
+
+#door-dossier-modal > .dossier-card > .dossier-header .dossier-meta {
+  display: block !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.66rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.11em !important;
+  color: #38bdf8 !important;
+  margin-bottom: 4px !important;
+}
+
+#door-dossier-modal > .dossier-card > .dossier-header .dossier-title {
+  font-family: var(--font-sans) !important;
+  font-size: clamp(1.18rem, 2.4vw, 1.42rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.03em !important;
+  color: #f8fafc !important;
+  line-height: 1.22 !important;
+  margin: 0 !important;
+}
+
+#door-dossier-modal #dossier-close-btn {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  border-radius: 9px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  color: #94a3b8 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.25rem !important;
+  line-height: 1 !important;
+  transition: all 0.18s ease !important;
+}
+
+#door-dossier-modal #dossier-close-btn:hover {
+  background: rgba(0, 229, 255, 0.12) !important;
+  border-color: rgba(0, 229, 255, 0.45) !important;
+  color: #ffffff !important;
+}
+
+#door-dossier-modal > .dossier-card > .dossier-body {
+  padding: 18px 22px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+}
+
+/* Compact Single-Row Tags Pill Strip */
+#door-dossier-modal .dossier-tags-row {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+#door-dossier-modal .dossier-pill {
+  padding: 4px 10px !important;
+  border-radius: 999px !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.63rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.07em !important;
+  white-space: nowrap !important;
+}
+
+#door-dossier-modal .pill-status.status-avail {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border: 1px solid rgba(16, 185, 129, 0.45) !important;
+  color: #34d399 !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.15) !important;
+}
+
+#door-dossier-modal .pill-status.status-locked {
+  background: rgba(244, 63, 94, 0.14) !important;
+  border: 1px solid rgba(244, 63, 94, 0.42) !important;
+  color: #fb7185 !important;
+}
+
+/* Operator Overview Callout Box */
+#door-dossier-modal .dossier-section {
+  gap: 8px !important;
+}
+
+#door-dossier-modal .dossier-subtitle {
+  font-size: 0.66rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.1em !important;
+  color: #7dd3fc !important;
+  margin: 0 !important;
+}
+
+#door-dossier-modal #dossier-desc {
+  padding: 12px 14px !important;
+  background: rgba(15, 23, 42, 0.62) !important;
+  border: 1px solid rgba(148, 163, 184, 0.14) !important;
+  border-left: 3px solid #38bdf8 !important;
+  border-radius: 9px !important;
+  font-size: 0.86rem !important;
+  line-height: 1.55 !important;
+  color: #dbeafe !important;
+}
+
+/* Key Threat Signals Cards */
+#door-dossier-modal .dossier-flags-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+#door-dossier-modal .dossier-flag-item {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  padding: 11px 14px !important;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(9, 14, 26, 0.92) 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.16) !important;
+  border-radius: 10px !important;
+}
+
+#door-dossier-modal .dossier-flag-item .flag-icon {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 6px !important;
+  background: rgba(0, 229, 255, 0.12) !important;
+  border: 1px solid rgba(0, 229, 255, 0.3) !important;
+  color: #00e5ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.68rem !important;
+  margin-top: 1px !important;
+  flex-shrink: 0 !important;
+}
+
+#door-dossier-modal .flag-text-group strong {
+  font-size: 0.86rem !important;
+  font-weight: 700 !important;
+  color: #f8fafc !important;
+}
+
+#door-dossier-modal .flag-text-group span {
+  font-size: 0.79rem !important;
+  line-height: 1.42 !important;
+  color: #94a3b8 !important;
+}
+
+/* 4-Tile Bento Grid for Mission Parameters (2x2 on Mobile) */
+#door-dossier-modal .dossier-parameters-bar {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+#door-dossier-modal .param-chip {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  padding: 10px 12px !important;
+  background: rgba(10, 18, 34, 0.85) !important;
+  border: 1px solid rgba(0, 229, 255, 0.18) !important;
+  border-radius: 9px !important;
+  min-width: 0 !important;
+}
+
+#door-dossier-modal .param-label {
+  font-family: var(--font-mono) !important;
+  font-size: 0.58rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  color: #64829e !important;
+}
+
+#door-dossier-modal .param-value {
+  font-family: var(--font-mono) !important;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+  color: #00e5ff !important;
+  white-space: nowrap !important;
+}
+
+/* Footer Action Buttons ? Fix Clipping & Locked State */
+#door-dossier-modal > .dossier-card > .dossier-footer {
+  padding: 14px 22px 18px !important;
+  background: rgba(8, 13, 24, 0.95) !important;
+  border-top: 1px solid rgba(56, 189, 248, 0.14) !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+#door-dossier-modal #dossier-cancel-btn {
+  width: 100% !important;
+  height: 44px !important;
+  padding: 0 14px !important;
+  border-radius: 10px !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+  border: 1px solid rgba(0, 229, 255, 0.32) !important;
+  color: #00e5ff !important;
+  box-sizing: border-box !important;
+}
+
+#door-dossier-modal #dossier-cancel-btn:hover {
+  background: rgba(0, 229, 255, 0.12) !important;
+  border-color: #00e5ff !important;
+  color: #ffffff !important;
+}
+
+#door-dossier-modal #dossier-play-btn {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 44px !important;
+  padding: 0 16px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+#door-dossier-modal #dossier-play-btn .icon,
+#door-dossier-modal #dossier-play-btn:hover .icon {
+  position: static !important;
+  transform: none !important;
+  width: 14px !important;
+  height: 14px !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+#door-dossier-modal #dossier-play-btn .text,
+#door-dossier-modal #dossier-play-btn:hover .text {
+  position: static !important;
+  transform: none !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.76rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+#door-dossier-modal #dossier-play-btn:disabled {
+  background: rgba(30, 41, 59, 0.75) !important;
+  border: 1px solid rgba(244, 63, 94, 0.35) !important;
+  color: #fda4af !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+#door-dossier-modal #dossier-play-btn:disabled .icon {
+  display: none !important;
+}
+
+#door-dossier-modal #dossier-play-btn:disabled .text {
+  color: #fda4af !important;
+  font-size: 0.72rem !important;
+}
+
+@media (max-width: 640px) {
+  #door-dossier-modal {
+    padding: 10px !important;
+  }
+
+  #door-dossier-modal > .dossier-card > .dossier-header {
+    padding: 15px 16px 13px !important;
+  }
+
+  #door-dossier-modal > .dossier-card > .dossier-body {
+    padding: 14px 16px !important;
+    gap: 14px !important;
+  }
+
+  #door-dossier-modal .dossier-parameters-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  #door-dossier-modal > .dossier-card > .dossier-footer {
+    padding: 12px 16px 14px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  #door-dossier-modal #dossier-play-btn .text,
+  #door-dossier-modal #dossier-play-btn:hover .text {
+    font-size: 0.7rem !important;
+    letter-spacing: 0.03em !important;
+  }
+
+  #door-dossier-modal #dossier-play-btn:disabled .text {
+    font-size: 0.66rem !important;
+  }
+}
+
+/* Hide telemetry emojis globally & ensure full text fits inside compact pills */
+.showcase-telemetry-pill .telemetry-glyph {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .doors-header-telemetry {
+    display: inline-flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    width: auto !important;
+  }
+
+  .showcase-telemetry-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    padding: 7px 11px !important;
+    width: auto !important;
+    border-radius: 7px !important;
+  }
+
+  .showcase-telemetry-pill .telemetry-tag {
+    font-size: 0.62rem !important;
+    letter-spacing: 0.03em !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    margin-right: 0 !important;
+  }
+
+  .showcase-telemetry-pill .telemetry-digit {
+    font-size: 0.74rem !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+  }
+}
+
+
+/* Desktop & Tablet Bento Keycap Strip for .controls-bar */
+.controls-bar {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  padding: 14px !important;
+  background: rgba(10, 16, 28, 0.72) !important;
+  border: 1px solid rgba(148, 163, 184, 0.14) !important;
+  border-radius: 12px !important;
+  align-items: stretch !important;
+}
+
+.controls-bar .control-chip {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 11px 14px !important;
+  background: linear-gradient(180deg, rgba(17, 27, 46, 0.85) 0%, rgba(11, 18, 32, 0.92) 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.18) !important;
+  border-radius: 9px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 4px 12px rgba(0, 0, 0, 0.25) !important;
+  min-width: 0 !important;
+}
+
+.controls-bar .control-chip kbd {
+  min-width: 30px !important;
+  height: 26px !important;
+  padding: 0 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 6px !important;
+  background: rgba(0, 229, 255, 0.12) !important;
+  border: 1px solid rgba(0, 229, 255, 0.38) !important;
+  box-shadow: inset 0 -2px 0 rgba(0, 229, 255, 0.24) !important;
+  color: #00e5ff !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.74rem !important;
+  font-weight: 800 !important;
+  flex-shrink: 0 !important;
+}
+
+.controls-bar .control-chip span {
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  color: #e2e8f0 !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 980px) and (min-width: 641px) {
+  .controls-bar {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Tidy up .controls-bar on mobile into a structured Bento Grid */
+@media (max-width: 640px) {
+  .controls-bar {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    padding: 12px !important;
+    border-radius: 12px !important;
+    align-items: stretch !important;
+  }
+
+  .controls-bar .control-chip {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 9px !important;
+    padding: 9px 11px !important;
+    background: rgba(15, 23, 42, 0.78) !important;
+    border: 1px solid rgba(56, 189, 248, 0.18) !important;
+    border-radius: 8px !important;
+    min-width: 0 !important;
+    text-align: left !important;
+  }
+
+  /* Make the 3rd chip (Analyst Hint 1 / door) span full width at the bottom */
+  .controls-bar .control-chip:nth-child(3) {
+    grid-column: 1 / -1 !important;
+    order: 5 !important;
+    justify-content: center !important;
+  }
+
+  .controls-bar .control-chip kbd {
+    min-width: 28px !important;
+    height: 24px !important;
+    padding: 0 7px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.68rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .controls-bar .control-chip span {
+    font-size: 0.76rem !important;
+    line-height: 1.25 !important;
+    color: #e2e8f0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+/* Anthropic-style Mobile Footer Stack:
+   1. Brand Logo + Wordmark (Top)
+   2. Expandable Accordion Directory Rows
+   3. Purpose of Sentinel & Quick Access
+   4. Copyright + Social Icons (Bottom) */
+@media (max-width: 960px) {
+  .footer-main {
+    padding: 44px 20px calc(108px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .footer-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 36px !important;
+  }
+
+  .footer-col-left {
+    display: contents !important;
+  }
+
+  .footer-wordmark {
+    order: 1 !important;
+    margin-bottom: -8px !important;
+  }
+
+  .footer-col-center {
+    order: 2 !important;
+    width: 100% !important;
+  }
+
+  .footer-col-right {
+    order: 3 !important;
+    width: 100% !important;
+    gap: 28px !important;
+  }
+
+  .footer-bottom-meta {
+    order: 4 !important;
+    width: 100% !important;
+    padding-top: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  .footer-social-links {
+    margin-top: 8px !important;
+    gap: 16px !important;
   }
 }
