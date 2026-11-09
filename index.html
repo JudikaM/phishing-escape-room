@@ -21,9 +21,9 @@
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
-  <link rel="stylesheet" href="style.css?v=38">
+  <link rel="stylesheet" href="style.css?v=43">
 
-  <script src="game.js?v=32" defer></script>
+  <script src="game.js?v=38" defer></script>
 
 </head>
 
@@ -524,7 +524,7 @@
 
                 <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
 
-                <span class="text">PLAY RUN</span>
+                <span class="text">START ESCAPE</span>
 
               </button>
 
@@ -1212,7 +1212,7 @@
 
                 <div class="item">
 
-                  <span class="big-text"><span id="showcase-card-lock-2" class="action-lock-icon" aria-hidden="true">&#x1F512;</span></span>
+                  <span class="big-text"><span id="showcase-card-lock-2" class="action-lock-icon" aria-hidden="true"><svg class="action-lock-svg" width="28" height="28" aria-hidden="true"><use href="#icon-lock"></use></svg></span></span>
 
                   <span class="regular-text">LOCKED</span>
 
@@ -1348,7 +1348,7 @@
 
                 <div class="item">
 
-                  <span class="big-text"><span id="showcase-card-lock-3" class="action-lock-icon" aria-hidden="true">&#x1F512;</span></span>
+                  <span class="big-text"><span id="showcase-card-lock-3" class="action-lock-icon" aria-hidden="true"><svg class="action-lock-svg" width="28" height="28" aria-hidden="true"><use href="#icon-lock"></use></svg></span></span>
 
                   <span class="regular-text">LOCKED</span>
 
@@ -1532,7 +1532,7 @@
 
         </span>
 
-        <a href="#if-you-fell-for-it" class="fell-phish-link">Fell for a phish? &#x2197;</a>
+        <a href="#if-you-fell-for-it" class="fell-phish-link">Fell for a phish? <svg class="ext-link-svg" width="12" height="12" aria-hidden="true"><use href="#icon-external-link"></use></svg></a>
 
       </div>
 
@@ -2132,13 +2132,13 @@
                 <li>
                   <button type="button" id="footer-launch-terminal-btn" class="footer-quick-link">
                     <span>Escape Terminal</span>
-                    <span class="footer-arrow" aria-hidden="true">&#x2197;</span>
+                    <span class="footer-arrow" aria-hidden="true"><svg class="footer-arrow-svg" width="11" height="11" aria-hidden="true"><use href="#icon-external-link"></use></svg></span>
                   </button>
                 </li>
                 <li>
                   <button type="button" id="footer-open-encyclopedia-btn" class="footer-quick-link">
                     <span>Threat Encyclopedia</span>
-                    <span class="footer-arrow" aria-hidden="true">&#x2197;</span>
+                    <span class="footer-arrow" aria-hidden="true"><svg class="footer-arrow-svg" width="11" height="11" aria-hidden="true"><use href="#icon-external-link"></use></svg></span>
                   </button>
                 </li>
                 <li>
@@ -2149,7 +2149,7 @@
                     class="footer-quick-link"
                   >
                     <span>GitHub Repository</span>
-                    <span class="footer-arrow" aria-hidden="true">&#x2197;</span>
+                    <span class="footer-arrow" aria-hidden="true"><svg class="footer-arrow-svg" width="11" height="11" aria-hidden="true"><use href="#icon-external-link"></use></svg></span>
                   </a>
                 </li>
               </ul>
@@ -2167,29 +2167,168 @@
 
   <div id="terminal-view" class="app-shell hidden">
 
+    <!-- Inline SVG Icon Sprite for Gameplay v2 (No external assets) -->
+    <svg id="gp-icon-sprite" class="gp-svg-sprite" aria-hidden="true" focusable="false">
+      <symbol id="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </symbol>
+      <symbol id="icon-unlock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+      </symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </symbol>
+      <symbol id="icon-cross" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </symbol>
+      <symbol id="icon-shield" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </symbol>
+      <symbol id="icon-shield-crack" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        <path d="m12.5 6-2 4 3 2.5-2 4.5"></path>
+      </symbol>
+      <symbol id="icon-shield-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </symbol>
+      <symbol id="icon-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
+      </symbol>
+      <symbol id="icon-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+      </symbol>
+      <symbol id="icon-sms" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+        <line x1="12" y1="18" x2="12.01" y2="18"></line>
+      </symbol>
+      <symbol id="icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </symbol>
+      <symbol id="icon-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path>
+        <path d="M9 18h6"></path>
+        <path d="M10 22h4"></path>
+      </symbol>
+      <symbol id="icon-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+      </symbol>
+      <symbol id="icon-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+      </symbol>
+      <symbol id="icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+        <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+      </symbol>
+      <symbol id="icon-play" viewBox="0 0 24 24" fill="currentColor">
+        <polygon points="6 3 20 12 6 21 6 3"></polygon>
+      </symbol>
+      <symbol id="icon-rotate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+        <path d="M3 3v5h5"></path>
+      </symbol>
+      <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </symbol>
+      <symbol id="icon-habit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="m9 12 2 2 4-4"></path>
+      </symbol>
+      <symbol id="icon-denied" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
+        <line x1="15" y1="9" x2="9" y2="15"></line>
+        <line x1="9" y1="9" x2="15" y2="15"></line>
+      </symbol>
+      <symbol id="icon-triangle-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </symbol>
+      <symbol id="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path>
+        <path d="M5 3v4"></path>
+        <path d="M19 17v4"></path>
+        <path d="M3 5h4"></path>
+        <path d="M17 19h4"></path>
+      </symbol>
+      <symbol id="icon-external-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 3h6v6"></path>
+        <path d="M10 14 21 3"></path>
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+      </symbol>
+      <symbol id="icon-heart" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+      </symbol>
+    </svg>
+
+    <div id="svg-templates" class="hidden" aria-hidden="true">
+      <svg id="svg-tpl-icon" width="16" height="16" aria-hidden="true"><use href=""></use></svg>
+    </div>
+
     <header class="top-bar" role="banner">
 
       <div class="brand-title">
 
         <img src="favicon.svg" alt="" class="site-brand-logo" width="20" height="20" aria-hidden="true">
 
-        <span>// SOC ESCAPE TERMINAL</span>
+        <span class="brand-prefix" aria-hidden="true">//</span>
+
+        <span class="brand-text">SOC ESCAPE TERMINAL</span>
 
       </div>
 
       <div class="top-bar-right">
 
-        <div class="doors-progress" aria-label="Security doors status">
+        <nav class="doors-progress" aria-label="Security doors journey">
 
-          <div class="door-badge" id="door-1">DOOR 1 · LOCKED</div>
+          <div class="door-badge door-locked" id="door-1" data-door-step="1">
+            <span class="door-step-icon" aria-hidden="true">
+              <svg class="step-svg step-svg-lock" width="13" height="13"><use href="#icon-lock"></use></svg>
+              <svg class="step-svg step-svg-check" width="13" height="13"><use href="#icon-check"></use></svg>
+              <span class="step-active-dot"></span>
+            </span>
+            <span class="door-step-num">01</span>
+            <span class="door-step-name">Email</span>
+            <span class="door-step-state sr-only">Locked</span>
+          </div>
 
-          <div class="door-badge" id="door-2">DOOR 2 · LOCKED</div>
+          <span class="door-step-rail" aria-hidden="true"></span>
 
-          <div class="door-badge" id="door-3">DOOR 3 · LOCKED</div>
+          <div class="door-badge door-locked" id="door-2" data-door-step="2">
+            <span class="door-step-icon" aria-hidden="true">
+              <svg class="step-svg step-svg-lock" width="13" height="13"><use href="#icon-lock"></use></svg>
+              <svg class="step-svg step-svg-check" width="13" height="13"><use href="#icon-check"></use></svg>
+              <span class="step-active-dot"></span>
+            </span>
+            <span class="door-step-num">02</span>
+            <span class="door-step-name">SMS</span>
+            <span class="door-step-state sr-only">Locked</span>
+          </div>
 
-        </div>
+          <span class="door-step-rail" aria-hidden="true"></span>
 
-        <div class="terminal-util-controls site-nav-toolbar flex items-center gap-2 bg-gray-900 rounded-lg">
+          <div class="door-badge door-locked" id="door-3" data-door-step="3">
+            <span class="door-step-icon" aria-hidden="true">
+              <svg class="step-svg step-svg-lock" width="13" height="13"><use href="#icon-lock"></use></svg>
+              <svg class="step-svg step-svg-check" width="13" height="13"><use href="#icon-check"></use></svg>
+              <span class="step-active-dot"></span>
+            </span>
+            <span class="door-step-num">03</span>
+            <span class="door-step-name">Chat</span>
+            <span class="door-step-state sr-only">Locked</span>
+          </div>
+
+        </nav>
+
+        <div class="terminal-util-controls site-nav-toolbar" role="toolbar" aria-label="Analyst utilities">
 
           <button
 
@@ -2197,7 +2336,7 @@
 
             id="term-sound-toggle"
 
-            class="btn-nav-util btn-term-util btn-sound-toggle cursor-pointer bg-gray-800 relative inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 h-9"
+            class="btn-nav-util btn-term-util btn-sound-toggle"
 
             aria-pressed="true"
 
@@ -2209,7 +2348,7 @@
 
             <svg
 
-              class="sound-icon-on lucide lucide-volume-2 text-emerald-400"
+              class="sound-icon-on lucide lucide-volume-2"
 
               stroke-linejoin="round"
 
@@ -2241,7 +2380,7 @@
 
             <svg
 
-              class="sound-icon-off lucide lucide-volume-x text-rose-400"
+              class="sound-icon-off lucide lucide-volume-x"
 
               stroke-linejoin="round"
 
@@ -2283,7 +2422,7 @@
 
             id="term-badges-btn"
 
-            class="btn-nav-util btn-term-util cursor-pointer bg-gray-800 relative inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 hover:text-yellow-400 h-9"
+            class="btn-nav-util btn-term-util"
 
             aria-label="Open Cyber Defense Badges"
 
@@ -2293,7 +2432,7 @@
 
             <svg
 
-              class="lucide lucide-award text-yellow-400"
+              class="lucide lucide-award"
 
               stroke-linejoin="round"
 
@@ -2333,7 +2472,7 @@
 
             id="term-encyclopedia-btn"
 
-            class="btn-nav-util btn-term-util cursor-pointer bg-gray-800 relative inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 hover:text-blue-400 h-9"
+            class="btn-nav-util btn-term-util"
 
             aria-label="Open Security Threat Encyclopedia"
 
@@ -2343,7 +2482,7 @@
 
             <svg
 
-              class="lucide lucide-book-open text-blue-400"
+              class="lucide lucide-book-open"
 
               stroke-linejoin="round"
 
@@ -2383,7 +2522,7 @@
 
             id="term-arena-btn"
 
-            class="btn-nav-util btn-term-util cursor-pointer bg-gray-800 relative inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-700 text-gray-300 hover:text-cyan-400 h-9"
+            class="btn-nav-util btn-term-util"
 
             aria-label="Open Zero-G Antigravity Physics Arena"
 
@@ -2393,7 +2532,7 @@
 
             <svg
 
-              class="lucide lucide-rocket text-cyan-400"
+              class="lucide lucide-rocket"
 
               stroke-linejoin="round"
 
@@ -2589,53 +2728,71 @@
 
       <section id="game-screen" class="screen-panel hidden" aria-labelledby="level-heading">
 
-        <div class="hud-bar" role="region" aria-label="Game status">
+        <!-- Modern High-Resolution SOC Telemetry HUD -->
+        <div class="hud-bar" role="region" aria-label="Mission Telemetry Cockpit">
 
-          <div class="hud-stat">
-
-            <span class="hud-label">// door</span>
-
-            <span id="hud-level" class="hud-value">1 / 3</span>
-
+          <!-- Left Zone: Door Context & Queue Progress Bar -->
+          <div class="hud-zone hud-zone-queue">
+            <div class="hud-stat hud-stat-level">
+              <span class="hud-label">// door</span>
+              <span id="hud-level" class="hud-value">1 / 3</span>
+            </div>
+            <div class="hud-stat hud-stat-progress">
+              <div class="hud-queue-header">
+                <span class="hud-label">// queue</span>
+                <span id="hud-progress" class="hud-value">1 / 6</span>
+              </div>
+              <div id="hud-queue-segments" class="hud-queue-segments" aria-hidden="true"></div>
+            </div>
           </div>
 
-          <div class="hud-stat">
-
-            <span class="hud-label">// queue</span>
-
-            <span id="hud-progress" class="hud-value">1 / 6</span>
-
+          <!-- Center Zone: Circular Countdown Ring Timer -->
+          <div class="hud-zone hud-zone-timer">
+            <div class="hud-timer-wrap" role="timer" aria-live="off" aria-label="Lockdown countdown">
+              <svg class="timer-ring-svg" viewBox="0 0 54 54" aria-hidden="true">
+                <circle class="timer-ring-bg" cx="27" cy="27" r="22"></circle>
+                <circle class="timer-ring-val" cx="27" cy="27" r="22" stroke-dasharray="138.23" stroke-dashoffset="0"></circle>
+              </svg>
+              <div class="timer-display">
+                <span id="hud-timer" class="hud-value">120s</span>
+                <span class="timer-sublabel" aria-hidden="true">SEC</span>
+              </div>
+            </div>
           </div>
 
-          <div class="hud-stat">
+          <!-- Right Zone: Shields (Lives), Live Score & Quick Pause -->
+          <div class="hud-zone hud-zone-meta">
+            <div class="hud-stat hud-stat-lives">
+              <span class="hud-label">// shields</span>
+              <div class="hud-lives-container">
+                <span id="hud-lives" class="hud-value" aria-label="3 lives remaining">3 / 3</span>
+                <div id="hud-shields-visual" class="hud-shields-visual" aria-hidden="true">
+                  <span class="shield-glyph-item shield-alive" data-shield-idx="0">
+                    <svg class="shield-glyph" width="18" height="18"><use href="#icon-shield"></use></svg>
+                  </span>
+                  <span class="shield-glyph-item shield-alive" data-shield-idx="1">
+                    <svg class="shield-glyph" width="18" height="18"><use href="#icon-shield"></use></svg>
+                  </span>
+                  <span class="shield-glyph-item shield-alive" data-shield-idx="2">
+                    <svg class="shield-glyph" width="18" height="18"><use href="#icon-shield"></use></svg>
+                  </span>
+                </div>
+              </div>
+            </div>
 
-            <span class="hud-label">// timer</span>
+            <div class="hud-stat hud-stat-score">
+              <span class="hud-label">// score</span>
+              <div class="hud-score-wrap">
+                <span id="hud-score" class="hud-value">0</span>
+                <span id="hud-score-chip" class="score-float-chip hidden" aria-hidden="true">+100</span>
+              </div>
+            </div>
 
-            <span id="hud-timer" class="hud-value">120s</span>
-
+            <button type="button" id="btn-pause" class="btn btn-outline hud-pause" aria-keyshortcuts="Escape" aria-label="Pause mission triage (Esc)">
+              <svg class="hud-pause-icon" width="14" height="14" aria-hidden="true"><use href="#icon-pause"></use></svg>
+              <span>PAUSE</span> <kbd class="key-hint">ESC</kbd>
+            </button>
           </div>
-
-          <div class="hud-stat">
-
-            <span class="hud-label">// lives</span>
-
-            <span id="hud-lives" class="hud-value" aria-label="3 lives remaining">♥♥♥</span>
-
-          </div>
-
-          <div class="hud-stat">
-
-            <span class="hud-label">// score</span>
-
-            <span id="hud-score" class="hud-value">0</span>
-
-          </div>
-
-          <button type="button" id="btn-pause" class="btn btn-outline hud-pause" aria-keyshortcuts="Escape">
-
-            PAUSE <span class="key-hint">[ESC]</span>
-
-          </button>
 
         </div>
 
@@ -2645,172 +2802,201 @@
 
 
 
-        <article id="message-terminal" class="message-terminal channel-email" tabindex="-1" aria-label="Incoming message under inspection">
+        <!-- Primary Triage Layout (Resolution Split on Desktop, Evidence+Sheet on Mobile) -->
+        <div class="triage-stage" id="triage-stage">
 
-          <div class="terminal-window-bar">
+          <div class="triage-evidence-col">
 
-            <span id="terminal-door-label" class="mono-label">// soc terminal &middot; door 1</span>
+            <!-- Message Card (Channel Skins: Email / SMS / Chat) -->
+            <article id="message-terminal" class="message-terminal channel-email" tabindex="-1" aria-label="Incoming message under inspection">
 
-            <span id="msg-channel-badge" class="channel-badge">EMAIL</span>
+              <div class="terminal-window-bar">
+                <div class="window-bar-left">
+                  <span class="window-dot red" aria-hidden="true"></span>
+                  <span class="window-dot amber" aria-hidden="true"></span>
+                  <span class="window-dot green" aria-hidden="true"></span>
+                  <span id="terminal-door-label" class="mono-label">// soc terminal &middot; door 1</span>
+                </div>
+                <div class="window-bar-right">
+                  <span class="scan-status-indicator" aria-hidden="true">
+                    <span class="scan-pulse-dot"></span>
+                    <span class="scan-text">SCANNING</span>
+                  </span>
+                  <span id="msg-channel-badge" class="channel-badge">EMAIL</span>
+                </div>
+              </div>
 
-          </div>
+
+
+              <div class="channel-viewport">
+
+                <!-- Channel Header with Avatar & Domain Emphasis -->
+                <div class="message-header">
+
+                  <div class="channel-avatar-wrap" aria-hidden="true">
+                    <span id="channel-avatar" class="channel-avatar">SOC</span>
+                  </div>
+
+                  <div class="message-meta-lines">
+                    <div class="message-field sender-row">
+                      <span id="sender-label" class="field-label">From:</span>
+                      <span id="msg-sender" class="field-value"></span>
+                    </div>
+
+                    <div id="msg-subject-row" class="message-field subject-row">
+                      <span class="field-label">Subject:</span>
+                      <span id="msg-subject" class="field-value subject-text"></span>
+                    </div>
+                  </div>
+
+                </div>
 
 
 
-          <div class="channel-viewport">
-
-            <div class="message-header">
-
-              <div class="message-field sender-row">
-
-                <span id="sender-label" class="field-label">From:</span>
-
-                <span id="msg-sender" class="field-value"></span>
+                <!-- Message Body -->
+                <div class="message-body-wrap">
+                  <h2 id="level-heading" class="sr-only">Message Content</h2>
+                  <div id="msg-body" class="message-body"></div>
+                  <div id="msg-attachments-wrap" class="msg-attachments-wrap hidden" aria-label="Detected attachments">
+                    <div class="attachment-file-chip">
+                      <svg class="file-chip-icon" width="14" height="14" aria-hidden="true"><use href="#icon-file"></use></svg>
+                      <span id="attachment-chip-name" class="file-chip-name"></span>
+                      <span class="file-chip-tag">PAYLOAD (NOT CLICKABLE)</span>
+                    </div>
+                  </div>
+                </div>
 
               </div>
 
-              <div id="msg-subject-row" class="message-field subject-row">
+            </article>
 
-                <span class="field-label">Subject:</span>
 
-                <span id="msg-subject" class="field-value subject-text"></span>
 
+            <!-- Analyst Hint Region -->
+            <div id="hint-panel" class="hint-panel hidden" role="region" aria-live="polite" aria-label="Level hint">
+              <div class="hint-icon-wrap" aria-hidden="true">
+                <svg width="18" height="18"><use href="#icon-lightbulb"></use></svg>
               </div>
-
+              <div class="hint-content">
+                <strong class="hint-title">// analyst hint:</strong>
+                <span id="hint-text"></span>
+              </div>
             </div>
 
 
 
-            <div class="message-body-wrap">
+            <!-- Decision Bar with Confidence Microcopy & Direct Keycaps -->
+            <div class="decision-dock-wrapper">
+              <div id="decision-nudge" class="decision-nudge" aria-hidden="true">
+                <span class="nudge-glyph"><svg class="nudge-svg-icon" width="15" height="15" aria-hidden="true"><use href="#icon-lightbulb"></use></svg></span>
+                <span id="decision-nudge-text">Inspect the sender address and root domain carefully</span>
+              </div>
 
-              <h2 id="level-heading" class="sr-only">Message Content</h2>
+              <div id="decision-controls" class="decision-bar" role="group" aria-label="Triage decision actions">
+                <button type="button" id="btn-phishing" class="btn btn-danger btn-decision" aria-keyshortcuts="P">
+                  <svg class="decision-btn-icon" width="18" height="18" aria-hidden="true"><use href="#icon-shield-alert"></use></svg>
+                  <span class="btn-text">PHISHING</span>
+                  <kbd class="key-hint">P</kbd>
+                </button>
 
-              <p id="msg-body" class="message-body"></p>
+                <button type="button" id="btn-safe" class="btn btn-safe btn-decision" aria-keyshortcuts="S">
+                  <svg class="decision-btn-icon" width="18" height="18" aria-hidden="true"><use href="#icon-shield-check"></use></svg>
+                  <span class="btn-text">SAFE</span>
+                  <kbd class="key-hint">S</kbd>
+                </button>
 
+                <button type="button" id="btn-hint" class="btn btn-warning btn-hint-ghost" aria-keyshortcuts="H">
+                  <svg class="decision-btn-icon" width="16" height="16" aria-hidden="true"><use href="#icon-lightbulb"></use></svg>
+                  <span class="btn-text">HINT</span>
+                  <span class="hint-count-pill" id="hint-count-pill">1</span>
+                  <kbd class="key-hint">H</kbd>
+                </button>
+              </div>
             </div>
 
-          </div>
-
-        </article>
+          </div><!-- /.triage-evidence-col -->
 
 
 
-        <div id="hint-panel" class="hint-panel hidden" role="region" aria-live="polite" aria-label="Level hint">
+          <!-- Feedback / Verdict Panel (Side by Side on Desktop, Bottom Sheet on Mobile) -->
+          <section id="feedback-panel" class="feedback-panel hidden" aria-live="polite" aria-labelledby="feedback-verdict">
 
-          <strong class="hint-title">// analyst hint:</strong>
+            <div class="feedback-sheet-handle" aria-hidden="true"></div>
 
-          <span id="hint-text"></span>
-
-        </div>
-
-
-
-        <div id="decision-controls" class="decision-bar" role="group" aria-label="Triage decision actions">
-
-          <button type="button" id="btn-phishing" class="btn btn-danger" aria-keyshortcuts="P">
-
-            PHISHING <span class="key-hint">[P]</span>
-
-          </button>
-
-          <button type="button" id="btn-safe" class="btn btn-safe" aria-keyshortcuts="S">
-
-            SAFE <span class="key-hint">[S]</span>
-
-          </button>
-
-          <button type="button" id="btn-hint" class="btn btn-warning" aria-keyshortcuts="H">
-
-            HINT (1) <span class="key-hint">[H]</span>
-
-          </button>
-
-        </div>
+            <div class="feedback-header">
+              <div class="verdict-banner">
+                <div class="verdict-glyph-wrap" aria-hidden="true">
+                  <svg class="verdict-svg verdict-svg-correct" width="22" height="22"><use href="#icon-check"></use></svg>
+                  <svg class="verdict-svg verdict-svg-wrong" width="22" height="22"><use href="#icon-cross"></use></svg>
+                </div>
+                <div class="verdict-headings">
+                  <div class="verdict-top-meta">
+                    <span class="terminal-tag">// triage analysis output</span>
+                    <span id="feedback-delta-chip" class="feedback-delta-chip">+100 PTS</span>
+                  </div>
+                  <h3 id="feedback-verdict" class="feedback-verdict"></h3>
+                </div>
+              </div>
+              <p id="feedback-subtitle" class="feedback-subtitle"></p>
+            </div>
 
 
 
-        <section id="feedback-panel" class="feedback-panel hidden" aria-live="polite" aria-labelledby="feedback-verdict">
-
-          <div class="feedback-header">
-
-            <p class="terminal-tag">// triage analysis output</p>
-
-            <h3 id="feedback-verdict" class="feedback-verdict"></h3>
-
-            <p id="feedback-subtitle" class="feedback-subtitle"></p>
-
-          </div>
+            <div class="feedback-details">
+              <h4 id="feedback-list-title" class="feedback-section-title"></h4>
+              <ul id="feedback-list" class="feedback-list"></ul>
+            </div>
 
 
 
-          <div class="feedback-details">
-
-            <h4 id="feedback-list-title" class="feedback-section-title"></h4>
-
-            <ul id="feedback-list" class="feedback-list"></ul>
-
-          </div>
-
-
-
-          <div class="tip-box">
-
-            <strong>// security habit tip:</strong>
-
-            <span id="feedback-tip"></span>
-
-          </div>
+            <div class="tip-box">
+              <div class="tip-header-row">
+                <svg class="tip-icon" width="16" height="16" aria-hidden="true"><use href="#icon-habit"></use></svg>
+                <strong>// security habit tip:</strong>
+              </div>
+              <span id="feedback-tip"></span>
+            </div>
 
 
 
-          <div class="action-row">
+            <div class="action-row feedback-actions-row">
+              <button type="button" id="btn-continue" class="btn btn-primary btn-action-continue">
+                CONTINUE <span class="key-hint">[ENTER]</span>
+              </button>
 
-            <button type="button" id="btn-continue" class="btn btn-primary">
+              <button type="button" id="btn-feedback-encyclopedia" class="btn btn-outline">
+                THREAT ENCYCLOPEDIA
+              </button>
+            </div>
 
-              CONTINUE <span class="key-hint">[ENTER]</span>
+          </section>
 
-            </button>
-
-            <button type="button" id="btn-feedback-encyclopedia" class="btn btn-outline">
-
-              THREAT ENCYCLOPEDIA
-
-            </button>
-
-          </div>
-
-        </section>
+        </div><!-- /.triage-stage -->
 
 
 
-        <!-- Live SOC Decision Audit Log (Last 5 Triage Decisions) -->
-
+        <!-- Live SOC Decision Audit Log (Collapsible Telemetry Drawer) -->
         <section id="soc-audit-panel" class="soc-audit-panel" aria-label="SOC Decision Audit Log">
 
-          <div class="soc-audit-header">
+          <div class="soc-audit-header" id="soc-audit-toggle-btn" role="button" tabindex="0" aria-expanded="false" aria-controls="soc-audit-body">
 
             <div class="soc-audit-title-group">
-
+              <svg class="audit-chevron-icon" width="14" height="14" aria-hidden="true"><use href="#icon-chevron-down"></use></svg>
               <span class="terminal-tag">// live telemetry &middot; immutable event feed</span>
-
               <h3 class="soc-audit-heading">SOC DECISION AUDIT LOG <span id="audit-count-badge" class="audit-count-pill">0 / 5</span></h3>
-
             </div>
 
             <div id="audit-compliance-pill" class="audit-compliance-pill hidden">
-
-              <span>RECENT ACCURACY:</span>
-
+              <span>ACCURACY:</span>
               <strong id="audit-compliance-rate">100%</strong>
-
             </div>
 
           </div>
 
-          <div id="soc-audit-list" class="soc-audit-list">
-
-            <p class="soc-audit-empty">// no triage decisions audited in this session yet</p>
-
+          <div id="soc-audit-body" class="soc-audit-body">
+            <div id="soc-audit-list" class="soc-audit-list">
+              <p class="soc-audit-empty">// no triage decisions audited in this session yet</p>
+            </div>
           </div>
 
         </section>
@@ -2819,33 +3005,43 @@
 
 
 
-      <!-- Pause Screen -->
-
+      <!-- Pause Screen (Anti-Cheat Modal Scrim) -->
       <section id="pause-screen" class="screen-panel hidden" role="dialog" aria-modal="true" aria-labelledby="pause-heading">
 
-        <div class="terminal-card narrow-card">
+        <div class="terminal-card narrow-card pause-card">
+
+          <div class="pause-icon-hero" aria-hidden="true">
+            <svg width="40" height="40"><use href="#icon-pause"></use></svg>
+          </div>
 
           <p class="terminal-tag">// soc terminal &middot; door <span id="pause-door-num">1</span> &middot; timer halted</p>
 
           <h1 id="pause-heading">TRIAGE / <span class="text-cyan">PAUSED</span></h1>
 
-          <p class="story-text">The timer is stopped at <strong id="pause-time">120s</strong>. The message is hidden while the game is paused.</p>
+          <div class="pause-telemetry-badge">
+            <span class="pause-badge-label">FROZEN TIME</span>
+            <strong id="pause-time" class="pause-badge-value">120s</strong>
+          </div>
 
-          <div class="menu-list">
+          <p class="story-text">The mission clock is frozen and evidence payload is concealed for security integrity.</p>
+
+          <div class="menu-list pause-menu-list">
 
             <button type="button" id="pause-resume-btn" class="btn btn-primary btn-block">
-
               RESUME <span class="key-hint">[ESC]</span>
-
             </button>
 
-            <button type="button" id="pause-restart-btn" class="btn btn-outline btn-block">RESTART DOOR</button>
+            <button type="button" id="pause-restart-btn" class="btn btn-outline btn-block">
+              RESTART DOOR
+            </button>
 
-            <button type="button" id="pause-menu-btn" class="btn btn-outline btn-block">MAIN MENU</button>
+            <button type="button" id="pause-menu-btn" class="btn btn-outline btn-block">
+              MAIN MENU
+            </button>
 
           </div>
 
-          <p class="mono-note">// restart door or main menu discards progress on this door</p>
+          <p class="mono-note">// restarting the door or returning to the main menu discards progress on this door</p>
 
         </div>
 
@@ -2853,11 +3049,24 @@
 
 
 
-      <!-- Door Unlocked Screen -->
-
+      <!-- Door Unlocked Screen (Celebration & Mastery Debrief) -->
       <section id="unlocked-screen" class="screen-panel hidden" aria-labelledby="unlocked-heading">
 
-        <div class="terminal-card">
+        <div class="terminal-card unlocked-card">
+
+          <!-- Vault Door Opening Celebration Graphic -->
+          <div class="vault-animation-wrap" aria-hidden="true">
+            <svg class="vault-door-svg" viewBox="0 0 100 100" width="80" height="80">
+              <circle class="vault-ring-outer" cx="50" cy="50" r="42"></circle>
+              <circle class="vault-ring-inner" cx="50" cy="50" r="32"></circle>
+              <path class="vault-bolt bolt-top" d="M50 8 L50 20"></path>
+              <path class="vault-bolt bolt-bottom" d="M50 80 L50 92"></path>
+              <path class="vault-bolt bolt-left" d="M8 50 L20 50"></path>
+              <path class="vault-bolt bolt-right" d="M80 50 L92 50"></path>
+              <circle class="vault-center-core" cx="50" cy="50" r="14"></circle>
+              <path class="vault-check" d="M43 50 L48 55 L58 45"></path>
+            </svg>
+          </div>
 
           <p class="terminal-tag">// soc terminal &middot; access granted</p>
 
@@ -2865,32 +3074,23 @@
 
           <p id="unlocked-note" class="story-text"></p>
 
-
+          <div id="unlocked-mastery" class="unlocked-mastery-banner"></div>
 
           <div class="result-grid">
 
             <div class="summary-card">
-
               <span class="summary-label">// door score</span>
-
               <span id="unlocked-points" class="summary-value">0</span>
-
             </div>
 
             <div class="summary-card">
-
               <span class="summary-label">// time bonus</span>
-
               <span id="unlocked-bonus" class="summary-value">+0</span>
-
             </div>
 
             <div class="summary-card">
-
               <span class="summary-label">// run total</span>
-
               <span id="unlocked-total" class="summary-value">0</span>
-
             </div>
 
           </div>
@@ -2900,9 +3100,7 @@
           <div class="action-row">
 
             <button type="button" id="unlocked-next-btn" class="btn btn-primary">
-
               NEXT DOOR <span class="key-hint">[ENTER]</span>
-
             </button>
 
             <button type="button" id="unlocked-menu-btn" class="btn btn-outline">MAIN MENU</button>
@@ -2915,22 +3113,32 @@
 
 
 
-      <!-- Level Failed Screen -->
-
+      <!-- Level Failed Screen (Supportive & Constructive) -->
       <section id="failed-screen" class="screen-panel hidden" aria-labelledby="failed-heading">
 
-        <div class="terminal-card">
+        <div class="terminal-card failed-card">
 
-          <p class="terminal-tag">// soc terminal &middot; access denied</p>
+          <div class="failed-glyph-wrap" aria-hidden="true">
+            <svg class="failed-svg" width="56" height="56"><use href="#icon-denied"></use></svg>
+          </div>
+
+          <p class="terminal-tag">// soc terminal &middot; containment breach &middot; access denied</p>
 
           <h1 id="failed-heading">DOOR <span id="failed-door-num">1</span> / <span class="text-danger">FAILED</span></h1>
 
           <div class="callout-danger" role="status">
-
-            <strong>// reason:</strong>
-
+            <strong>// breach telemetry:</strong>
             <span id="failed-reason"></span>
+          </div>
 
+          <div id="failed-practice-card" class="failed-practice-card">
+            <div class="practice-card-header">
+              <svg width="16" height="16" aria-hidden="true"><use href="#icon-habit"></use></svg>
+              <strong>// practice focus for this retry:</strong>
+            </div>
+            <div id="failed-practice-content" class="practice-card-content">
+              <span>Inspect the sender's root domain and watch for artificial urgency before taking action.</span>
+            </div>
           </div>
 
           <p id="failed-note" class="story-text"></p>
@@ -2938,9 +3146,7 @@
           <div class="action-row">
 
             <button type="button" id="failed-retry-btn" class="btn btn-primary">
-
               RETRY DOOR <span class="key-hint">[ENTER]</span>
-
             </button>
 
             <button type="button" id="failed-menu-btn" class="btn btn-outline">MAIN MENU</button>
@@ -2954,19 +3160,23 @@
 
 
       <!-- End Screen with Comprehensive Run Review -->
-
       <section id="end-screen" class="screen-panel hidden" aria-labelledby="end-heading">
 
-        <div class="terminal-card">
+        <div class="terminal-card end-card">
+
+          <div class="end-hero-banner">
+            <div class="end-hero-badge" id="end-analyst-rank-badge">
+              <span class="rank-tag">// threat intelligence assessment</span>
+              <h2 id="end-analyst-rank" class="rank-title">SENIOR SOC ANALYST</h2>
+            </div>
+          </div>
 
           <p class="terminal-tag">// soc terminal &middot; containment override complete</p>
 
           <h1 id="end-heading">ESCAPE / <span class="text-cyan">SUCCESSFUL</span></h1>
 
           <p class="story-text">
-
-            You triaged the final queue and unlocked all three server room doors. Review your complete SOC run performance and threat intelligence debrief below:
-
+            You successfully triaged all incoming feeds and bypassed the 3 physical containment blast doors. Review your mission telemetry and operational accuracy below:
           </p>
 
 
@@ -2974,36 +3184,29 @@
           <div class="score-summary-grid">
 
             <div class="summary-card">
-
               <span class="summary-label">// total score</span>
-
               <span id="end-total-score" class="summary-value">0</span>
-
             </div>
 
             <div class="summary-card">
-
               <span class="summary-label">// best score</span>
-
-              <span id="end-best-score" class="summary-value">0</span>
-
+              <div class="best-score-wrap">
+                <span id="end-best-score" class="summary-value">0</span>
+                <span id="end-new-best-ribbon" class="new-best-ribbon hidden">NEW BEST</span>
+              </div>
             </div>
 
             <div class="summary-card">
-
               <span class="summary-label">// most missed category</span>
-
               <span id="end-missed-category" class="summary-value summary-category">None</span>
-
             </div>
 
             <div class="summary-card">
-
               <span class="summary-label">// false alarms (safe marked phishing)</span>
-
               <span id="end-false-alarms" class="summary-value">0</span>
-
             </div>
+
+          </div>
 
           </div>
 
@@ -3153,7 +3356,7 @@
                   <span class="enc-cat-prefix" aria-hidden="true">&#9670; CATEGORY:</span>
                   <span id="enc-cat-current-label" class="enc-cat-label">All Categories</span>
                 </span>
-                <span id="enc-cat-chevron" class="enc-cat-chevron" aria-hidden="true">&#9662;</span>
+                <span id="enc-cat-chevron" class="enc-cat-chevron" aria-hidden="true"><svg class="enc-chevron-svg" width="13" height="13" aria-hidden="true"><use href="#icon-chevron-down"></use></svg></span>
               </button>
               <div id="enc-cat-dropdown-menu" class="enc-cat-dropdown-menu hidden" role="listbox" aria-label="Category options"></div>
             </div>
@@ -3408,7 +3611,7 @@
 
             <div class="vortex-ring-dashed"></div>
 
-            <span class="vortex-icon" aria-hidden="true">&#9888;</span>
+            <span class="vortex-icon" aria-hidden="true"><svg class="vortex-svg" width="38" height="38" aria-hidden="true"><use href="#icon-triangle-alert"></use></svg></span>
 
           </div>
 
@@ -3428,7 +3631,7 @@
 
             <div class="vortex-ring-dashed"></div>
 
-            <span class="vortex-icon" aria-hidden="true">&#128737;</span>
+            <span class="vortex-icon" aria-hidden="true"><svg class="vortex-svg" width="38" height="38" aria-hidden="true"><use href="#icon-shield-check"></use></svg></span>
 
           </div>
 
@@ -3482,7 +3685,7 @@
 
           <div class="arena-hint-chip">
 
-            <span>&#10024; Click &amp; drag any message card to toss with momentum</span>
+            <span class="arena-footer-hint-text"><svg class="arena-sparkle-svg" width="13" height="13" aria-hidden="true"><use href="#icon-sparkles"></use></svg> Click &amp; drag any message card to toss with momentum</span>
 
           </div>
 

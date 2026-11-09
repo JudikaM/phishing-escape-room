@@ -116,6 +116,19 @@
 
   }
 
+  function createSvgUseIcon(symbolId, className, width, height) {
+    var tpl = byId("svg-tpl-icon");
+    if (!tpl) return document.createElement("span");
+    var node = tpl.cloneNode(true);
+    node.removeAttribute("id");
+    if (className) node.setAttribute("class", className);
+    if (width) node.setAttribute("width", String(width));
+    if (height) node.setAttribute("height", String(height));
+    var use = node.querySelector("use");
+    if (use) use.setAttribute("href", symbolId);
+    return node;
+  }
+
 
 
   var elWebsiteView = byId("website-view");
@@ -879,370 +892,1175 @@
 
 
 
-  /* ==================== ZERO-G ANTIGRAVITY PHYSICS ARENA ENGINE ==================== */
-  var arenaGravityMode = "zero"; // "zero" | "down" | "up"
-  var arenaBodies = [];
-  var arenaAnimId = null;
-  var arenaScore = 0;
-  var arenaQuarantinedCount = 0;
-  var arenaSafeCount = 0;
-  var draggedArenaIndex = -1;
-  var arenaDragOffset = { x: 0, y: 0 };
-  var arenaMousePos = { x: 0, y: 0 };
-  var arenaLastMousePos = { x: 0, y: 0 };
-  var arenaToastTimerId = null;
+  /* ==================== ZERO-G ARENA (PRACTICE SANDBOX) ==================== */
+  // A standalone, tactile practice mini-game: drag or fling floating message cards
+  // into Quarantine (phishing) or the Safe Vault (legitimate). Points earned here
+  // stay inside the arena and never change the run score, best score, audit log,
+  // or badges, so the main game cannot be farmed through the sandbox.
 
-  function showArenaToast(message, isPositive) {
-    var elToast = byId("arena-toast-banner");
-    if (!elToast) return;
-    elToast.textContent = message;
-    elToast.className = "arena-toast-banner " + (isPositive ? "toast-positive" : "toast-negative");
-    elToast.classList.remove("hidden");
-    if (arenaToastTimerId) clearTimeout(arenaToastTimerId);
-    arenaToastTimerId = setTimeout(function () {
-      elToast.classList.add("hidden");
-    }, 2800);
+  var ARENA_DECK_SIZE = 10;
+  var ARENA_POINTS = 100;
+  var ARENA_STREAK_STEP = 10;
+  var ARENA_STREAK_CAP = 50;
+  var ARENA_THROW_MS = 1600;
+  var ARENA_DROP_OVERLAP = 0.28;
+  var ARENA_MAGNET_RANGE = 120;
+  var ARENA_RESULT_MS = 4600;
+
+  var arena = {
+    gravity: "zero",
+    bodies: [],
+    deck: [],
+    deckTotal: 0,
+    animId: null,
+    lastTs: 0,
+    score: 0,
+    correct: 0,
+    attempts: 0,
+    streak: 0,
+    bestStreak: 0,
+    caught: 0,
+    cleared: 0,
+    missed: [],
+    zones: null,
+    drag: null,
+    hot: { q: false, s: false },
+    resultTimer: null,
+    reducedMotion: false,
+    returnFocus: null,
+    bound: false
+  };
+
+  function arenaClamp(val, min, max) {
+    return Math.max(min, Math.min(max, val));
   }
 
-  function updateArenaStats() {
-    var elScore = byId("arena-score-val");
-    var elQuar = byId("arena-quarantined-val");
-    var elSafe = byId("arena-safe-val");
-    if (elScore) elScore.textContent = arenaScore + " PTS";
-    if (elQuar) elQuar.textContent = String(arenaQuarantinedCount);
-    if (elSafe) elSafe.textContent = String(arenaSafeCount);
+  function isArenaOpen() {
+    var elModal = byId("arena-modal");
+    return !!(elModal && !elModal.classList.contains("hidden"));
   }
 
-  function createCapsuleCardElement(body, index) {
+  function arenaNow() {
+    return (window.performance && performance.now) ? performance.now() : Date.now();
+  }
+
+  function measureArenaZones() {
+    var stage = byId("arena-stage");
+    var zoneQ = byId("arena-quarantine-vortex");
+    var zoneS = byId("arena-safe-vault");
+    if (!stage || !zoneQ || !zoneS) return null;
+
+    var sr = stage.getBoundingClientRect();
+    if (sr.width < 10 || sr.height < 10) return null;
+
+    function rel(el) {
+      var r = el.getBoundingClientRect();
+      return { x: r.left - sr.left, y: r.top - sr.top, w: r.width, h: r.height };
+    }
+
+    var q = rel(zoneQ);
+    var s = rel(zoneS);
+    var w = sr.width;
+    var h = sr.height;
+    var pad = 8;
+    var play;
+
+    // Detect vertical top/bottom stacking (mobile layout) vs horizontal (desktop)
+    var isVertical = Math.abs(q.y - s.y) > 70;
+
+    if (isVertical) {
+      var topZone = q.y < s.y ? q : s;
+      var bottomZone = q.y < s.y ? s : q;
+      var startY = topZone.y + topZone.h + pad;
+      var endY = bottomZone.y - pad;
+      play = {
+        x: pad,
+        y: startY,
+        w: Math.max(100, w - pad * 2),
+        h: Math.max(80, endY - startY)
+      };
+    } else {
+      var left = q.x + q.w + pad;
+      var right = s.x - pad;
+      play = {
+        x: left,
+        y: pad,
+        w: Math.max(120, right - left),
+        h: Math.max(80, h - pad * 2 - 42)
+      };
+    }
+
+    arena.zones = { q: q, s: s, play: play, w: w, h: h, compact: isVertical || w < 640 };
+    return arena.zones;
+  }
+
+  function arenaMaxOnStage() {
+    var z = arena.zones;
+    if (!z) return 3;
+    if (z.compact) return 2;
+    return z.play.w >= 760 ? 4 : 3;
+  }
+
+  function buildArenaDeck() {
+    var all = state.allMessages && state.allMessages.length ? state.allMessages : [];
+    if (!all.length) return [];
+
+    var phishing = shuffleArray(all.filter(function (m) { return m.is_phishing; }));
+    var safe = shuffleArray(all.filter(function (m) { return !m.is_phishing; }));
+    var size = Math.min(ARENA_DECK_SIZE, all.length);
+    var wantPhishing = Math.min(phishing.length, Math.round(size * 0.6));
+    var wantSafe = Math.min(safe.length, size - wantPhishing);
+
+    var deck = phishing.slice(0, wantPhishing).concat(safe.slice(0, wantSafe));
+    var leftovers = shuffleArray(phishing.slice(wantPhishing).concat(safe.slice(wantSafe)));
+    while (deck.length < size && leftovers.length) {
+      deck.push(leftovers.shift());
+    }
+    return shuffleArray(deck);
+  }
+
+  function splitArenaSender(sender) {
+    var match = /^(.*?)\s*<([^>]+)>\s*$/.exec(sender || "");
+    if (match) {
+      return { name: match[1] || match[2], address: match[2] };
+    }
+    return { name: sender || "Unknown sender", address: "" };
+  }
+
+  function appendArenaAddress(parent, address) {
+    var at = address.lastIndexOf("@");
+    if (at === -1) {
+      parent.textContent = address;
+      return;
+    }
+    parent.appendChild(document.createTextNode(address.slice(0, at + 1)));
+    var domain = document.createElement("span");
+    domain.className = "zg-domain";
+    domain.textContent = address.slice(at + 1);
+    parent.appendChild(domain);
+  }
+
+  function channelLabel(channel) {
+    if (channel === "sms") return "SMS";
+    if (channel === "chat") return "Chat";
+    return "Email";
+  }
+
+  function createArenaCard(body) {
+    var msg = body.msg;
+    var who = splitArenaSender(msg.sender);
+
     var card = document.createElement("article");
-    card.className = "arena-capsule-card tier-" + (index % 4);
-    card.setAttribute("role", "button");
-    card.setAttribute("tabindex", "0");
-    card.setAttribute("aria-label", "Threat capsule: " + body.msg.sender);
+    card.className = "arena-capsule-card zg-card zg-ch-" + msg.channel;
+    card.tabIndex = 0;
+    card.setAttribute("aria-roledescription", "draggable message card");
+    card.setAttribute(
+      "aria-label",
+      channelLabel(msg.channel) + " from " + msg.sender +
+      ". Press Enter to read the full message, P to quarantine as phishing, or S to mark safe."
+    );
 
-    var topRow = document.createElement("div");
-    topRow.className = "capsule-top-row";
+    var inner = document.createElement("div");
+    inner.className = "zg-card-inner";
 
-    var chanTag = document.createElement("span");
-    chanTag.className = "capsule-channel-tag";
-    chanTag.textContent = body.msg.channel.toUpperCase();
-    topRow.appendChild(chanTag);
+    var top = document.createElement("div");
+    top.className = "zg-card-top";
+    var chip = document.createElement("span");
+    chip.className = "zg-card-chip";
+    var chIconId = msg.channel === "email" ? "#icon-mail" : (msg.channel === "sms" ? "#icon-sms" : "#icon-chat");
+    var chipSvg = createSvgUseIcon(chIconId, "zg-chip-svg", 11, 11);
+    chip.appendChild(chipSvg);
+    var chipText = document.createElement("span");
+    chipText.textContent = channelLabel(msg.channel);
+    chip.appendChild(chipText);
+    top.appendChild(chip);
+    var peek = document.createElement("span");
+    peek.className = "zg-card-peek";
+    peek.textContent = "Tap to read";
+    top.appendChild(peek);
+    inner.appendChild(top);
 
-    var tossHint = document.createElement("span");
-    tossHint.className = "capsule-drag-hint";
-    tossHint.textContent = "DRAG TO FLING";
-    topRow.appendChild(tossHint);
-    card.appendChild(topRow);
+    var name = document.createElement("strong");
+    name.className = "zg-card-name";
+    name.textContent = who.name;
+    inner.appendChild(name);
 
-    var senderP = document.createElement("strong");
-    senderP.className = "capsule-sender";
-    senderP.textContent = body.msg.sender;
-    card.appendChild(senderP);
-
-    if (body.msg.subject) {
-      var subP = document.createElement("div");
-      subP.className = "capsule-subject";
-      subP.textContent = body.msg.subject;
-      card.appendChild(subP);
+    if (who.address) {
+      var addr = document.createElement("div");
+      addr.className = "zg-card-addr";
+      appendArenaAddress(addr, who.address);
+      inner.appendChild(addr);
     }
 
-    var snippetP = document.createElement("p");
-    snippetP.className = "capsule-snippet";
-    var bodySnippet = body.msg.body.length > 85 ? body.msg.body.substring(0, 85) + "..." : body.msg.body;
-    snippetP.textContent = bodySnippet;
-    card.appendChild(snippetP);
-
-    // Mouse & Touch Drag Listeners
-    function onPointerDown(e) {
-      e.preventDefault();
-      var stage = byId("arena-stage");
-      if (!stage) return;
-      var rect = stage.getBoundingClientRect();
-      var clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      var clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      var x = clientX - rect.left;
-      var y = clientY - rect.top;
-
-      draggedArenaIndex = index;
-      body.isDragging = true;
-      body.vx = 0;
-      body.vy = 0;
-      arenaDragOffset.x = x - body.x;
-      arenaDragOffset.y = y - body.y;
-      arenaMousePos.x = x;
-      arenaMousePos.y = y;
-      arenaLastMousePos.x = x;
-      arenaLastMousePos.y = y;
-      card.classList.add("is-dragging");
-      playSoundInspect();
+    if (msg.channel === "email" && msg.subject) {
+      var subject = document.createElement("div");
+      subject.className = "zg-card-subject";
+      subject.textContent = msg.subject;
+      inner.appendChild(subject);
     }
 
-    card.addEventListener("mousedown", onPointerDown);
-    card.addEventListener("touchstart", onPointerDown, { passive: false });
+    var text = document.createElement("p");
+    text.className = "zg-card-body";
+    text.textContent = msg.body;
+    inner.appendChild(text);
+
+    var foot = document.createElement("div");
+    foot.className = "zg-card-foot";
+    foot.textContent = "Fling into a zone, or press P (phishing) / S (safe)";
+    inner.appendChild(foot);
+
+    card.appendChild(inner);
+
+    card.addEventListener("pointerdown", function (e) {
+      onArenaPointerDown(e, body);
+    });
+
+    card.addEventListener("keydown", function (e) {
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+      var key = e.key;
+      if (key === "p" || key === "P") {
+        e.preventDefault();
+        e.stopPropagation();
+        classifyArenaBody(body, true);
+      } else if (key === "s" || key === "S") {
+        e.preventDefault();
+        e.stopPropagation();
+        classifyArenaBody(body, false);
+      } else if (key === "Enter" || key === " ") {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleArenaCardExpanded(body);
+      }
+    });
 
     return card;
   }
 
-  function initArenaBodies() {
-    var stage = byId("arena-stage");
+  function renderArenaBody(body) {
+    if (!body.el) return;
+    body.el.style.transform =
+      "translate3d(" + body.x.toFixed(1) + "px," + body.y.toFixed(1) + "px,0) rotate(" +
+      body.rot.toFixed(2) + "deg) scale(" + body.scale.toFixed(3) + ")";
+  }
+
+  function measureArenaBody(body) {
+    if (!body.el) return;
+    body.w = body.el.offsetWidth || body.w || 200;
+    body.h = body.el.offsetHeight || body.h || 110;
+  }
+
+  function overlapArea(ax, ay, aw, ah, bx, by, bw, bh) {
+    var ox = Math.min(ax + aw, bx + bw) - Math.max(ax, bx);
+    var oy = Math.min(ay + ah, by + bh) - Math.max(ay, by);
+    return ox > 0 && oy > 0 ? ox * oy : 0;
+  }
+
+  function bringArenaBodyToFront(body) {
+    var top = 0;
+    for (var i = 0; i < arena.bodies.length; i += 1) {
+      top = Math.max(top, arena.bodies[i].z || 0);
+    }
+    body.z = top + 1;
+    if (body.el) body.el.style.zIndex = String(10 + body.z);
+  }
+
+  function spawnArenaCard() {
+    if (!arena.deck.length) return null;
     var container = byId("arena-capsules-container");
-    if (!stage || !container) return;
+    var z = arena.zones || measureArenaZones();
+    if (!container || !z) return null;
 
-    clearChildren(container);
-    arenaBodies = [];
-    var rect = stage.getBoundingClientRect();
-    var isCompactStage = rect.width > 0 && rect.width < 560;
-    var w = rect.width > 240 ? rect.width : (isCompactStage ? 340 : 800);
-    var h = rect.height > 260 ? rect.height : (isCompactStage ? 390 : 520);
+    var msg = arena.deck.shift();
+    var body = {
+      msg: msg,
+      x: 0, y: 0, vx: 0, vy: 0,
+      rot: 0, vRot: 0, scale: 1,
+      w: 0, h: 0, z: 0,
+      mode: "free",
+      thrownAt: 0,
+      absorb: null,
+      expanded: false,
+      hadFocus: false,
+      el: null
+    };
 
-    var scenarios = state.allMessages && state.allMessages.length > 0 ? state.allMessages : [];
-    var pool = scenarios.slice(0, 8);
-    if (pool.length === 0) return;
+    body.el = createArenaCard(body);
+    body.el.classList.add("is-spawning");
+    container.appendChild(body.el);
+    measureArenaBody(body);
 
-    for (var i = 0; i < pool.length; i += 1) {
-      var msg = pool[i];
-      var bw = isCompactStage ? 156 : 240;
-      var bh = isCompactStage ? 88 : 118;
-      var col = i % 3;
-      var row = Math.floor(i / 3);
-      var initX = 140 + col * ((w - 280) / 3) + (Math.random() - 0.5) * 30;
-      var initY = 70 + row * 135 + (Math.random() - 0.5) * 20;
-
-      var body = {
-        id: "capsule-" + i,
-        msg: msg,
-        x: Math.max(isCompactStage ? 12 : 120, Math.min(w - bw - (isCompactStage ? 12 : 120), initX)),
-        y: Math.max(isCompactStage ? 16 : 50, Math.min(h - bh - (isCompactStage ? 44 : 60), initY)),
-        vx: (Math.random() - 0.5) * 2.2,
-        vy: (Math.random() - 0.5) * 2.2,
-        rotation: (Math.random() - 0.5) * 12,
-        vRot: (Math.random() - 0.5) * 0.4,
-        width: bw,
-        height: bh,
-        isDragging: false,
-        isAbsorbed: false,
-        el: null
-      };
-
-      body.el = createCapsuleCardElement(body, i);
-      container.appendChild(body.el);
-      arenaBodies.push(body);
+    var best = null;
+    var bestOverlap = Infinity;
+    var spanX = Math.max(1, z.play.w - body.w);
+    var spanY = Math.max(1, z.play.h - body.h);
+    for (var t = 0; t < 16; t += 1) {
+      var cx = z.play.x + Math.random() * spanX;
+      var cy = z.play.y + Math.random() * spanY;
+      var total = 0;
+      for (var i = 0; i < arena.bodies.length; i += 1) {
+        var o = arena.bodies[i];
+        total += overlapArea(cx - 8, cy - 8, body.w + 16, body.h + 16, o.x, o.y, o.w, o.h);
+      }
+      if (total < bestOverlap) {
+        bestOverlap = total;
+        best = { x: cx, y: cy };
+        if (total === 0) break;
+      }
     }
 
-    updateArenaStats();
+    body.x = best.x;
+    body.y = best.y;
+    if (!arena.reducedMotion) {
+      body.vx = (Math.random() - 0.5) * 1.1;
+      body.vy = (Math.random() - 0.5) * 1.1;
+      body.vRot = (Math.random() - 0.5) * 0.25;
+      body.rot = (Math.random() - 0.5) * 5;
+    }
+
+    arena.bodies.push(body);
+    bringArenaBodyToFront(body);
+    renderArenaBody(body);
+
+    setTimeout(function () {
+      if (body.el) body.el.classList.remove("is-spawning");
+    }, 420);
+
+    return body;
   }
 
-  function handleArenaTriageDecision(body, userChosePhishing) {
-    var isCorrect = userChosePhishing === body.msg.is_phishing;
-    if (isCorrect) {
-      arenaScore += 100;
-      state.score += 100;
-      saveBestScore(state.score);
-      playSoundSuccess();
-      if (userChosePhishing) {
-        arenaQuarantinedCount += 1;
-        state.threatsNeutralized += 1;
-        showArenaToast("✓ QUARANTINED THREAT! +100 PTS", true);
-      } else {
-        arenaSafeCount += 1;
-        showArenaToast("✓ VERIFIED SAFE MESSAGE STORED! +100 PTS", true);
+  function toggleArenaCardExpanded(body) {
+    if (!body.el || body.mode === "absorbing") return;
+    var willExpand = !body.expanded;
+
+    for (var i = 0; i < arena.bodies.length; i += 1) {
+      var other = arena.bodies[i];
+      if (other !== body && other.expanded && other.el) {
+        other.expanded = false;
+        other.el.classList.remove("is-expanded");
+        measureArenaBody(other);
       }
-      addAuditEntry(body.msg, userChosePhishing, true, 100);
-      checkAndUpdateBadges(true);
-    } else {
-      playSoundFailure();
-      if (userChosePhishing) {
-        showArenaToast("✗ FALSE ALARM — LEGITIMATE MESSAGE QUARANTINED!", false);
-      } else {
-        showArenaToast("✗ SECURITY BREACH — PHISHING THREAT CLASSIFIED SAFE!", false);
-      }
-      addAuditEntry(body.msg, userChosePhishing, false, 0);
     }
-    updateArenaStats();
+
+    body.expanded = willExpand;
+    body.el.classList.toggle("is-expanded", willExpand);
+    measureArenaBody(body);
+    bringArenaBodyToFront(body);
+
+    if (willExpand) {
+      body.vx = 0;
+      body.vy = 0;
+      body.vRot = 0;
+      body.mode = "free";
+      var z = arena.zones;
+      if (z) {
+        body.x = arenaClamp(body.x, z.play.x, Math.max(z.play.x, z.play.x + z.play.w - body.w));
+        body.y = arenaClamp(body.y, z.play.y, Math.max(z.play.y, z.play.y + z.play.h - body.h));
+      }
+      announce("Reading message from " + body.msg.sender + ". " + body.msg.body);
+    }
   }
 
-  function updateArenaPhysics() {
-    var elModal = byId("arena-modal");
-    if (!elModal || elModal.classList.contains("hidden")) {
-      arenaAnimId = null;
-      return;
+  function arenaZoneHit(body) {
+    var z = arena.zones;
+    if (!z) return null;
+    var area = Math.max(1, body.w * body.h);
+    var oq = overlapArea(body.x, body.y, body.w, body.h, z.q.x, z.q.y, z.q.w, z.q.h) / area;
+    var os = overlapArea(body.x, body.y, body.w, body.h, z.s.x, z.s.y, z.s.w, z.s.h) / area;
+    var cx = body.x + body.w / 2;
+    var cy = body.y + body.h / 2;
+    var inQ = cx >= z.q.x && cx <= z.q.x + z.q.w && cy >= z.q.y && cy <= z.q.y + z.q.h;
+    var inS = cx >= z.s.x && cx <= z.s.x + z.s.w && cy >= z.s.y && cy <= z.s.y + z.s.h;
+    if (inQ || oq >= ARENA_DROP_OVERLAP || inS || os >= ARENA_DROP_OVERLAP) {
+      return (inQ ? 1 : 0) + oq >= (inS ? 1 : 0) + os ? "q" : "s";
     }
+    return null;
+  }
 
+  function distanceToRect(px, py, r) {
+    var dx = Math.max(r.x - px, 0, px - (r.x + r.w));
+    var dy = Math.max(r.y - py, 0, py - (r.y + r.h));
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  function setArenaZoneHot(key, isHot) {
+    if (arena.hot[key] === isHot) return;
+    arena.hot[key] = isHot;
+    var el = byId(key === "q" ? "arena-quarantine-vortex" : "arena-safe-vault");
+    if (el) el.classList.toggle("is-hot", isHot);
+  }
+
+  function flashArenaZone(key, isCorrect) {
+    var el = byId(key === "q" ? "arena-quarantine-vortex" : "arena-safe-vault");
+    if (!el) return;
+    var cls = isCorrect ? "is-flash-correct" : "is-flash-wrong";
+    el.classList.remove("is-flash-correct", "is-flash-wrong");
+    void el.offsetWidth;
+    el.classList.add(cls);
+    setTimeout(function () {
+      el.classList.remove(cls);
+    }, 700);
+  }
+
+  function onArenaPointerDown(e, body) {
+    if (body.mode === "absorbing" || arena.drag) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
     var stage = byId("arena-stage");
-    if (!stage) {
-      arenaAnimId = requestAnimationFrame(updateArenaPhysics);
+    if (!stage) return;
+    e.preventDefault();
+
+    var sr = stage.getBoundingClientRect();
+    var px = e.clientX - sr.left;
+    var py = e.clientY - sr.top;
+    var now = arenaNow();
+
+    arena.drag = {
+      body: body,
+      id: e.pointerId,
+      offX: px - body.x,
+      offY: py - body.y,
+      lastX: px,
+      lastY: py,
+      lastT: now,
+      startX: px,
+      startY: py,
+      startT: now,
+      moved: false,
+      vx: 0,
+      vy: 0
+    };
+
+    body.mode = "dragging";
+    body.vx = 0;
+    body.vy = 0;
+    body.el.classList.add("is-dragging");
+    bringArenaBodyToFront(body);
+    try {
+      body.el.setPointerCapture(e.pointerId);
+    } catch (err) {
+      /* pointer capture is optional */
+    }
+    if (typeof body.el.focus === "function") {
+      body.el.focus({ preventScroll: true });
+    }
+  }
+
+  function onArenaPointerMove(e) {
+    var d = arena.drag;
+    if (!d || e.pointerId !== d.id) return;
+    var stage = byId("arena-stage");
+    if (!stage) return;
+
+    var sr = stage.getBoundingClientRect();
+    var px = e.clientX - sr.left;
+    var py = e.clientY - sr.top;
+    var now = arenaNow();
+    var dt = Math.max(1, now - d.lastT);
+
+    d.vx = d.vx * 0.45 + ((px - d.lastX) / dt) * 16.67 * 0.55;
+    d.vy = d.vy * 0.45 + ((py - d.lastY) / dt) * 16.67 * 0.55;
+    d.lastX = px;
+    d.lastY = py;
+    d.lastT = now;
+
+    if (!d.moved && Math.abs(px - d.startX) + Math.abs(py - d.startY) > 7) {
+      d.moved = true;
+      if (d.body.expanded) toggleArenaCardExpanded(d.body);
+    }
+
+    d.body.x = px - d.offX;
+    d.body.y = py - d.offY;
+  }
+
+  function onArenaPointerUp(e) {
+    var d = arena.drag;
+    if (!d || e.pointerId !== d.id) return;
+    var body = d.body;
+    arena.drag = null;
+
+    if (body.el) {
+      body.el.classList.remove("is-dragging");
+      try {
+        body.el.releasePointerCapture(e.pointerId);
+      } catch (err) {
+        /* already released */
+      }
+    }
+
+    if (body.mode !== "dragging") return;
+
+    if (e.type === "pointercancel") {
+      body.mode = "free";
       return;
     }
 
-    var rect = stage.getBoundingClientRect();
-    var boundsW = rect.width || 800;
-    var boundsH = rect.height || 520;
+    var now = arenaNow();
+    if (!d.moved && now - d.startT < 450) {
+      body.mode = "free";
+      toggleArenaCardExpanded(body);
+      return;
+    }
 
-    var gy = 0;
-    if (arenaGravityMode === "down") gy = 0.26;
-    else if (arenaGravityMode === "up") gy = -0.26;
+    var zone = arenaZoneHit(body);
+    if (zone) {
+      classifyArenaBody(body, zone === "q");
+      return;
+    }
 
-    // Quarantine Vortex Center (Left) & Safe Vault Center (Right)
-    var qVortex = { x: boundsW < 560 ? 38 : 74, y: boundsH / 2, radius: boundsW < 560 ? 56 : 80 };
-    var sVault = { x: boundsW - (boundsW < 560 ? 38 : 74), y: boundsH / 2, radius: boundsW < 560 ? 56 : 80 };
+    if (now - d.lastT > 90) {
+      d.vx = 0;
+      d.vy = 0;
+    }
 
-    for (var i = 0; i < arenaBodies.length; i += 1) {
-      var body = arenaBodies[i];
-      if (!body || !body.el) continue;
+    body.vx = arenaClamp(d.vx, -32, 32);
+    body.vy = arenaClamp(d.vy, -32, 32);
+    body.vRot = arenaClamp(body.vx * 0.08, -2.2, 2.2);
 
-      if (body.isDragging) {
-        body.vx = (arenaMousePos.x - arenaLastMousePos.x) * 0.7;
-        body.vy = (arenaMousePos.y - arenaLastMousePos.y) * 0.7;
-        body.x = arenaMousePos.x - arenaDragOffset.x;
-        body.y = arenaMousePos.y - arenaDragOffset.y;
-        body.rotation += body.vRot;
-      } else {
-        // Gravity & Damping
-        body.vy += gy;
-        body.vx *= 0.992;
-        body.vy *= 0.992;
-        body.vRot *= 0.985;
+    if (Math.hypot(body.vx, body.vy) > 3) {
+      body.mode = "thrown";
+      body.thrownAt = now;
+    } else {
+      body.mode = "free";
+    }
+  }
 
-        body.x += body.vx;
-        body.y += body.vy;
-        body.rotation += body.vRot;
+  function updateArenaStats() {
+    var elScore = byId("arena-score-val");
+    var elAcc = byId("arena-accuracy-val");
+    var elStreak = byId("arena-streak-val");
+    var elCaught = byId("arena-quarantined-val");
+    var elCleared = byId("arena-safe-val");
+    var elDeck = byId("arena-deck-val");
+    if (elScore) elScore.textContent = String(arena.score);
+    if (elAcc) {
+      elAcc.textContent = arena.attempts
+        ? Math.round((arena.correct / arena.attempts) * 100) + "%"
+        : "--";
+    }
+    if (elStreak) elStreak.textContent = String(arena.streak);
+    if (elCaught) elCaught.textContent = String(arena.caught);
+    if (elCleared) elCleared.textContent = String(arena.cleared);
+    if (elDeck) elDeck.textContent = arena.attempts + " / " + arena.deckTotal;
+  }
 
-        // Stage bounds bouncing
-        if (body.x < 12) {
-          body.x = 12;
-          body.vx = Math.abs(body.vx) * 0.8;
-          body.vRot += (Math.random() - 0.5) * 0.5;
-        } else if (body.x + body.width > boundsW - 12) {
-          body.x = boundsW - 12 - body.width;
-          body.vx = -Math.abs(body.vx) * 0.8;
-          body.vRot += (Math.random() - 0.5) * 0.5;
-        }
+  function arenaReasonText(msg) {
+    if (msg.is_phishing && msg.red_flags && msg.red_flags.length) {
+      var flag = msg.red_flags[0];
+      return "\u201C" + flag.quote + "\u201D \u2014 " + flag.explanation;
+    }
+    if (!msg.is_phishing && msg.safe_signals && msg.safe_signals.length) {
+      return msg.safe_signals[0];
+    }
+    return msg.tip || "";
+  }
 
-        if (body.y < 12) {
-          body.y = 12;
-          body.vy = Math.abs(body.vy) * 0.8;
-        } else if (body.y + body.height > boundsH - 52) {
-          body.y = boundsH - 52 - body.height;
-          body.vy = -Math.abs(body.vy) * 0.8;
-        }
+  function showArenaResult(msg, choseQuarantine, isCorrect, points) {
+    var el = byId("arena-toast-banner");
+    if (!el) return;
 
-        // Center point of capsule
-        var cx = body.x + body.width / 2;
-        var cy = body.y + body.height / 2;
+    var title;
+    if (isCorrect) {
+      title = choseQuarantine ? "Threat quarantined" : "Safe message cleared";
+    } else {
+      title = msg.is_phishing ? "Missed threat: this was phishing" : "False alarm: this message was safe";
+    }
 
-        // Gravitational Attraction: Quarantine Vortex (Left)
-        var distQ = Math.hypot(cx - qVortex.x, cy - qVortex.y);
-        if (distQ < 140) {
-          body.vx += (qVortex.x - cx) * 0.055;
-          body.vy += (qVortex.y - cy) * 0.055;
-          if (distQ < 54 && !body.isAbsorbed) {
-            body.isAbsorbed = true;
-            handleArenaTriageDecision(body, true);
-            // Respawn with fresh scenario from center
-            var randomMsg = state.allMessages[Math.floor(Math.random() * state.allMessages.length)];
-            body.msg = randomMsg;
-            body.x = boundsW / 2 + (Math.random() - 0.5) * 80;
-            body.y = boundsH / 2 + (Math.random() - 0.5) * 80;
-            body.vx = (Math.random() - 0.5) * 4;
-            body.vy = (Math.random() - 0.5) * 4;
-            // Update snippet text
-            var snipEl = body.el.querySelector(".capsule-snippet");
-            var sendEl = body.el.querySelector(".capsule-sender");
-            var chanEl = body.el.querySelector(".capsule-channel-tag");
-            if (snipEl) snipEl.textContent = randomMsg.body.length > 85 ? randomMsg.body.substring(0, 85) + "..." : randomMsg.body;
-            if (sendEl) sendEl.textContent = randomMsg.sender;
-            if (chanEl) chanEl.textContent = randomMsg.channel.toUpperCase();
-            body.isAbsorbed = false;
-          }
-        }
+    clearChildren(el);
+    el.className = "zg-result " + (isCorrect ? "is-correct" : "is-wrong");
 
-        // Gravitational Attraction: Safe Shield Vault (Right)
-        var distS = Math.hypot(cx - sVault.x, cy - sVault.y);
-        if (distS < 140) {
-          body.vx += (sVault.x - cx) * 0.055;
-          body.vy += (sVault.y - cy) * 0.055;
-          if (distS < 54 && !body.isAbsorbed) {
-            body.isAbsorbed = true;
-            handleArenaTriageDecision(body, false);
-            var randMsg = state.allMessages[Math.floor(Math.random() * state.allMessages.length)];
-            body.msg = randMsg;
-            body.x = boundsW / 2 + (Math.random() - 0.5) * 80;
-            body.y = boundsH / 2 + (Math.random() - 0.5) * 80;
-            body.vx = (Math.random() - 0.5) * 4;
-            body.vy = (Math.random() - 0.5) * 4;
-            var sEl = body.el.querySelector(".capsule-snippet");
-            var seEl = body.el.querySelector(".capsule-sender");
-            var chEl = body.el.querySelector(".capsule-channel-tag");
-            if (sEl) sEl.textContent = randMsg.body.length > 85 ? randMsg.body.substring(0, 85) + "..." : randMsg.body;
-            if (seEl) seEl.textContent = randMsg.sender;
-            if (chEl) chEl.textContent = randMsg.channel.toUpperCase();
-            body.isAbsorbed = false;
+    var icon = document.createElement("span");
+    icon.className = "zg-result-icon";
+    icon.setAttribute("aria-hidden", "true");
+    var resSvg = createSvgUseIcon(isCorrect ? "#icon-check" : "#icon-cross", "zg-result-icon-svg", 14, 14);
+    icon.appendChild(resSvg);
+    el.appendChild(icon);
+
+    var textWrap = document.createElement("div");
+    textWrap.className = "zg-result-text";
+
+    var head = document.createElement("div");
+    head.className = "zg-result-head";
+    var strong = document.createElement("strong");
+    strong.className = "zg-result-title";
+    strong.textContent = title;
+    head.appendChild(strong);
+    var pts = document.createElement("span");
+    pts.className = "zg-result-points";
+    pts.textContent = isCorrect ? "+" + points : "Streak reset";
+    head.appendChild(pts);
+    textWrap.appendChild(head);
+
+    var reason = arenaReasonText(msg);
+    if (reason) {
+      var p = document.createElement("p");
+      p.className = "zg-result-reason";
+      p.textContent = reason;
+      textWrap.appendChild(p);
+    }
+
+    el.appendChild(textWrap);
+
+    if (arena.resultTimer) clearTimeout(arena.resultTimer);
+    arena.resultTimer = setTimeout(function () {
+      el.classList.add("hidden");
+    }, ARENA_RESULT_MS);
+
+    announce(title + ". " + reason);
+  }
+
+  function classifyArenaBody(body, choseQuarantine) {
+    if (!body || body.mode === "absorbing") return;
+    var z = arena.zones || measureArenaZones();
+    if (!z) return;
+
+    if (arena.drag && arena.drag.body === body) {
+      arena.drag = null;
+      if (body.el) body.el.classList.remove("is-dragging");
+    }
+
+    var msg = body.msg;
+    var isCorrect = choseQuarantine === msg.is_phishing;
+    var points = 0;
+
+    arena.attempts += 1;
+    if (isCorrect) {
+      arena.correct += 1;
+      arena.streak += 1;
+      arena.bestStreak = Math.max(arena.bestStreak, arena.streak);
+      points = ARENA_POINTS + Math.min(ARENA_STREAK_CAP, (arena.streak - 1) * ARENA_STREAK_STEP);
+      arena.score += points;
+      if (choseQuarantine) arena.caught += 1;
+      else arena.cleared += 1;
+      playSoundSuccess();
+    } else {
+      arena.streak = 0;
+      arena.missed.push(msg);
+      playSoundFailure();
+    }
+
+    var key = choseQuarantine ? "q" : "s";
+    var target = z[key];
+    body.hadFocus = document.activeElement === body.el;
+    body.mode = "absorbing";
+    body.expanded = false;
+    body.absorb = {
+      t0: arenaNow(),
+      dur: arena.reducedMotion ? 0 : 460,
+      x0: body.x,
+      y0: body.y,
+      tx: target.x + target.w / 2 - body.w / 2,
+      ty: target.y + target.h / 2 - body.h / 2
+    };
+    if (body.el) {
+      body.el.classList.remove("is-expanded");
+      body.el.classList.add("is-absorbing", isCorrect ? "is-correct" : "is-wrong");
+      body.el.setAttribute("aria-hidden", "true");
+      body.el.tabIndex = -1;
+    }
+
+    flashArenaZone(key, isCorrect);
+    showArenaResult(msg, choseQuarantine, isCorrect, points);
+    updateArenaStats();
+  }
+
+  function finishArenaAbsorb(body) {
+    var idx = arena.bodies.indexOf(body);
+    if (idx !== -1) arena.bodies.splice(idx, 1);
+    if (body.el && body.el.parentNode) body.el.parentNode.removeChild(body.el);
+    body.el = null;
+
+    var spawned = null;
+    if (arena.deck.length) {
+      spawned = spawnArenaCard();
+    }
+
+    if (body.hadFocus) {
+      var next = spawned;
+      if (!next) {
+        for (var i = 0; i < arena.bodies.length; i += 1) {
+          if (arena.bodies[i].mode !== "absorbing") {
+            next = arena.bodies[i];
+            break;
           }
         }
       }
-
-      // Render 2D transform
-      body.el.style.transform = "translate3d(" + Math.round(body.x) + "px," + Math.round(body.y) + "px,0px) rotate(" + body.rotation.toFixed(1) + "deg)";
+      if (next && next.el) {
+        next.el.focus({ preventScroll: true });
+      }
     }
 
-    arenaLastMousePos.x = arenaMousePos.x;
-    arenaLastMousePos.y = arenaMousePos.y;
-    arenaAnimId = requestAnimationFrame(updateArenaPhysics);
+    if (!arena.deck.length && arena.bodies.length === 0) {
+      setTimeout(showArenaSummary, arena.reducedMotion ? 0 : 450);
+    }
+  }
+
+  function resolveArenaCollisions() {
+    // Card-to-card collisions disabled: floating cards do not bounce off each other,
+    // allowing smooth independent zero-g drift and effortless dragging/flinging.
+  }
+
+  function updateArenaPhysics(ts) {
+    if (!isArenaOpen()) {
+      arena.animId = null;
+      return;
+    }
+
+    var k = arena.lastTs ? arenaClamp((ts - arena.lastTs) / 16.67, 0.25, 2.2) : 1;
+    arena.lastTs = ts;
+
+    var z = arena.zones || measureArenaZones();
+    if (!z) {
+      arena.animId = requestAnimationFrame(updateArenaPhysics);
+      return;
+    }
+
+    var g = 0;
+    if (arena.gravity === "down") g = 0.34;
+    else if (arena.gravity === "up") g = -0.34;
+
+    var now = arenaNow();
+    var hotQ = false;
+    var hotS = false;
+    var finished = [];
+
+    for (var i = 0; i < arena.bodies.length; i += 1) {
+      var body = arena.bodies[i];
+      if (!body.el) continue;
+
+      if (body.mode === "absorbing") {
+        var ab = body.absorb;
+        var t = ab.dur ? arenaClamp((now - ab.t0) / ab.dur, 0, 1) : 1;
+        var e = 1 - Math.pow(1 - t, 3);
+        body.x = ab.x0 + (ab.tx - ab.x0) * e;
+        body.y = ab.y0 + (ab.ty - ab.y0) * e;
+        body.scale = 1 - 0.8 * e;
+        body.rot += 6 * k * (1 - e);
+        renderArenaBody(body);
+        if (t >= 1) finished.push(body);
+        continue;
+      }
+
+      var cx;
+      var cy;
+
+      if (body.mode === "dragging") {
+        var d = arena.drag;
+        var tilt = d ? arenaClamp(d.vx * 0.6, -9, 9) : 0;
+        body.rot += (tilt - body.rot) * 0.25 * k;
+        body.scale += (1.04 - body.scale) * 0.3 * k;
+        cx = body.x + body.w / 2;
+        cy = body.y + body.h / 2;
+        if (distanceToRect(cx, cy, z.q) < 40) hotQ = true;
+        if (distanceToRect(cx, cy, z.s) < 40) hotS = true;
+        renderArenaBody(body);
+        continue;
+      }
+
+      body.scale += (1 - body.scale) * 0.3 * k;
+
+      if (body.expanded) {
+        body.vx *= 0.7;
+        body.vy *= 0.7;
+        body.rot += (0 - body.rot) * 0.2 * k;
+      } else if (body.mode === "thrown") {
+        body.vy += g * 0.5 * k;
+        cx = body.x + body.w / 2;
+        cy = body.y + body.h / 2;
+        var dq = distanceToRect(cx, cy, z.q);
+        var ds = distanceToRect(cx, cy, z.s);
+        var magnet = dq <= ds ? z.q : z.s;
+        var dist = Math.min(dq, ds);
+        if (dist < ARENA_MAGNET_RANGE) {
+          var pull = 0.018 * (1 - dist / ARENA_MAGNET_RANGE) * k;
+          body.vx += (magnet.x + magnet.w / 2 - cx) * pull;
+          body.vy += (magnet.y + magnet.h / 2 - cy) * pull;
+          if (magnet === z.q) hotQ = true;
+          else hotS = true;
+        }
+        body.vx *= Math.pow(0.988, k);
+        body.vy *= Math.pow(0.988, k);
+      } else {
+        body.vy += g * k;
+        if (arena.gravity === "zero" && !arena.reducedMotion) {
+          body.vx += (Math.random() - 0.5) * 0.03 * k;
+          body.vy += (Math.random() - 0.5) * 0.03 * k;
+          var speed = Math.hypot(body.vx, body.vy);
+          if (speed > 1.6) {
+            body.vx *= Math.pow(0.97, k);
+            body.vy *= Math.pow(0.97, k);
+          }
+        } else {
+          body.vx *= Math.pow(0.985, k);
+          body.vy *= Math.pow(0.992, k);
+        }
+      }
+
+      body.x += body.vx * k;
+      body.y += body.vy * k;
+      body.rot += body.vRot * k;
+      body.vRot *= Math.pow(0.96, k);
+      if (!arena.reducedMotion) body.rot += (0 - body.rot) * 0.01 * k;
+      else body.rot = 0;
+
+      if (body.mode === "thrown") {
+        var hit = arenaZoneHit(body);
+        if (hit) {
+          classifyArenaBody(body, hit === "q");
+          renderArenaBody(body);
+          continue;
+        }
+
+        var minTX = 4;
+        var maxTX = z.w - body.w - 4;
+        var minTY = 4;
+        var maxTY = z.h - body.h - 4;
+        if (body.x < minTX) { body.x = minTX; body.vx = Math.abs(body.vx) * 0.6; }
+        else if (body.x > maxTX) { body.x = maxTX; body.vx = -Math.abs(body.vx) * 0.6; }
+        if (body.y < minTY) { body.y = minTY; body.vy = Math.abs(body.vy) * 0.6; }
+        else if (body.y > maxTY) { body.y = maxTY; body.vy = -Math.abs(body.vy) * 0.6; }
+
+        if (now - body.thrownAt > ARENA_THROW_MS || Math.hypot(body.vx, body.vy) < 1.1) {
+          body.mode = "free";
+        }
+      } else {
+        var minX = z.play.x;
+        var maxX = Math.max(minX, z.play.x + z.play.w - body.w);
+        var minY = z.play.y;
+        var maxY = Math.max(minY, z.play.y + z.play.h - body.h);
+        var bounce = arena.gravity === "zero" ? 0.9 : 0.45;
+
+        if (body.x < minX) {
+          var gapL = minX - body.x;
+          body.x += gapL > 3 ? gapL * 0.22 * k : gapL;
+          body.vx = Math.abs(body.vx) * bounce;
+        } else if (body.x > maxX) {
+          var gapR = body.x - maxX;
+          body.x -= gapR > 3 ? gapR * 0.22 * k : gapR;
+          body.vx = -Math.abs(body.vx) * bounce;
+        }
+        if (body.y < minY) {
+          var gapT = minY - body.y;
+          body.y += gapT > 3 ? gapT * 0.22 * k : gapT;
+          body.vy = Math.abs(body.vy) * bounce;
+        } else if (body.y > maxY) {
+          var gapB = body.y - maxY;
+          body.y -= gapB > 3 ? gapB * 0.22 * k : gapB;
+          body.vy = -Math.abs(body.vy) * bounce;
+        }
+      }
+    }
+
+    resolveArenaCollisions();
+
+    for (var r = 0; r < arena.bodies.length; r += 1) {
+      var rb = arena.bodies[r];
+      if (rb.mode !== "absorbing") renderArenaBody(rb);
+    }
+
+    setArenaZoneHot("q", hotQ);
+    setArenaZoneHot("s", hotS);
+
+    for (var f = 0; f < finished.length; f += 1) {
+      finishArenaAbsorb(finished[f]);
+    }
+
+    arena.animId = requestAnimationFrame(updateArenaPhysics);
+  }
+
+  function showArenaSummary() {
+    if (!isArenaOpen()) return;
+    var elSummary = byId("arena-summary");
+    if (!elSummary) return;
+
+    var accuracy = arena.attempts ? Math.round((arena.correct / arena.attempts) * 100) : 0;
+    var title;
+    if (accuracy === 100) title = "Flawless triage";
+    else if (accuracy >= 80) title = "Sharp eyes, analyst";
+    else if (accuracy >= 50) title = "Good start, keep practicing";
+    else title = "Keep training: review the misses";
+
+    var elTitle = byId("arena-summary-title");
+    var elScore = byId("arena-summary-score");
+    var elAcc = byId("arena-summary-accuracy");
+    var elStreak = byId("arena-summary-streak");
+    var elNote = byId("arena-summary-note");
+    var elMissed = byId("arena-summary-missed");
+
+    if (elTitle) elTitle.textContent = title;
+    if (elScore) elScore.textContent = String(arena.score);
+    if (elAcc) elAcc.textContent = accuracy + "%";
+    if (elStreak) elStreak.textContent = String(arena.bestStreak);
+    if (elNote) {
+      elNote.textContent = arena.correct + " of " + arena.attempts + " messages sorted correctly." +
+        (arena.missed.length ? " Messages you missed:" : " No mistakes this round.");
+    }
+
+    if (elMissed) {
+      clearChildren(elMissed);
+      var shown = arena.missed.slice(0, 4);
+      for (var i = 0; i < shown.length; i += 1) {
+        var msg = shown[i];
+        var li = document.createElement("li");
+        li.className = msg.is_phishing ? "is-phishing" : "is-safe";
+        var head = document.createElement("div");
+        head.className = "zg-missed-head";
+        var who = document.createElement("strong");
+        who.textContent = splitArenaSender(msg.sender).name;
+        head.appendChild(who);
+        var tag = document.createElement("span");
+        tag.className = "zg-missed-tag";
+        tag.textContent = msg.is_phishing ? "Was phishing" : "Was safe";
+        head.appendChild(tag);
+        li.appendChild(head);
+        var why = document.createElement("p");
+        why.textContent = arenaReasonText(msg);
+        li.appendChild(why);
+        elMissed.appendChild(li);
+      }
+      elMissed.classList.toggle("hidden", shown.length === 0);
+    }
+
+    elSummary.classList.remove("hidden");
+    var elAgain = byId("arena-play-again-btn");
+    if (elAgain) focusElement(elAgain);
+    announce("Round complete. " + title + ". Accuracy " + accuracy + " percent, score " + arena.score + ".");
+  }
+
+  function clearArenaCards() {
+    for (var i = 0; i < arena.bodies.length; i += 1) {
+      var b = arena.bodies[i];
+      if (b.el && b.el.parentNode) b.el.parentNode.removeChild(b.el);
+      b.el = null;
+    }
+    arena.bodies = [];
+    arena.drag = null;
+    var container = byId("arena-capsules-container");
+    if (container) clearChildren(container);
+  }
+
+  function startArenaRound() {
+    clearArenaCards();
+    if (arena.resultTimer) clearTimeout(arena.resultTimer);
+    var elResult = byId("arena-toast-banner");
+    if (elResult) elResult.classList.add("hidden");
+    var elSummary = byId("arena-summary");
+    if (elSummary) elSummary.classList.add("hidden");
+
+    arena.score = 0;
+    arena.correct = 0;
+    arena.attempts = 0;
+    arena.streak = 0;
+    arena.bestStreak = 0;
+    arena.caught = 0;
+    arena.cleared = 0;
+    arena.missed = [];
+    setArenaZoneHot("q", false);
+    setArenaZoneHot("s", false);
+
+    arena.deck = buildArenaDeck();
+    arena.deckTotal = arena.deck.length;
+
+    var elEmpty = byId("arena-empty");
+    if (elEmpty) elEmpty.classList.toggle("hidden", arena.deckTotal > 0);
+
+    updateArenaStats();
+    if (!arena.deckTotal) return;
+
+    measureArenaZones();
+    var count = Math.min(arenaMaxOnStage(), arena.deck.length);
+    for (var i = 0; i < count; i += 1) {
+      spawnArenaCard();
+    }
   }
 
   function triggerGravitationalPulse() {
+    if (!isArenaOpen()) return;
     playSoundUnlock();
-    for (var i = 0; i < arenaBodies.length; i += 1) {
-      var b = arenaBodies[i];
-      b.vx += (Math.random() - 0.5) * 16;
-      b.vy += (Math.random() - 0.5) * 16;
-      b.vRot += (Math.random() - 0.5) * 4;
+    var stage = byId("arena-stage");
+    var cx = 400;
+    var cy = 260;
+    if (stage) {
+      stage.classList.remove("is-pulsing");
+      void stage.offsetWidth;
+      stage.classList.add("is-pulsing");
+      setTimeout(function () {
+        stage.classList.remove("is-pulsing");
+      }, 700);
+      var rect = stage.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        cx = rect.width / 2;
+        cy = rect.height / 2;
+      }
     }
-    showArenaToast("⚡ GRAVITATIONAL PULSE DISCHARGED!", true);
+    var strength = arena.reducedMotion ? 4 : 14;
+    for (var i = 0; i < arena.bodies.length; i += 1) {
+      var b = arena.bodies[i];
+      if (b.mode !== "free" || b.expanded) continue;
+      var cardCenterX = b.x + (b.w ? b.w / 2 : 110);
+      var cardCenterY = b.y + (b.h ? b.h / 2 : 55);
+      var dx = cardCenterX - cx;
+      var dy = cardCenterY - cy;
+      var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      var nx = dx / dist;
+      var ny = dy / dist;
+      b.vx += nx * strength + (Math.random() - 0.5) * (strength * 0.4);
+      b.vy += ny * strength + (Math.random() - 0.5) * (strength * 0.4);
+      b.vRot += (Math.random() - 0.5) * 3;
+    }
+    announce("Pulse released. Cards pushed apart.");
   }
 
   function setArenaGravityMode(mode) {
-    arenaGravityMode = mode;
+    arena.gravity = mode;
     playSoundInspect();
-    var btnZero = byId("arena-grav-zero");
-    var btnDown = byId("arena-grav-down");
-    var btnUp = byId("arena-grav-up");
-    if (btnZero) btnZero.classList.toggle("is-active", mode === "zero");
-    if (btnDown) btnDown.classList.toggle("is-active", mode === "down");
-    if (btnUp) btnUp.classList.toggle("is-active", mode === "up");
-    announce("Gravity vector: " + mode);
+    var map = { zero: "arena-grav-zero", down: "arena-grav-down", up: "arena-grav-up" };
+    for (var key in map) {
+      if (Object.prototype.hasOwnProperty.call(map, key)) {
+        var btn = byId(map[key]);
+        if (btn) {
+          btn.classList.toggle("is-active", key === mode);
+          btn.setAttribute("aria-pressed", key === mode ? "true" : "false");
+        }
+      }
+    }
+    if (mode === "zero" && !arena.reducedMotion) {
+      for (var i = 0; i < arena.bodies.length; i += 1) {
+        var b = arena.bodies[i];
+        if (b.mode === "free" && !b.expanded) {
+          b.vx += (Math.random() - 0.5) * 1.6;
+          b.vy += (Math.random() - 0.5) * 1.6;
+        }
+      }
+    }
+    var labels = { zero: "zero gravity, cards float", down: "falling gravity", up: "rising gravity" };
+    announce("Gravity set to " + labels[mode] + ".");
+  }
+
+  function trapArenaFocus(event) {
+    var elModal = byId("arena-modal");
+    if (!elModal) return;
+    var nodes = elModal.querySelectorAll("button:not([disabled]), [tabindex=\"0\"]");
+    var list = [];
+    for (var i = 0; i < nodes.length; i += 1) {
+      if (nodes[i].offsetParent !== null) list.push(nodes[i]);
+    }
+    if (!list.length) return;
+    var first = list[0];
+    var last = list[list.length - 1];
+    var active = document.activeElement;
+    if (event.shiftKey && (active === first || !elModal.contains(active))) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && (active === last || !elModal.contains(active))) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 
   function openArenaModal() {
     var elModal = byId("arena-modal");
     if (!elModal) return;
-    playSoundInspect();
-    elModal.classList.remove("hidden");
-    initArenaBodies();
-    if (!arenaAnimId) {
-      arenaAnimId = requestAnimationFrame(updateArenaPhysics);
+
+    // Opening the sandbox during a live door pauses the run, so the door timer
+    // and the P / S shortcuts can never act on the real message in the background.
+    if (state.screen === "game") {
+      pauseGame();
     }
-    var elClose = byId("arena-close-btn");
-    focusElement(elClose);
-    announce("Opened Zero-G Antigravity Physics Arena.");
+
+    arena.returnFocus = document.activeElement;
+    try {
+      arena.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch (err) {
+      arena.reducedMotion = false;
+    }
+
+    elModal.classList.remove("hidden");
+    playSoundInspect();
+    startArenaRound();
+
+    if (!arena.animId) {
+      arena.lastTs = 0;
+      arena.animId = requestAnimationFrame(updateArenaPhysics);
+    }
+
+    focusElement(byId("arena-close-btn"));
+    announce("Zero-G Arena opened. Practice mode: points here do not change your run score.");
   }
 
   function closeArenaModal() {
     var elModal = byId("arena-modal");
-    if (elModal && !elModal.classList.contains("hidden")) {
-      elModal.classList.add("hidden");
-      if (draggedArenaIndex !== -1 && arenaBodies[draggedArenaIndex]) {
-        arenaBodies[draggedArenaIndex].isDragging = false;
-        if (arenaBodies[draggedArenaIndex].el) {
-          arenaBodies[draggedArenaIndex].el.classList.remove("is-dragging");
-        }
-      }
-      draggedArenaIndex = -1;
-      if (arenaAnimId) {
-        cancelAnimationFrame(arenaAnimId);
-        arenaAnimId = null;
-      }
+    if (!elModal || elModal.classList.contains("hidden")) return;
+
+    elModal.classList.add("hidden");
+    if (arena.animId) {
+      cancelAnimationFrame(arena.animId);
+      arena.animId = null;
     }
+    if (arena.resultTimer) {
+      clearTimeout(arena.resultTimer);
+      arena.resultTimer = null;
+    }
+    clearArenaCards();
+    setArenaZoneHot("q", false);
+    setArenaZoneHot("s", false);
+
+    if (state.screen === "pause" && elPauseResume) {
+      focusElement(elPauseResume);
+    } else if (arena.returnFocus && typeof arena.returnFocus.focus === "function" && document.contains(arena.returnFocus)) {
+      arena.returnFocus.focus();
+    }
+    arena.returnFocus = null;
+  }
+
+  function bindArenaControls() {
+    if (arena.bound) return;
+    arena.bound = true;
+
+    var elClose = byId("arena-close-btn");
+    if (elClose) elClose.addEventListener("click", closeArenaModal);
+    var elFooterClose = byId("arena-footer-close");
+    if (elFooterClose) elFooterClose.addEventListener("click", closeArenaModal);
+    var elSummaryClose = byId("arena-summary-close-btn");
+    if (elSummaryClose) elSummaryClose.addEventListener("click", closeArenaModal);
+
+    var elModal = byId("arena-modal");
+    if (elModal) {
+      elModal.addEventListener("click", function (e) {
+        if (e.target === elModal) closeArenaModal();
+      });
+    }
+
+    var elPulse = byId("arena-pulse-btn");
+    if (elPulse) elPulse.addEventListener("click", triggerGravitationalPulse);
+    var elReset = byId("arena-reset-btn");
+    if (elReset) elReset.addEventListener("click", startArenaRound);
+    var elAgain = byId("arena-play-again-btn");
+    if (elAgain) elAgain.addEventListener("click", startArenaRound);
+
+    var gravity = { "arena-grav-zero": "zero", "arena-grav-down": "down", "arena-grav-up": "up" };
+    Object.keys(gravity).forEach(function (id) {
+      var btn = byId(id);
+      if (btn) {
+        btn.addEventListener("click", function () {
+          setArenaGravityMode(gravity[id]);
+        });
+      }
+    });
+
+    window.addEventListener("pointermove", onArenaPointerMove);
+    window.addEventListener("pointerup", onArenaPointerUp);
+    window.addEventListener("pointercancel", onArenaPointerUp);
+
+    var resizeTimer = null;
+    window.addEventListener("resize", function () {
+      if (!isArenaOpen()) return;
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        measureArenaZones();
+        for (var i = 0; i < arena.bodies.length; i += 1) {
+          measureArenaBody(arena.bodies[i]);
+        }
+      }, 120);
+    });
   }
 
   /* ---------- Security Threat Encyclopedia (12 Vectors) ---------- */
@@ -3286,7 +4104,17 @@
 
     for (var i = 0; i < quotes.length; i += 1) {
 
-      var q = quotes[i];
+      var item = quotes[i];
+
+      if (!item) {
+
+        continue;
+
+      }
+
+      var q = typeof item === "string" ? item : item.quote;
+
+      var qIndex = typeof item === "object" && item !== null ? item.index : null;
 
       if (!q) {
 
@@ -3306,7 +4134,7 @@
 
         }
 
-        intervals.push({ start: idx, end: idx + q.length });
+        intervals.push({ start: idx, end: idx + q.length, index: qIndex });
 
         searchFrom = idx + Math.max(1, q.length);
 
@@ -3354,6 +4182,12 @@
 
           prev.end = curr.end;
 
+          if (!prev.index && curr.index) {
+
+            prev.index = curr.index;
+
+          }
+
         }
 
       } else {
@@ -3382,7 +4216,23 @@
 
       mark.className = "quote-highlight";
 
-      mark.textContent = fullText.slice(range.start, range.end);
+      if (range.index) {
+
+        mark.setAttribute("data-flag-index", String(range.index));
+
+        var marker = document.createElement("span");
+
+        marker.className = "flag-marker-badge";
+
+        marker.textContent = String(range.index);
+
+        marker.setAttribute("aria-hidden", "true");
+
+        mark.appendChild(marker);
+
+      }
+
+      mark.appendChild(document.createTextNode(fullText.slice(range.start, range.end)));
 
       container.appendChild(mark);
 
@@ -3428,29 +4278,53 @@
 
       state.screen === "game" || state.screen === "pause" || state.screen === "failed";
 
+    var doorNames = ["Email", "SMS", "Chat"];
+
     for (var i = 0; i < LEVEL_COUNT; i += 1) {
 
       var doorLevel = i + 1;
 
       var badge = elDoorBadges[i];
 
-      badge.classList.remove("door-active", "door-unlocked");
+      if (!badge) continue;
+
+      badge.classList.remove("door-active", "door-unlocked", "door-locked");
+
+      badge.removeAttribute("aria-current");
+
+      var stateSpan = badge.querySelector(".door-step-state");
+
+      var statusText = "LOCKED";
 
       if (inDoor && doorLevel === state.level) {
 
         badge.classList.add("door-active");
 
-        badge.textContent = "DOOR " + doorLevel + " · ACTIVE";
+        badge.setAttribute("aria-current", "step");
+
+        statusText = "ACTIVE";
 
       } else if (doorLevel <= state.clearedDoors) {
 
         badge.classList.add("door-unlocked");
 
-        badge.textContent = "DOOR " + doorLevel + " · UNLOCKED";
+        statusText = "CLEARED";
 
       } else {
 
-        badge.textContent = "DOOR " + doorLevel + " · LOCKED";
+        badge.classList.add("door-locked");
+
+        statusText = "LOCKED";
+
+      }
+
+      if (stateSpan) {
+
+        stateSpan.textContent = " · " + statusText;
+
+      } else {
+
+        badge.textContent = "0" + doorLevel + " " + doorNames[i] + " · " + statusText;
 
       }
 
@@ -3576,31 +4450,68 @@
 
   /* ---------- HUD ---------- */
 
-
-
   function updateHud() {
 
     var totalInLevel = state.levelQueue.length || 6;
 
     elHudLevel.textContent = state.level + " / " + LEVEL_COUNT;
 
-    elHudProgress.textContent = state.currentIndex + 1 + " / " + totalInLevel;
+    elHudProgress.textContent = (state.currentIndex + 1) + " / " + totalInLevel;
 
     elHudTimer.textContent = state.timeLeft + "s";
 
     elHudTimer.classList.toggle("timer-low", state.timeLeft <= 20);
 
-
-
-    var hearts = "";
-
-    for (var i = 0; i < INITIAL_LIVES; i += 1) {
-
-      hearts += i < state.lives ? "♥" : "♡";
-
+    // Segmented Queue Progress Bar
+    var elQueueSegments = byId("hud-queue-segments");
+    if (elQueueSegments) {
+      clearChildren(elQueueSegments);
+      for (var s = 0; s < totalInLevel; s += 1) {
+        var seg = document.createElement("div");
+        seg.className = "queue-segment";
+        if (s < state.currentDoorAnswers.length) {
+          var ans = state.currentDoorAnswers[s];
+          seg.classList.add(ans.isCorrect ? "segment-correct" : "segment-wrong");
+        } else if (s === state.currentIndex) {
+          seg.classList.add("segment-current");
+        } else {
+          seg.classList.add("segment-pending");
+        }
+        elQueueSegments.appendChild(seg);
+      }
     }
 
-    elHudLives.textContent = hearts;
+    // Circular Countdown Ring & CSS Custom Property
+    var timerPct = Math.max(0, Math.min(100, Math.round((state.timeLeft / LEVEL_DURATION_SECONDS) * 100)));
+    if (elTerminalView) {
+      elTerminalView.style.setProperty("--gp-timer-pct", String(timerPct));
+    }
+    var timerWrap = document.querySelector(".hud-timer-wrap");
+    if (timerWrap) {
+      timerWrap.classList.remove("timer-ok", "timer-warn", "timer-danger", "timer-paused");
+      if (state.phase === "feedback") {
+        timerWrap.classList.add("timer-paused");
+      } else if (state.timeLeft <= 10) {
+        timerWrap.classList.add("timer-danger");
+      } else if (state.timeLeft <= 30) {
+        timerWrap.classList.add("timer-warn");
+      } else {
+        timerWrap.classList.add("timer-ok");
+      }
+    }
+
+    // Screen reader announcement strictly at 30s and 10s only
+    if (state.phase === "question") {
+      if (state.timeLeft === 30 && state.lastAnnouncedSec !== 30) {
+        state.lastAnnouncedSec = 30;
+        announce("30 seconds remaining on Door " + state.level);
+      } else if (state.timeLeft === 10 && state.lastAnnouncedSec !== 10) {
+        state.lastAnnouncedSec = 10;
+        announce("10 seconds remaining on Door " + state.level);
+      }
+    }
+
+    elHudLives.textContent = state.lives + " / " + INITIAL_LIVES;
 
     elHudLives.setAttribute(
 
@@ -3610,11 +4521,27 @@
 
     );
 
+    // Visual Shield Icons for Lives
+    var elShieldItems = document.querySelectorAll(".shield-glyph-item");
+    for (var l = 0; l < elShieldItems.length; l += 1) {
+      var item = elShieldItems[l];
+      var isAlive = l < state.lives;
+      item.classList.toggle("shield-alive", isAlive);
+      item.classList.toggle("shield-lost", !isAlive);
+      var useTag = item.querySelector("use");
+      if (useTag) {
+        useTag.setAttribute("href", isAlive ? "#icon-shield" : "#icon-shield-crack");
+      }
+    }
+
     elHudScore.textContent = String(state.score);
 
-
-
     setButtonLabel(elBtnHint, state.hintAvailable ? "HINT (1)" : "HINT (0)", "[H]");
+
+    var elHintPill = byId("hint-count-pill");
+    if (elHintPill) {
+      elHintPill.textContent = state.hintAvailable ? "1" : "0";
+    }
 
     elBtnHint.disabled =
 
@@ -3990,7 +4917,85 @@
 
   /* ---------- Level flow ---------- */
 
+  function renderSenderBlock(senderStr, channel) {
+    clearChildren(elMsgSender);
+    var elAvatar = byId("channel-avatar");
 
+    if (channel === "email") {
+      var nameMatch = senderStr.match(/^([^<]+)<([^>]+)>/);
+      var displayName = nameMatch ? nameMatch[1].trim() : senderStr;
+      var emailAddr = nameMatch ? nameMatch[2].trim() : (senderStr.indexOf("@") !== -1 ? senderStr : "");
+
+      var initials = "EM";
+      var words = displayName.split(/\s+/).filter(Boolean);
+      if (words.length >= 2) {
+        initials = (words[0][0] + words[1][0]).toUpperCase();
+      } else if (words.length === 1 && words[0].length >= 2) {
+        initials = words[0].slice(0, 2).toUpperCase();
+      }
+      if (elAvatar) {
+        elAvatar.textContent = initials;
+      }
+
+      if (nameMatch) {
+        var nameSpan = document.createElement("span");
+        nameSpan.className = "sender-display-name";
+        nameSpan.textContent = displayName + " ";
+        elMsgSender.appendChild(nameSpan);
+
+        var addrSpan = document.createElement("span");
+        addrSpan.className = "sender-address-mono";
+        addrSpan.appendChild(document.createTextNode("<"));
+
+        var atPos = emailAddr.indexOf("@");
+        if (atPos !== -1) {
+          addrSpan.appendChild(document.createTextNode(emailAddr.slice(0, atPos + 1)));
+          var domSpan = document.createElement("span");
+          domSpan.className = "sender-domain-highlight";
+          domSpan.textContent = emailAddr.slice(atPos + 1);
+          addrSpan.appendChild(domSpan);
+        } else {
+          addrSpan.appendChild(document.createTextNode(emailAddr));
+        }
+        addrSpan.appendChild(document.createTextNode(">"));
+        elMsgSender.appendChild(addrSpan);
+      } else {
+        var atPos2 = senderStr.indexOf("@");
+        if (atPos2 !== -1) {
+          elMsgSender.appendChild(document.createTextNode(senderStr.slice(0, atPos2 + 1)));
+          var domSpan2 = document.createElement("span");
+          domSpan2.className = "sender-domain-highlight";
+          domSpan2.textContent = senderStr.slice(atPos2 + 1);
+          elMsgSender.appendChild(domSpan2);
+        } else {
+          elMsgSender.appendChild(document.createTextNode(senderStr));
+        }
+      }
+    } else if (channel === "sms") {
+      if (elAvatar) {
+        elAvatar.textContent = "SMS";
+      }
+      var smsSpan = document.createElement("span");
+      smsSpan.className = "sms-sender-badge";
+      smsSpan.textContent = senderStr;
+      elMsgSender.appendChild(smsSpan);
+    } else {
+      if (elAvatar) {
+        var cWords = senderStr.split(/\s+/).filter(Boolean);
+        var cInit = cWords.length >= 2 ? (cWords[0][0] + cWords[1][0]).toUpperCase() : senderStr.slice(0, 2).toUpperCase();
+        elAvatar.textContent = cInit;
+      }
+      var onlineDot = document.createElement("span");
+      onlineDot.className = "chat-online-dot";
+      onlineDot.setAttribute("aria-hidden", "true");
+      elMsgSender.appendChild(onlineDot);
+
+      var chatSpan = document.createElement("span");
+      chatSpan.className = "chat-sender-name";
+      chatSpan.textContent = senderStr;
+      elMsgSender.appendChild(chatSpan);
+    }
+  }
 
   function getCurrentMessage() {
 
@@ -4018,9 +5023,14 @@
 
 
 
-    elMessageTerminal.classList.remove("channel-email", "channel-sms", "channel-chat");
+    elMessageTerminal.classList.remove("channel-email", "channel-sms", "channel-chat", "resolution-correct-glow", "resolution-wrong-shake");
 
     elMessageTerminal.classList.add("channel-" + msg.channel);
+
+    // Subtle inspection scanline trigger
+    elMessageTerminal.classList.remove("message-inspect-scan");
+    void elMessageTerminal.offsetWidth;
+    elMessageTerminal.classList.add("message-inspect-scan");
 
 
 
@@ -4040,13 +5050,13 @@
 
     } else {
 
-      elSenderLabel.textContent = "";
+      elSenderLabel.textContent = "Chat:";
 
     }
 
 
 
-    renderTextWithHighlights(elMsgSender, msg.sender, []);
+    renderSenderBlock(msg.sender, msg.channel);
 
 
 
@@ -4067,6 +5077,32 @@
 
 
     renderTextWithHighlights(elMsgBody, msg.body, []);
+
+    // Detect file attachments in message body
+    var elAttWrap = byId("msg-attachments-wrap");
+    var elAttName = byId("attachment-chip-name");
+    if (elAttWrap && elAttName) {
+      var fileMatch = msg.body.match(/\b([a-zA-Z0-9_-]+\.(?:apk|zip|rar|exe|scr|iso|pdf|docx?|xlsx?))\b/i);
+      if (fileMatch) {
+        elAttName.textContent = fileMatch[1];
+        elAttWrap.classList.remove("hidden");
+      } else {
+        elAttWrap.classList.add("hidden");
+      }
+    }
+
+    // Microcopy confidence nudge
+    var nudges = [
+      "Inspect the sender address and root domain carefully",
+      "Is there artificial pressure, urgency, or an extreme deadline?",
+      "Check if the link matches the authentic service",
+      "Legitimate entities never ask for confidential OTPs or passwords",
+      "Verify unexpected requests via established out-of-band channels"
+    ];
+    var elNudgeText = byId("decision-nudge-text");
+    if (elNudgeText) {
+      elNudgeText.textContent = nudges[state.currentIndex % nudges.length];
+    }
 
 
 
@@ -4258,6 +5294,45 @@
 
     elFailedReason.textContent = reasonText;
 
+    // Constructive practice focus card
+    var elPracticeContent = byId("failed-practice-content");
+    if (elPracticeContent) {
+      clearChildren(elPracticeContent);
+      var missedCats = Object.keys(state.missedCategories);
+      if (missedCats.length > 0) {
+        for (var mc = 0; mc < Math.min(2, missedCats.length); mc += 1) {
+          var mCat = missedCats[mc];
+          var pItem = document.createElement("div");
+          pItem.className = "practice-item";
+          var pStrong = document.createElement("strong");
+          pStrong.textContent = formatCategory(mCat) + ": ";
+          pItem.appendChild(pStrong);
+
+          var pAdvice = document.createElement("span");
+          pAdvice.textContent = mCat === "fake_domain"
+            ? "Inspect the full root domain before acting. Scammers use lookalike suffixes."
+            : mCat === "urgency"
+            ? "Severe deadlines or pressure tactics are crafted to rush you past red flags."
+            : mCat === "sensitive_data"
+            ? "Legitimate support never asks for confidential OTPs, passwords, or PINs."
+            : mCat === "malicious_attachment"
+            ? "Never install APKs, SCRs, or unverified executables distributed in messages."
+            : "Look for artificial pressure and unverified external destinations.";
+          pItem.appendChild(pAdvice);
+          elPracticeContent.appendChild(pItem);
+        }
+      } else {
+        var defItem = document.createElement("div");
+        defItem.className = "practice-item";
+        var defSpan = document.createElement("span");
+        defSpan.textContent = reason === "time"
+          ? "Scan sender addresses and root domains first to speed up classification."
+          : "Examine sender root domains carefully; legitimate alerts tell you to check official apps.";
+        defItem.appendChild(defSpan);
+        elPracticeContent.appendChild(defItem);
+      }
+    }
+
     elFailedNote.textContent =
 
       "Retrying restarts Door " +
@@ -4329,6 +5404,35 @@
     elUnlockedBonus.textContent = "+" + timeBonus;
 
     elUnlockedTotal.textContent = String(state.score);
+
+    // Mini "what you mastered" line
+    var doorAnswers = state.committedRunAnswers[state.level] || [];
+    var masteredCats = [];
+    for (var a = 0; a < doorAnswers.length; a += 1) {
+      var item = doorAnswers[a];
+      if (item.isCorrect && item.message.is_phishing && item.message.red_flags) {
+        for (var r = 0; r < item.message.red_flags.length; r += 1) {
+          var cName = formatCategory(item.message.red_flags[r].category);
+          if (masteredCats.indexOf(cName) === -1) {
+            masteredCats.push(cName);
+          }
+        }
+      }
+    }
+    var elMastery = byId("unlocked-mastery");
+    if (elMastery) {
+      clearChildren(elMastery);
+      if (masteredCats.length > 0) {
+        var mLabel = document.createElement("span");
+        mLabel.className = "mastery-tag-label";
+        mLabel.textContent = "PATTERNS NEUTRALIZED: ";
+        elMastery.appendChild(mLabel);
+        var mContent = document.createElement("span");
+        mContent.className = "mastery-tag-list";
+        mContent.textContent = masteredCats.slice(0, 3).join(" · ");
+        elMastery.appendChild(mContent);
+      }
+    }
 
 
 
@@ -4698,23 +5802,50 @@
 
     updateHud();
 
+    // Pulse / glow feedback on message card
+    elMessageTerminal.classList.remove("resolution-correct-glow", "resolution-wrong-shake");
+    if (isCorrect) {
+      elMessageTerminal.classList.add("resolution-correct-glow");
+    } else {
+      elMessageTerminal.classList.add("resolution-wrong-shake");
+    }
 
+    // Points / Lives delta chip
+    var elDeltaChip = byId("feedback-delta-chip");
+    if (elDeltaChip) {
+      elDeltaChip.textContent = isCorrect ? "+100 PTS" : "-1 LIFE";
+      elDeltaChip.className = "feedback-delta-chip " + (isCorrect ? "chip-safe" : "chip-danger");
+    }
 
-    var allQuotes = msg.red_flags.map(function (flag) {
+    // Float-up score chip on correct
+    if (isCorrect) {
+      var floatChip = byId("hud-score-chip");
+      if (floatChip) {
+        floatChip.classList.remove("hidden");
+        floatChip.classList.remove("chip-animate");
+        void floatChip.offsetWidth;
+        floatChip.classList.add("chip-animate");
+        setTimeout(function () {
+          floatChip.classList.add("hidden");
+        }, 1000);
+      }
+    }
 
-      return flag.quote;
+    var flaggedQuotes = msg.is_phishing && msg.red_flags
+      ? msg.red_flags.map(function (flag, idx) {
+          return { quote: flag.quote, index: idx + 1 };
+        })
+      : [];
 
-    });
-
-    renderTextWithHighlights(elMsgSender, msg.sender, allQuotes);
+    renderTextWithHighlights(elMsgSender, msg.sender, flaggedQuotes);
 
     if (msg.channel === "email" && msg.subject) {
 
-      renderTextWithHighlights(elMsgSubject, msg.subject, allQuotes);
+      renderTextWithHighlights(elMsgSubject, msg.subject, flaggedQuotes);
 
     }
 
-    renderTextWithHighlights(elMsgBody, msg.body, allQuotes);
+    renderTextWithHighlights(elMsgBody, msg.body, flaggedQuotes);
 
 
 
@@ -4724,11 +5855,9 @@
 
 
 
-    var verdictText = isCorrect
-
-      ? "CORRECT CLASSIFICATION (+100 PTS)"
-
-      : "INCORRECT CLASSIFICATION (-1 LIFE)";
+    var verdictHeadline = isCorrect
+      ? (msg.is_phishing ? "Correct — it's phishing" : "Correct — this message is safe")
+      : (msg.is_phishing ? "Security breach — this was phishing" : "False alarm — this message was safe");
 
     var actualNature = msg.is_phishing
 
@@ -4746,7 +5875,7 @@
 
 
 
-    elFeedbackVerdict.textContent = verdictText;
+    elFeedbackVerdict.textContent = verdictHeadline;
 
     elFeedbackSubtitle.textContent = actualNature;
 
@@ -4762,9 +5891,27 @@
 
         var flag = msg.red_flags[f];
 
+        var flagIdx = f + 1;
+
         var li = document.createElement("li");
 
+        li.className = "flag-card-item";
 
+        li.setAttribute("data-flag-index", String(flagIdx));
+
+        li.setAttribute("tabindex", "0");
+
+        var badge = document.createElement("span");
+
+        badge.className = "flag-num-badge";
+
+        badge.textContent = String(flagIdx);
+
+        li.appendChild(badge);
+
+        var cardContent = document.createElement("div");
+
+        cardContent.className = "flag-card-content";
 
         var catTag = document.createElement("span");
 
@@ -4800,9 +5947,7 @@
 
         })(flag.category);
 
-        li.appendChild(catTag);
-
-
+        cardContent.appendChild(catTag);
 
         var quoteSpan = document.createElement("span");
 
@@ -4810,11 +5955,43 @@
 
         quoteSpan.textContent = '"' + flag.quote + '"';
 
-        li.appendChild(quoteSpan);
+        cardContent.appendChild(quoteSpan);
 
+        var explSpan = document.createElement("span");
 
+        explSpan.className = "flag-explanation-text";
 
-        li.appendChild(document.createTextNode("— " + flag.explanation));
+        explSpan.textContent = " — " + flag.explanation;
+
+        cardContent.appendChild(explSpan);
+
+        li.appendChild(cardContent);
+
+        (function (itemLi, idxNum) {
+
+          function setLinkedHighlight(active) {
+
+            itemLi.classList.toggle("flag-item-active", active);
+
+            var marks = elMessageTerminal.querySelectorAll('mark[data-flag-index="' + idxNum + '"]');
+
+            for (var m = 0; m < marks.length; m += 1) {
+
+              marks[m].classList.toggle("flag-highlight-active", active);
+
+            }
+
+          }
+
+          itemLi.addEventListener("mouseenter", function () { setLinkedHighlight(true); });
+
+          itemLi.addEventListener("mouseleave", function () { setLinkedHighlight(false); });
+
+          itemLi.addEventListener("focus", function () { setLinkedHighlight(true); });
+
+          itemLi.addEventListener("blur", function () { setLinkedHighlight(false); });
+
+        })(li, flagIdx);
 
         elFeedbackList.appendChild(li);
 
@@ -4828,7 +6005,23 @@
 
         var safeLi = document.createElement("li");
 
-        safeLi.textContent = msg.safe_signals[s];
+        safeLi.className = "safe-signal-card";
+
+        var safeBadge = document.createElement("span");
+
+        safeBadge.className = "safe-num-badge";
+
+        safeBadge.textContent = "✓";
+
+        safeLi.appendChild(safeBadge);
+
+        var safeContent = document.createElement("div");
+
+        safeContent.className = "safe-card-content";
+
+        safeContent.textContent = msg.safe_signals[s];
+
+        safeLi.appendChild(safeContent);
 
         elFeedbackList.appendChild(safeLi);
 
@@ -4874,7 +6067,7 @@
 
 
 
-    announce(verdictText + ". " + actualNature + " Tip: " + msg.tip);
+    announce(verdictHeadline + ". " + actualNature + " Tip: " + msg.tip);
     if (window.innerWidth <= 640 && elFeedbackPanel && typeof elFeedbackPanel.scrollIntoView === "function") {
       setTimeout(function () {
         elFeedbackPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -4982,6 +6175,37 @@
     elEndBestScore.textContent = String(best);
 
     elEndMissedCategory.textContent = mostMissed;
+
+    // Analyst rank calculation based on run accuracy
+    var runAnswers = [];
+    var dKeys = Object.keys(state.committedRunAnswers);
+    for (var dk = 0; dk < dKeys.length; dk += 1) {
+      runAnswers = runAnswers.concat(state.committedRunAnswers[dKeys[dk]]);
+    }
+    var totalQuestions = runAnswers.length;
+    var correctCount = 0;
+    for (var rc = 0; rc < runAnswers.length; rc += 1) {
+      if (runAnswers[rc].isCorrect) correctCount += 1;
+    }
+    var accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 100;
+
+    var elRank = byId("end-analyst-rank");
+    if (elRank) {
+      if (accuracy >= 95) {
+        elRank.textContent = "THREAT HUNTER (LEVEL 4)";
+      } else if (accuracy >= 80) {
+        elRank.textContent = "SENIOR SOC ANALYST (LEVEL 3)";
+      } else if (accuracy >= 65) {
+        elRank.textContent = "CYBER DEFENSE ANALYST (LEVEL 2)";
+      } else {
+        elRank.textContent = "SOC TRIAGE OPERATOR (LEVEL 1)";
+      }
+    }
+
+    var elRibbon = byId("end-new-best-ribbon");
+    if (elRibbon) {
+      elRibbon.classList.toggle("hidden", state.score < best);
+    }
 
 
 
@@ -5265,6 +6489,13 @@
 
     clearChildren(elEndCategoryAccuracy);
 
+    // Sort weakest performance first (lowest percentage)
+    catKeys.sort(function (a, b) {
+      var pctA = catStats[a].total === 0 ? 101 : (catStats[a].caught / catStats[a].total);
+      var pctB = catStats[b].total === 0 ? 101 : (catStats[b].caught / catStats[b].total);
+      return pctA - pctB;
+    });
+
     for (var k = 0; k < catKeys.length; k += 1) {
 
       var catKey = catKeys[k];
@@ -5297,6 +6528,8 @@
 
 
 
+      var pct = stats.total === 0 ? 0 : Math.round((stats.caught / stats.total) * 100);
+
       if (stats.total === 0) {
 
         badgeSpan.textContent = "0 TESTED";
@@ -5304,8 +6537,6 @@
         badgeSpan.classList.add("badge-neutral");
 
       } else {
-
-        var pct = Math.round((stats.caught / stats.total) * 100);
 
         badgeSpan.textContent = pct + "% (" + stats.caught + "/" + stats.total + ")";
 
@@ -5328,6 +6559,18 @@
       titleDiv.appendChild(badgeSpan);
 
       card.appendChild(titleDiv);
+
+      // Horizontal Bar Track & Fill with --pct custom property
+      var barTrack = document.createElement("div");
+      barTrack.className = "cat-bar-track";
+      var barFill = document.createElement("div");
+      barFill.className = "cat-bar-fill";
+      barFill.style.setProperty("--pct", pct + "%");
+      if (stats.total > 0) {
+        barFill.classList.add(pct === 100 ? "bar-safe" : pct >= 50 ? "bar-warn" : "bar-danger");
+      }
+      barTrack.appendChild(barFill);
+      card.appendChild(barTrack);
 
 
 
@@ -5551,6 +6794,14 @@
 
 
 
+  function pulseButton(btn) {
+    if (!btn) return;
+    btn.classList.add("btn-pressed");
+    setTimeout(function () {
+      btn.classList.remove("btn-pressed");
+    }, 120);
+  }
+
   function handleKeyDown(event) {
 
     if (event.ctrlKey || event.altKey || event.metaKey) {
@@ -5562,6 +6813,17 @@
 
 
     var key = event.key;
+
+    // While the Zero-G Arena is open, keep every shortcut inside the sandbox.
+    if (isArenaOpen()) {
+      if (key === "Escape" || key === "Esc") {
+        event.preventDefault();
+        closeArenaModal();
+      } else if (key === "Tab") {
+        trapArenaFocus(event);
+      }
+      return;
+    }
 
 
 
@@ -5593,12 +6855,6 @@
 
     if (key === "Escape" || key === "Esc") {
 
-      var arenaModal = byId("arena-modal");
-      if (arenaModal && !arenaModal.classList.contains("hidden")) {
-        event.preventDefault();
-        closeArenaModal();
-        return;
-      }
       var encModal = byId("encyclopedia-modal");
 
       if (encModal && !encModal.classList.contains("hidden")) {
@@ -5706,17 +6962,23 @@
 
         event.preventDefault();
 
+        pulseButton(elBtnPhishing);
+
         submitDecision(true);
 
       } else if (key === "s" || key === "S") {
 
         event.preventDefault();
 
+        pulseButton(elBtnSafe);
+
         submitDecision(false);
 
       } else if (key === "h" || key === "H") {
 
         event.preventDefault();
+
+        pulseButton(elBtnHint);
 
         useHint();
 
@@ -6295,67 +7557,7 @@
     if (elTermArenaBtn) elTermArenaBtn.addEventListener("click", openArenaModal);
     var elMenuArenaBtn = byId("menu-arena-btn");
     if (elMenuArenaBtn) elMenuArenaBtn.addEventListener("click", openArenaModal);
-    var elArenaClose = byId("arena-close-btn");
-    if (elArenaClose) elArenaClose.addEventListener("click", closeArenaModal);
-    var elArenaFooterClose = byId("arena-footer-close");
-    if (elArenaFooterClose) elArenaFooterClose.addEventListener("click", closeArenaModal);
-    var elArenaModal = byId("arena-modal");
-    if (elArenaModal) {
-      elArenaModal.addEventListener("click", function (e) {
-        if (e.target === elArenaModal) closeArenaModal();
-      });
-    }
-    var elPulseBtn = byId("arena-pulse-btn");
-    if (elPulseBtn) elPulseBtn.addEventListener("click", triggerGravitationalPulse);
-    var elResetBtn = byId("arena-reset-btn");
-    if (elResetBtn) elResetBtn.addEventListener("click", initArenaBodies);
-    var elGravZero = byId("arena-grav-zero");
-    if (elGravZero) elGravZero.addEventListener("click", function () { setArenaGravityMode("zero"); });
-    var elGravDown = byId("arena-grav-down");
-    if (elGravDown) elGravDown.addEventListener("click", function () { setArenaGravityMode("down"); });
-    var elGravUp = byId("arena-grav-up");
-    if (elGravUp) elGravUp.addEventListener("click", function () { setArenaGravityMode("up"); });
-
-    // Stage pointer move and up handlers for physics dragging
-    window.addEventListener("mousemove", function (e) {
-      if (draggedArenaIndex === -1) return;
-      var stage = byId("arena-stage");
-      if (!stage) return;
-      var rect = stage.getBoundingClientRect();
-      arenaMousePos.x = e.clientX - rect.left;
-      arenaMousePos.y = e.clientY - rect.top;
-    });
-
-    window.addEventListener("mouseup", function () {
-      if (draggedArenaIndex !== -1) {
-        var b = arenaBodies[draggedArenaIndex];
-        if (b) {
-          b.isDragging = false;
-          if (b.el) b.el.classList.remove("is-dragging");
-        }
-        draggedArenaIndex = -1;
-      }
-    });
-
-    window.addEventListener("touchmove", function (e) {
-      if (draggedArenaIndex === -1) return;
-      var stage = byId("arena-stage");
-      if (!stage || !e.touches || !e.touches[0]) return;
-      var rect = stage.getBoundingClientRect();
-      arenaMousePos.x = e.touches[0].clientX - rect.left;
-      arenaMousePos.y = e.touches[0].clientY - rect.top;
-    }, { passive: true });
-
-    window.addEventListener("touchend", function () {
-      if (draggedArenaIndex !== -1) {
-        var b = arenaBodies[draggedArenaIndex];
-        if (b) {
-          b.isDragging = false;
-          if (b.el) b.el.classList.remove("is-dragging");
-        }
-        draggedArenaIndex = -1;
-      }
-    });
+    bindArenaControls();
 
     if (elSiteBadgesBtn) elSiteBadgesBtn.addEventListener("click", openBadgesModal);
 
@@ -6863,18 +8065,35 @@
 
 
     elBtnPhishing.addEventListener("click", function () {
-
+      pulseButton(elBtnPhishing);
       submitDecision(true);
-
     });
 
     elBtnSafe.addEventListener("click", function () {
-
+      pulseButton(elBtnSafe);
       submitDecision(false);
-
     });
 
-    elBtnHint.addEventListener("click", useHint);
+    elBtnHint.addEventListener("click", function () {
+      pulseButton(elBtnHint);
+      useHint();
+    });
+
+    var elAuditToggle = byId("soc-audit-toggle-btn");
+    var elAuditPanel = byId("soc-audit-panel");
+    if (elAuditToggle && elAuditPanel) {
+      function toggleAuditDrawer() {
+        var isExpanded = elAuditPanel.classList.toggle("is-expanded");
+        elAuditToggle.setAttribute("aria-expanded", isExpanded ? "true" : "false");
+      }
+      elAuditToggle.addEventListener("click", toggleAuditDrawer);
+      elAuditToggle.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggleAuditDrawer();
+        }
+      });
+    }
 
     elBtnContinue.addEventListener("click", continueAfterFeedback);
 
