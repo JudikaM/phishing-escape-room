@@ -21,9 +21,9 @@
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
-  <link rel="stylesheet" href="style.css?v=43">
+  <link rel="stylesheet" href="style.css?v=50">
 
-  <script src="game.js?v=38" defer></script>
+  <script src="game.js?v=44" defer></script>
 
 </head>
 
@@ -2267,6 +2267,23 @@
       <symbol id="icon-heart" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
       </symbol>
+      <symbol id="icon-award" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="6"></circle>
+        <path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path>
+      </symbol>
+      <symbol id="icon-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+      </symbol>
+      <symbol id="icon-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <circle cx="12" cy="12" r="6"></circle>
+        <circle cx="12" cy="12" r="2"></circle>
+      </symbol>
+      <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </symbol>
     </svg>
 
     <div id="svg-templates" class="hidden" aria-hidden="true">
@@ -2932,7 +2949,7 @@
                 <div class="verdict-headings">
                   <div class="verdict-top-meta">
                     <span class="terminal-tag">// triage analysis output</span>
-                    <span id="feedback-delta-chip" class="feedback-delta-chip">+100 PTS</span>
+                    <span id="feedback-delta-chip" class="feedback-delta-chip"></span>
                   </div>
                   <h3 id="feedback-verdict" class="feedback-verdict"></h3>
                 </div>
@@ -3133,8 +3150,8 @@
 
           <div id="failed-practice-card" class="failed-practice-card">
             <div class="practice-card-header">
-              <svg width="16" height="16" aria-hidden="true"><use href="#icon-habit"></use></svg>
-              <strong>// practice focus for this retry:</strong>
+              <svg width="16" height="16" aria-hidden="true"><use href="#icon-lightbulb"></use></svg>
+              <strong>// tactical intelligence for next run:</strong>
             </div>
             <div id="failed-practice-content" class="practice-card-content">
               <span>Inspect the sender's root domain and watch for artificial urgency before taking action.</span>
@@ -3289,6 +3306,11 @@
 
 
           <div class="action-row">
+
+            <button type="button" id="end-cert-btn" class="btn btn-primary end-cert-cta-btn">
+              <svg class="btn-cert-svg" width="16" height="16" aria-hidden="true"><use href="#icon-award"></use></svg>
+              <span>CLAIM ESCAPE CERTIFICATE</span>
+            </button>
 
             <button type="button" id="btn-restart" class="button-with-icon restart-play-btn" aria-label="Play again">
 
@@ -3477,13 +3499,27 @@
 
         </div>
 
-
+        <!-- Mission Completion Certificate Banner -->
+        <div id="badge-cert-banner" class="badge-cert-banner">
+          <div class="badge-cert-banner-left">
+            <div class="badge-cert-banner-icon">
+              <svg class="cert-award-svg" width="26" height="26" aria-hidden="true"><use href="#icon-award"></use></svg>
+            </div>
+            <div class="badge-cert-banner-text">
+              <span class="dossier-meta">// PRESTIGE RECOGNITION</span>
+              <h3 class="badge-cert-banner-title">Official Mission Clearance Certificate</h3>
+              <p class="badge-cert-banner-desc">Full operational escape credential with your custom call-sign, rank level, and triage accuracy telemetry.</p>
+            </div>
+          </div>
+          <button type="button" id="preview-cert-btn" class="btn btn-primary btn-term-util">
+            <svg class="btn-cert-svg" width="14" height="14" aria-hidden="true"><use href="#icon-award"></use></svg>
+            <span>PREVIEW CERTIFICATE</span>
+          </button>
+        </div>
 
         <!-- Badges Grid -->
 
         <div id="badges-grid" class="badges-grid"></div>
-
-
 
         <!-- Credential Card Canvas Preview Section -->
 
@@ -3501,7 +3537,10 @@
 
             <div class="action-row">
 
-              <button type="button" id="badge-download-btn" class="btn btn-primary btn-term-util">DOWNLOAD PNG CARD</button>
+              <button type="button" id="badge-download-btn" class="btn btn-primary btn-term-util">
+                <svg class="btn-cert-svg" width="14" height="14" aria-hidden="true"><use href="#icon-download"></use></svg>
+                <span>DOWNLOAD PNG</span>
+              </button>
 
               <button type="button" id="badge-preview-close" class="btn btn-outline btn-term-util">HIDE PREVIEW</button>
 

@@ -3014,151 +3014,87 @@
 
 
   var BADGE_DEFINITIONS = [
-
     {
-
       id: "first-responder",
-
       title: "First Responder",
-
       description: "Successfully quarantine and neutralize your first phishing threat in the server room.",
-
       tier: "bronze",
-
+      icon: "#icon-shield-check",
       maxProgress: 1,
-
       hint: "Classify 1 phishing message accurately."
-
     },
-
     {
-
       id: "streak-5",
-
       title: "Hot Trail",
-
       description: "Achieve 5 accurate threat triage decisions in a row without a single error.",
-
       tier: "bronze",
-
+      icon: "#icon-flame",
       maxProgress: 5,
-
       hint: "Maintain a streak of 5 correct decisions."
-
     },
-
     {
-
       id: "streak-10",
-
       title: "Flawless Instinct",
-
       description: "Score 10 accurate decisions in a row without a false alarm or security breach.",
-
       tier: "gold",
-
+      icon: "#icon-sparkles",
       maxProgress: 10,
-
       hint: "Maintain a streak of 10 correct decisions."
-
     },
-
     {
-
       id: "omnichannel-master",
-
       title: "Omnichannel Master",
-
       description: "Successfully triage threats across all 3 channels: Email Gateway, SMS Relay, and Chat Terminal.",
-
       tier: "gold",
-
+      icon: "#icon-chat",
       maxProgress: 3,
-
       hint: "Make at least 1 correct call in Email, SMS, and Chat."
-
     },
-
     {
-
       id: "door-1-cleared",
-
       title: "Gateway Breacher",
-
       description: "Override the first blast door (Door 01 // Crude Scams) and advance deeper into the bay.",
-
       tier: "bronze",
-
+      icon: "#icon-unlock",
       maxProgress: 1,
-
       hint: "Clear Door 01."
-
     },
-
     {
-
       id: "door-2-cleared",
-
       title: "Spear Shield",
-
       description: "Override the second blast door (Door 02 // Spear Phishing) under time pressure.",
-
       tier: "silver",
-
+      icon: "#icon-shield",
       maxProgress: 2,
-
       hint: "Clear Door 02."
-
     },
-
     {
-
       id: "escape-artist",
-
       title: "Containment Override",
-
       description: "Unlock all 3 security blast doors and escape the server room lockdown.",
-
       tier: "platinum",
-
+      icon: "#icon-award",
       maxProgress: 3,
-
       hint: "Clear all 3 security doors."
-
     },
-
     {
-
       id: "score-1000",
-
       title: "SOC Commander",
-
       description: "Achieve a best run score of 1,000+ points through rapid and accurate triage.",
-
       tier: "gold",
-
+      icon: "#icon-target",
       maxProgress: 1000,
-
       hint: "Reach 1,000 points in a run."
-
     },
-
     {
-
       id: "tactical-analyst",
-
       title: "Forensic Sleuth",
-
       description: "Use an analyst hint or complete 12 total accurate classifications during your session.",
-
       tier: "silver",
-
+      icon: "#icon-lightbulb",
       maxProgress: 12,
-
       hint: "Reach 12 accurate decisions or deploy analyst hint."
-
     }
-
   ];
 
 
@@ -3258,27 +3194,17 @@
       var pct = isUnlocked ? 100 : Math.min(100, Math.round((cur / def.maxProgress) * 100));
 
       list.push({
-
         id: def.id,
-
         title: def.title,
-
         description: def.description,
-
         tier: def.tier,
-
+        icon: def.icon || "#icon-shield-check",
         maxProgress: def.maxProgress,
-
         currentProgress: isUnlocked ? def.maxProgress : cur,
-
         progressPercentage: pct,
-
         hint: def.hint,
-
         isUnlocked: isUnlocked,
-
         unlockedAt: state.unlockedBadges[def.id] || ""
-
       });
 
     }
@@ -3415,557 +3341,806 @@
 
 
 
-  function renderCredentialCardCanvas(badge) {
+  var activePreviewMode = "badge"; // "badge" | "certificate"
 
+  function drawChamferedRectPath(ctx, x, y, w, h, cut) {
+    ctx.beginPath();
+    ctx.moveTo(x + cut, y);
+    ctx.lineTo(x + w - cut, y);
+    ctx.lineTo(x + w, y + cut);
+    ctx.lineTo(x + w, y + h - cut);
+    ctx.lineTo(x + w - cut, y + h);
+    ctx.lineTo(x + cut, y + h);
+    ctx.lineTo(x, y + h - cut);
+    ctx.lineTo(x, y + cut);
+    ctx.closePath();
+  }
+
+  function drawSecurityGuillocheLines(ctx, width, height, primaryGlow) {
+    ctx.save();
+    ctx.lineWidth = 1;
+    for (var w = 0; w < 4; w += 1) {
+      ctx.strokeStyle = (w % 2 === 0) ? primaryGlow : "rgba(251, 191, 36, 0.04)";
+      ctx.beginPath();
+      var amp = 40 + w * 16;
+      var freq = 0.006 + w * 0.0018;
+      var phase = w * 1.4;
+      var baseY = 330 + (w - 1.5) * 44;
+      for (var gx = 0; gx <= width; gx += 25) {
+        var gy = baseY + Math.sin(gx * freq + phase) * amp;
+        if (gx === 0) ctx.moveTo(gx, gy);
+        else ctx.lineTo(gx, gy);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function renderMissionCertificateCanvas() {
     var canvas = byId("badge-export-canvas");
-
     if (!canvas || !canvas.getContext) return;
-
     var ctx = canvas.getContext("2d");
-
     if (!ctx) return;
 
+    var width = 1200;
+    var height = 675;
+    var callsignInput = byId("agent-callsign-input");
+    var agentName = (callsignInput && callsignInput.value.trim()) ? callsignInput.value.trim() : "SOC Analyst";
+    var bestScore = Math.max(getBestScore(), state.score);
+    var maxDoors = Math.max(state.clearedDoors, loadClearedDoors());
+    var isEscaped = maxDoors >= 3 || state.phase === "complete";
 
+    // Telemetry accuracy calculation
+    var runAnswers = [];
+    var dKeys = Object.keys(state.committedRunAnswers || {});
+    for (var dk = 0; dk < dKeys.length; dk += 1) {
+      runAnswers = runAnswers.concat(state.committedRunAnswers[dKeys[dk]]);
+    }
+    var totalQuestions = runAnswers.length;
+    var correctCount = 0;
+    for (var rc = 0; rc < runAnswers.length; rc += 1) {
+      if (runAnswers[rc].isCorrect) correctCount += 1;
+    }
+    var accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : (isEscaped ? 100 : 92);
+
+    var rankTitle = "THREAT HUNTER (LEVEL 4)";
+    if (accuracy >= 95 && isEscaped) {
+      rankTitle = "MASTER THREAT HUNTER (LEVEL 4)";
+    } else if (accuracy >= 80) {
+      rankTitle = "SENIOR SOC ANALYST (LEVEL 3)";
+    } else if (accuracy >= 65) {
+      rankTitle = "CYBER DEFENSE ANALYST (LEVEL 2)";
+    } else {
+      rankTitle = "SOC TRIAGE OPERATOR (LEVEL 1)";
+    }
+
+    // Rich Dark Cyber Background
+    var bgGrad = ctx.createLinearGradient(0, 0, width, height);
+    bgGrad.addColorStop(0, "#030712");
+    bgGrad.addColorStop(0.5, "#08142b");
+    bgGrad.addColorStop(1, "#030712");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, width, height);
+
+    // Subtle Micro-Grid
+    ctx.strokeStyle = "rgba(0, 229, 255, 0.04)";
+    ctx.lineWidth = 1;
+    for (var x = 0; x < width; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+    for (var y = 0; y < height; y += 40) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+
+    // Guilloche Security Watermark
+    drawSecurityGuillocheLines(ctx, width, height, "rgba(56, 189, 248, 0.05)");
+
+    // Radial Ambience Glow Behind Crest
+    var radGlow = ctx.createRadialGradient(200, 320, 20, 200, 320, 360);
+    radGlow.addColorStop(0, isEscaped ? "rgba(251, 191, 36, 0.28)" : "rgba(56, 189, 248, 0.22)");
+    radGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = radGlow;
+    ctx.fillRect(0, 0, width, height);
+
+    // Double Outer Chamfered Cyber Frame
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(26, 26, width - 52, height - 52);
+
+    ctx.strokeStyle = isEscaped ? "#f59e0b" : "#38bdf8";
+    ctx.lineWidth = 2.5;
+    drawChamferedRectPath(ctx, 42, 42, width - 84, height - 84, 28);
+    ctx.stroke();
+
+    // Corner L-Bracket Accents
+    var bracketLen = 22;
+    var bOffset = 48;
+    ctx.strokeStyle = isEscaped ? "#fbbf24" : "#00e5ff";
+    ctx.lineWidth = 3;
+    // Top-Left
+    ctx.beginPath();
+    ctx.moveTo(bOffset + bracketLen, bOffset);
+    ctx.lineTo(bOffset, bOffset);
+    ctx.lineTo(bOffset, bOffset + bracketLen);
+    ctx.stroke();
+    // Top-Right
+    ctx.beginPath();
+    ctx.moveTo(width - bOffset - bracketLen, bOffset);
+    ctx.lineTo(width - bOffset, bOffset);
+    ctx.lineTo(width - bOffset, bOffset + bracketLen);
+    ctx.stroke();
+    // Bottom-Left
+    ctx.beginPath();
+    ctx.moveTo(bOffset, height - bOffset - bracketLen);
+    ctx.lineTo(bOffset, height - bOffset);
+    ctx.lineTo(bOffset + bracketLen, height - bOffset);
+    ctx.stroke();
+    // Bottom-Right
+    ctx.beginPath();
+    ctx.moveTo(width - bOffset - bracketLen, height - bOffset);
+    ctx.lineTo(width - bOffset, height - bOffset);
+    ctx.lineTo(width - bOffset, height - bOffset - bracketLen);
+    ctx.stroke();
+
+    // Header Metadata Row
+    ctx.font = "bold 13px monospace";
+    ctx.fillStyle = isEscaped ? "#fbbf24" : "#38bdf8";
+    ctx.fillText("SENTINEL CYBER DEFENSE LABS // INCIDENT COMMAND PROTOCOL", 75, 82);
+
+    ctx.font = "12px monospace";
+    ctx.fillStyle = isEscaped ? "#34d399" : "#94a3b8";
+    ctx.fillText(isEscaped ? "★ SECURITY CLEARANCE: CONFERRED & ACCREDITED ★" : "// DEFENSE EVALUATION IN PROGRESS //", width - 460, 82);
+
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.25)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(75, 100);
+    ctx.lineTo(width - 75, 100);
+    ctx.stroke();
+
+    // Glowing Diamond in center of header rule
+    ctx.fillStyle = isEscaped ? "#fbbf24" : "#38bdf8";
+    ctx.beginPath();
+    ctx.moveTo(width / 2, 94);
+    ctx.lineTo(width / 2 + 6, 100);
+    ctx.lineTo(width / 2, 106);
+    ctx.lineTo(width / 2 - 6, 100);
+    ctx.closePath();
+    ctx.fill();
+
+    // Left Emblem Crest (Grand Cyber Shield)
+    var emblemX = 185;
+    var emblemY = 315;
+
+    // Outer Dashed Tech Ring
+    ctx.save();
+    ctx.strokeStyle = isEscaped ? "rgba(251, 191, 36, 0.45)" : "rgba(56, 189, 248, 0.45)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 6]);
+    ctx.beginPath();
+    ctx.arc(emblemX, emblemY, 92, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+
+    // Inner Solid Ring
+    ctx.strokeStyle = isEscaped ? "#f59e0b" : "#38bdf8";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(emblemX, emblemY, 82, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Multi-Point Cyber Defense Shield
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(emblemX, emblemY - 62);
+    ctx.lineTo(emblemX + 54, emblemY - 32);
+    ctx.lineTo(emblemX + 54, emblemY + 24);
+    ctx.lineTo(emblemX, emblemY + 65);
+    ctx.lineTo(emblemX - 54, emblemY + 24);
+    ctx.lineTo(emblemX - 54, emblemY - 32);
+    ctx.closePath();
+    var shieldGrad = ctx.createLinearGradient(emblemX - 54, emblemY - 62, emblemX + 54, emblemY + 65);
+    shieldGrad.addColorStop(0, "rgba(10, 22, 44, 0.95)");
+    shieldGrad.addColorStop(1, isEscaped ? "rgba(45, 30, 8, 0.95)" : "rgba(8, 30, 50, 0.95)");
+    ctx.fillStyle = shieldGrad;
+    ctx.fill();
+    ctx.strokeStyle = isEscaped ? "#fbbf24" : "#00e5ff";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Center Radiant 8-Point Star
+    ctx.fillStyle = isEscaped ? "#fbbf24" : "#00e5ff";
+    ctx.beginPath();
+    var starR1 = 28;
+    var starR2 = 13;
+    for (var sp = 0; sp < 16; sp += 1) {
+      var sAngle = (sp * Math.PI) / 8;
+      var sr = (sp % 2 === 0) ? starR1 : starR2;
+      var sx = emblemX + sr * Math.cos(sAngle - Math.PI / 2);
+      var sy = emblemY + sr * Math.sin(sAngle - Math.PI / 2);
+      if (sp === 0) ctx.moveTo(sx, sy);
+      else ctx.lineTo(sx, sy);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // Ribbon Under Crest
+    ctx.fillStyle = "rgba(10, 18, 32, 0.92)";
+    ctx.fillRect(emblemX - 80, emblemY + 104, 160, 28);
+    ctx.strokeStyle = isEscaped ? "#fbbf24" : "#38bdf8";
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(emblemX - 80, emblemY + 104, 160, 28);
+
+    ctx.font = "bold 11px monospace";
+    ctx.fillStyle = isEscaped ? "#fbbf24" : "#38bdf8";
+    ctx.textAlign = "center";
+    ctx.fillText(isEscaped ? "★ MISSION CLEARED ★" : "CANDIDATE STAGE", emblemX, emblemY + 122);
+    ctx.textAlign = "left";
+
+    // Certificate Right-Hand Main Content
+    var textX = 325;
+
+    ctx.font = "bold 13px monospace";
+    ctx.fillStyle = isEscaped ? "#34d399" : "#38bdf8";
+    ctx.fillText("OFFICIAL CERTIFICATE OF OPERATIONAL CLEARANCE", textX, 138);
+
+    ctx.font = "12px monospace";
+    ctx.fillStyle = "#94a3b8";
+    ctx.fillText("THIS CREDENTIAL IS OFFICIALLY CONFERRED UPON OPERATOR:", textX, 168);
+
+    // Candidate Name Call-Sign
+    ctx.font = "bold 38px sans-serif";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(agentName.toUpperCase(), textX, 215);
+
+    // Decorative Underline beneath name
+    var nameWidth = Math.min(ctx.measureText(agentName.toUpperCase()).width, 640);
+    var nameLineGrad = ctx.createLinearGradient(textX, 0, textX + nameWidth + 60, 0);
+    nameLineGrad.addColorStop(0, isEscaped ? "#fbbf24" : "#38bdf8");
+    nameLineGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.strokeStyle = nameLineGrad;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(textX, 228);
+    ctx.lineTo(textX + nameWidth + 60, 228);
+    ctx.stroke();
+
+    // Citation Text
+    ctx.font = "15px sans-serif";
+    ctx.fillStyle = "#cbd5e1";
+    ctx.fillText("For demonstrated threat intelligence, decisive triage under emergency lockdown, and successfully", textX, 264);
+    ctx.fillText("bypassing physical containment blast doors within the Sentinel Server Bay facility.", textX, 288);
+
+    // Bento Telemetry Matrix (3 Boxes)
+    var bentoY = 325;
+    var bentoW = 245;
+    var bentoH = 82;
+    var bentoGap = 16;
+
+    var metrics = [
+      {
+        tag: "// OPERATIONAL RANK",
+        val: rankTitle,
+        sub: isEscaped ? "Clearance Level Confirmed" : "Simulation Verified",
+        color: isEscaped ? "#fbbf24" : "#38bdf8"
+      },
+      {
+        tag: "// TRIAGE ACCURACY",
+        val: accuracy + "% PRECISION",
+        sub: correctCount > 0 ? correctCount + "/" + totalQuestions + " Verified Calls" : "Clean Classification",
+        color: "#34d399"
+      },
+      {
+        tag: "// CONTAINMENT OVERRIDE",
+        val: maxDoors + " / 3 DOORS CLEARED",
+        sub: isEscaped ? "Door 01 · Door 02 · Door 03" : "Partial Lockdown Override",
+        color: "#38bdf8"
+      }
+    ];
+
+    for (var m = 0; m < metrics.length; m += 1) {
+      var bx = textX + m * (bentoW + bentoGap);
+      ctx.fillStyle = "rgba(10, 18, 34, 0.88)";
+      ctx.fillRect(bx, bentoY, bentoW, bentoH);
+      ctx.strokeStyle = "rgba(148, 163, 184, 0.22)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(bx, bentoY, bentoW, bentoH);
+
+      ctx.font = "10px monospace";
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillText(metrics[m].tag, bx + 12, bentoY + 22);
+
+      ctx.font = "bold 13px sans-serif";
+      ctx.fillStyle = metrics[m].color;
+      ctx.fillText(metrics[m].val, bx + 12, bentoY + 48);
+
+      ctx.font = "11px monospace";
+      ctx.fillStyle = "#64748b";
+      ctx.fillText(metrics[m].sub, bx + 12, bentoY + 68);
+    }
+
+    // Requirement & Simulator Lore Box
+    var loreY = 428;
+    ctx.fillStyle = "rgba(10, 18, 34, 0.7)";
+    ctx.fillRect(textX, loreY, 767, 54);
+    ctx.strokeStyle = "rgba(56, 189, 248, 0.18)";
+    ctx.strokeRect(textX, loreY, 767, 54);
+
+    ctx.font = "11px monospace";
+    ctx.fillStyle = "#94a3b8";
+    ctx.fillText("FACILITY TELEMETRY: BEST RUN SCORE: " + bestScore + " PTS · RFC 2606 COMPLIANT DEFENSE LAB", textX + 16, loreY + 24);
+    ctx.fillText("EDUCATIONAL SIMULATION DIRECTIVE // ZERO DATA TRANSMISSION TO EXTERNAL SERVERS", textX + 16, loreY + 42);
+
+    // Footer Metadata & Holographic Seal
+    var dateStr = new Date().toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
+
+    ctx.font = "11px monospace";
+    ctx.fillStyle = "#64748b";
+    ctx.fillText("ISSUED UNDER: SENTINEL INCIDENT RESPONSE PROTOCOL · SIMULATION VERIFICATION ENGINE", 75, height - 72);
+    ctx.fillText("AUTHENTICATED: " + dateStr + " · OPERATOR ID: " + generateBadgeHash(agentName).slice(2, 8), 75, height - 54);
+
+    // Holographic Circular Digital Seal (Right Corner)
+    var sealX = width - 180;
+    var sealY = height - 76;
+    var sealR = 40;
+
+    ctx.save();
+    ctx.strokeStyle = isEscaped ? "#f59e0b" : "#38bdf8";
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.arc(sealX, sealY, sealR, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(sealX, sealY, sealR - 6, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // 12 Serration Ticks
+    for (var t = 0; t < 12; t += 1) {
+      var tAng = (t * Math.PI) / 6;
+      ctx.beginPath();
+      ctx.moveTo(sealX + (sealR - 4) * Math.cos(tAng), sealY + (sealR - 4) * Math.sin(tAng));
+      ctx.lineTo(sealX + (sealR + 3) * Math.cos(tAng), sealY + (sealR + 3) * Math.sin(tAng));
+      ctx.stroke();
+    }
+
+    ctx.font = "bold 9px monospace";
+    ctx.fillStyle = isEscaped ? "#fbbf24" : "#00e5ff";
+    ctx.textAlign = "center";
+    ctx.fillText("SENTINEL", sealX, sealY - 10);
+    ctx.fillText("VERIFIED", sealX, sealY + 2);
+    ctx.font = "8px monospace";
+    ctx.fillStyle = "#94a3b8";
+    ctx.fillText("SEC-OPS", sealX, sealY + 14);
+    ctx.restore();
+
+    // Verification Hash Box
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.35)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(width - 325, height - 94, 130, 42);
+    ctx.font = "9px monospace";
+    ctx.fillStyle = "#94a3b8";
+    ctx.fillText("VERIFY HASH:", width - 315, height - 75);
+    ctx.font = "bold 10px monospace";
+    ctx.fillStyle = isEscaped ? "#34d399" : "#38bdf8";
+    ctx.fillText(generateBadgeHash("CERT-" + agentName + "-" + bestScore), width - 315, height - 60);
+  }
+
+  function renderCredentialCardCanvas(badge) {
+    var canvas = byId("badge-export-canvas");
+    if (!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
     var width = 1200;
-
     var height = 675;
-
     var callsignInput = byId("agent-callsign-input");
-
     var agentName = (callsignInput && callsignInput.value.trim()) ? callsignInput.value.trim() : "SOC Analyst";
-
     var bestScore = Math.max(getBestScore(), state.score);
 
-
-
     var tierColors = {
-
       platinum: { primary: "#00e5ff", glow: "rgba(0, 229, 255, 0.35)", label: "PLATINUM CLEARANCE" },
-
       gold: { primary: "#ffb800", glow: "rgba(255, 184, 0, 0.35)", label: "GOLD CLEARANCE" },
-
       silver: { primary: "#b0c4de", glow: "rgba(176, 196, 222, 0.35)", label: "SILVER CLEARANCE" },
-
       bronze: { primary: "#e67e22", glow: "rgba(230, 126, 34, 0.35)", label: "BRONZE CLEARANCE" }
-
     };
-
     var tier = tierColors[badge.tier] || tierColors.bronze;
 
-
-
     // Background gradient
-
     var bgGrad = ctx.createLinearGradient(0, 0, width, height);
-
-    bgGrad.addColorStop(0, "#050912");
-
-    bgGrad.addColorStop(0.5, "#0a1528");
-
-    bgGrad.addColorStop(1, "#050912");
-
+    bgGrad.addColorStop(0, "#030712");
+    bgGrad.addColorStop(0.5, "#09172e");
+    bgGrad.addColorStop(1, "#030712");
     ctx.fillStyle = bgGrad;
-
     ctx.fillRect(0, 0, width, height);
-
-
 
     // Subtle Cyber Grid
-
-    ctx.strokeStyle = "rgba(0, 229, 255, 0.05)";
-
+    ctx.strokeStyle = "rgba(0, 229, 255, 0.04)";
     ctx.lineWidth = 1;
-
     for (var x = 0; x < width; x += 40) {
-
       ctx.beginPath();
-
       ctx.moveTo(x, 0);
-
       ctx.lineTo(x, height);
-
       ctx.stroke();
-
     }
-
     for (var y = 0; y < height; y += 40) {
-
       ctx.beginPath();
-
       ctx.moveTo(0, y);
-
       ctx.lineTo(width, y);
-
       ctx.stroke();
-
     }
 
+    // Security Guilloche wave
+    drawSecurityGuillocheLines(ctx, width, height, tier.glow);
 
-
-    // Radial glow
-
+    // Radial glow behind badge emblem
     var radGlow = ctx.createRadialGradient(200, 320, 20, 200, 320, 340);
-
     radGlow.addColorStop(0, tier.glow);
-
     radGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
-
     ctx.fillStyle = radGlow;
-
     ctx.fillRect(0, 0, width, height);
 
-
-
-    // Borders
-
+    // Chamfered Double Borders
     ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
-
     ctx.lineWidth = 1.5;
-
-    ctx.strokeRect(30, 30, width - 60, height - 60);
-
-
+    ctx.strokeRect(28, 28, width - 56, height - 56);
 
     ctx.strokeStyle = tier.primary;
-
     ctx.lineWidth = 2.5;
-
-    ctx.strokeRect(45, 45, width - 90, height - 90);
-
-
-
-    // Header
-
-    ctx.font = "bold 16px monospace";
-
-    ctx.fillStyle = tier.primary;
-
-    ctx.fillText("SENTINEL: PHISHING ESCAPE ROOM // SOC CONTAINMENT CREDENTIAL", 75, 85);
-
-
-
-    ctx.font = "14px monospace";
-
-    ctx.fillStyle = "#8da4be";
-
-    ctx.fillText("BADGE ID: " + badge.id.toUpperCase(), width - 360, 85);
-
-
-
-    ctx.strokeStyle = "rgba(141, 164, 190, 0.28)";
-
-    ctx.lineWidth = 1;
-
-    ctx.beginPath();
-
-    ctx.moveTo(75, 105);
-
-    ctx.lineTo(width - 75, 105);
-
+    drawChamferedRectPath(ctx, 44, 44, width - 88, height - 88, 24);
     ctx.stroke();
 
+    // Corner L-Bracket Accents
+    var bracketLen = 18;
+    var bOffset = 48;
+    ctx.strokeStyle = tier.primary;
+    ctx.lineWidth = 2.5;
+    // Top-Left
+    ctx.beginPath();
+    ctx.moveTo(bOffset + bracketLen, bOffset);
+    ctx.lineTo(bOffset, bOffset);
+    ctx.lineTo(bOffset, bOffset + bracketLen);
+    ctx.stroke();
+    // Top-Right
+    ctx.beginPath();
+    ctx.moveTo(width - bOffset - bracketLen, bOffset);
+    ctx.lineTo(width - bOffset, bOffset);
+    ctx.lineTo(width - bOffset, bOffset + bracketLen);
+    ctx.stroke();
+    // Bottom-Left
+    ctx.beginPath();
+    ctx.moveTo(bOffset, height - bOffset - bracketLen);
+    ctx.lineTo(bOffset, height - bOffset);
+    ctx.lineTo(bOffset + bracketLen, height - bOffset);
+    ctx.stroke();
+    // Bottom-Right
+    ctx.beginPath();
+    ctx.moveTo(width - bOffset - bracketLen, height - bOffset);
+    ctx.lineTo(width - bOffset, height - bOffset);
+    ctx.lineTo(width - bOffset, height - bOffset - bracketLen);
+    ctx.stroke();
 
+    // Header Row
+    ctx.font = "bold 14px monospace";
+    ctx.fillStyle = tier.primary;
+    ctx.fillText("SENTINEL // TACTICAL CYBER DEFENSE CREDENTIAL", 75, 82);
 
-    // Left Emblem Circle & Hexagon
+    ctx.font = "12px monospace";
+    ctx.fillStyle = "#8da4be";
+    ctx.fillText("BADGE ID: " + badge.id.toUpperCase(), width - 360, 82);
 
+    ctx.strokeStyle = "rgba(141, 164, 190, 0.25)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(75, 100);
+    ctx.lineTo(width - 75, 100);
+    ctx.stroke();
+
+    // Left Emblem: Ornate Faceted Tech Shield Crest
     var emblemX = 185;
-
     var emblemY = 320;
 
-    var emblemR = 88;
-
-
-
+    // Outer Dashed Calibration Ring
+    ctx.save();
     ctx.strokeStyle = tier.primary;
-
-    ctx.lineWidth = 3;
-
-    ctx.beginPath();
-
-    ctx.arc(emblemX, emblemY, emblemR, 0, Math.PI * 2);
-
-    ctx.stroke();
-
-
-
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.45)";
-
     ctx.lineWidth = 1.8;
-
+    ctx.setLineDash([3, 5]);
     ctx.beginPath();
+    ctx.arc(emblemX, emblemY, 90, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
 
-    for (var s = 0; s < 6; s += 1) {
-
-      var angle = (s * Math.PI) / 3;
-
-      var hx = emblemX + (emblemR - 20) * Math.cos(angle);
-
-      var hy = emblemY + (emblemR - 20) * Math.sin(angle);
-
-      if (s === 0) ctx.moveTo(hx, hy);
-
-      else ctx.lineTo(hx, hy);
-
-    }
-
-    ctx.closePath();
-
+    // Inner Solid Ring
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(emblemX, emblemY, 80, 0, Math.PI * 2);
     ctx.stroke();
 
+    // Layered Shield Crest
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(emblemX, emblemY - 58);
+    ctx.lineTo(emblemX + 50, emblemY - 28);
+    ctx.lineTo(emblemX + 50, emblemY + 22);
+    ctx.lineTo(emblemX, emblemY + 60);
+    ctx.lineTo(emblemX - 50, emblemY + 22);
+    ctx.lineTo(emblemX - 50, emblemY - 28);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(8, 16, 32, 0.95)";
+    ctx.fill();
+    ctx.strokeStyle = tier.primary;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
 
-
+    // Center Tier Emblem Glyph
     ctx.fillStyle = tier.primary;
+    ctx.beginPath();
+    var crestR = 24;
+    for (var c = 0; c < 6; c += 1) {
+      var cAngle = (c * Math.PI) / 3;
+      var cx = emblemX + crestR * Math.cos(cAngle);
+      var cy = emblemY + crestR * Math.sin(cAngle);
+      if (c === 0) ctx.moveTo(cx, cy);
+      else ctx.lineTo(cx, cy);
+    }
+    ctx.closePath();
+    ctx.fill();
 
-    ctx.font = "bold 28px monospace";
-
+    ctx.fillStyle = "#030712";
+    ctx.font = "bold 13px monospace";
     ctx.textAlign = "center";
-
     ctx.textBaseline = "middle";
-
     ctx.fillText("SOC", emblemX, emblemY);
-
+    ctx.restore();
     ctx.textAlign = "left";
-
     ctx.textBaseline = "alphabetic";
 
-
-
     // Tier Pill under emblem
-
-    ctx.fillStyle = "rgba(10, 18, 32, 0.9)";
-
-    ctx.fillRect(emblemX - 75, emblemY + emblemR + 16, 150, 28);
-
+    ctx.fillStyle = "rgba(10, 18, 32, 0.92)";
+    ctx.fillRect(emblemX - 75, emblemY + 104, 150, 28);
     ctx.strokeStyle = tier.primary;
-
     ctx.lineWidth = 1;
-
-    ctx.strokeRect(emblemX - 75, emblemY + emblemR + 16, 150, 28);
-
-
+    ctx.strokeRect(emblemX - 75, emblemY + 104, 150, 28);
 
     ctx.font = "bold 11px monospace";
-
     ctx.fillStyle = tier.primary;
-
     ctx.textAlign = "center";
-
-    ctx.fillText(tier.label, emblemX, emblemY + emblemR + 34);
-
+    ctx.fillText(tier.label, emblemX, emblemY + 122);
     ctx.textAlign = "left";
 
-
-
     // Right Content
-
     var textX = 330;
-
     ctx.font = "bold 13px monospace";
-
-    ctx.fillStyle = badge.isUnlocked ? "#00e68a" : "#ffb800";
-
+    ctx.fillStyle = badge.isUnlocked ? "#34d399" : "#fbbf24";
     ctx.fillText(
-
       badge.isUnlocked
-
-        ? "● STATUS: OFFICIALLY UNLOCKED & VERIFIED"
-
+        ? "● STATUS: OFFICIALLY UNLOCKED & ACCREDITED"
         : "○ STATUS: IN PROGRESS (" + badge.currentProgress + "/" + badge.maxProgress + ")",
-
       textX,
-
-      160
-
+      155
     );
-
-
 
     ctx.font = "bold 36px sans-serif";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(badge.title, textX, 208);
 
-    ctx.fillStyle = "#f4f8fc";
-
-    ctx.fillText(badge.title, textX, 210);
-
-
+    // Decorative underline
+    var titleW = Math.min(ctx.measureText(badge.title).width, 680);
+    var tGrad = ctx.createLinearGradient(textX, 0, textX + titleW + 40, 0);
+    tGrad.addColorStop(0, tier.primary);
+    tGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.strokeStyle = tGrad;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(textX, 220);
+    ctx.lineTo(textX + titleW + 40, 220);
+    ctx.stroke();
 
     ctx.font = "16px sans-serif";
-
-    ctx.fillStyle = "#b0c4de";
-
+    ctx.fillStyle = "#cbd5e1";
     var words = badge.description.split(" ");
-
     var line = "";
-
-    var lineY = 260;
-
+    var lineY = 258;
     for (var n = 0; n < words.length; n += 1) {
-
       var testLine = line + words[n] + " ";
-
       if (ctx.measureText(testLine).width > 750 && n > 0) {
-
         ctx.fillText(line, textX, lineY);
-
         line = words[n] + " ";
-
         lineY += 26;
-
       } else {
-
         line = testLine;
-
       }
-
     }
-
     ctx.fillText(line, textX, lineY);
 
-
-
-    // Requirement Box
-
-    var boxY = Math.max(lineY + 32, 340);
-
-    ctx.fillStyle = "rgba(10, 18, 32, 0.85)";
-
-    ctx.fillRect(textX, boxY, 780, 84);
-
-    ctx.strokeStyle = "#1e324f";
-
-    ctx.strokeRect(textX, boxY, 780, 84);
-
-
+    // Requirement Bento Box
+    var boxY = Math.max(lineY + 30, 340);
+    ctx.fillStyle = "rgba(10, 18, 34, 0.88)";
+    ctx.fillRect(textX, boxY, 780, 88);
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.22)";
+    ctx.strokeRect(textX, boxY, 780, 88);
 
     ctx.font = "12px monospace";
-
-    ctx.fillStyle = "#8da4be";
-
+    ctx.fillStyle = "#94a3b8";
     ctx.fillText("REQUIREMENT: " + badge.hint, textX + 20, boxY + 32);
 
-
-
-    ctx.fillStyle = "#f4f8fc";
-
+    ctx.fillStyle = "#f8fafc";
     ctx.font = "bold 13px monospace";
-
     ctx.fillText(
-
       "COMPLETION: " + badge.currentProgress + " / " + badge.maxProgress + " (" + badge.progressPercentage + "%)",
-
       textX + 20,
-
-      boxY + 60
-
+      boxY + 62
     );
 
+    // Progress Bar Track
+    ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+    ctx.fillRect(textX + 380, boxY + 48, 370, 16);
+    ctx.fillStyle = badge.isUnlocked ? "#10b981" : tier.primary;
+    ctx.fillRect(textX + 380, boxY + 48, (370 * badge.progressPercentage) / 100, 16);
 
-
-    ctx.fillStyle = "#1e324f";
-
-    ctx.fillRect(textX + 380, boxY + 46, 370, 16);
-
-    ctx.fillStyle = badge.isUnlocked ? "#00e68a" : tier.primary;
-
-    ctx.fillRect(textX + 380, boxY + 46, (370 * badge.progressPercentage) / 100, 16);
-
-
-
-    // Footer Metadata
-
+    // Footer Metadata (Fictional Lore Compliant - No AI / No Google references)
     var dateStr = badge.unlockedAt || "Active Simulation Session";
-
-    ctx.font = "12px monospace";
-
-    ctx.fillStyle = "#8da4be";
-
+    ctx.font = "11px monospace";
+    ctx.fillStyle = "#64748b";
     ctx.fillText(
-
       "OPERATOR: " + agentName.toUpperCase() + " · BEST SCORE: " + bestScore + " PTS · DOORS CLEARED: " + state.clearedDoors + "/3",
-
       75,
-
-      height - 75
-
+      height - 72
     );
+    ctx.fillText("AUTHENTICATED: " + dateStr + " · SENTINEL INCIDENT COMMAND EVALUATION PROTOCOL", 75, height - 54);
 
-    ctx.fillText("AUTHENTICATED: " + dateStr + " · GOOGLE ANTIGRAVITY SOC ENGINE", 75, height - 54);
-
-
-
-    // Stamp
-
+    // Verification Stamp Box
     ctx.strokeStyle = tier.primary;
-
     ctx.lineWidth = 1.5;
-
-    ctx.strokeRect(width - 320, height - 95, 245, 46);
+    ctx.strokeRect(width - 320, height - 94, 245, 46);
 
     ctx.fillStyle = tier.primary;
-
     ctx.font = "bold 11px monospace";
-
-    ctx.fillText("VERIFIED SOC CREDENTIAL", width - 305, height - 74);
+    ctx.fillText("VERIFIED SOC CREDENTIAL", width - 305, height - 73);
 
     ctx.font = "10px monospace";
-
-    ctx.fillStyle = "#b0c4de";
-
-    ctx.fillText("HASH: " + generateBadgeHash(badge.id + agentName + bestScore), width - 305, height - 58);
-
+    ctx.fillStyle = "#94a3b8";
+    ctx.fillText("HASH: " + generateBadgeHash(badge.id + agentName + bestScore), width - 305, height - 57);
   }
 
-
+  function previewCertificate() {
+    activePreviewMode = "certificate";
+    activePreviewBadge = null;
+    var elSection = byId("badge-preview-section");
+    var elTitle = byId("badge-preview-title");
+    if (!elSection) return;
+    if (elTitle) {
+      elTitle.textContent = "Mission Clearance Certificate — Official Recognition";
+    }
+    elSection.classList.remove("hidden");
+    renderMissionCertificateCanvas();
+    elSection.scrollIntoView({ behavior: "smooth" });
+  }
 
   function previewBadgeCard(badge) {
-
+    activePreviewMode = "badge";
     activePreviewBadge = badge;
-
     var elSection = byId("badge-preview-section");
-
     var elTitle = byId("badge-preview-title");
-
     if (!elSection) return;
-
     if (elTitle) {
-
       elTitle.textContent = badge.title + " — Credential Preview";
-
     }
-
     elSection.classList.remove("hidden");
-
     renderCredentialCardCanvas(badge);
-
     elSection.scrollIntoView({ behavior: "smooth" });
-
   }
 
-
-
   function downloadActiveBadgeCard() {
-
-    if (!activePreviewBadge) return;
-
-    renderCredentialCardCanvas(activePreviewBadge);
-
     var canvas = byId("badge-export-canvas");
-
     if (!canvas || !canvas.toDataURL) return;
 
+    var filename = "phishing-escape-room-mission-certificate.png";
+    if (activePreviewMode === "certificate") {
+      renderMissionCertificateCanvas();
+      filename = "phishing-escape-room-mission-certificate.png";
+    } else if (activePreviewBadge) {
+      renderCredentialCardCanvas(activePreviewBadge);
+      filename = "phishing-escape-room-" + activePreviewBadge.id + "-badge.png";
+    }
+
     try {
-
       var dataUrl = canvas.toDataURL("image/png");
-
       var link = document.createElement("a");
-
-      link.download = "phishing-escape-room-" + activePreviewBadge.id + "-badge.png";
-
+      link.download = filename;
       link.href = dataUrl;
-
       document.body.appendChild(link);
-
       link.click();
-
       document.body.removeChild(link);
-
       playSoundSuccess();
-
-    } catch (e) {}
-
+      announce("Credential exported successfully: " + filename);
+    } catch (e) {
+      announce("Export failed. Please check browser canvas permissions.");
+    }
   }
 
 
 
   function renderBadgesModal() {
-
     var elGrid = byId("badges-grid");
-
     var elSummary = byId("badges-summary-text");
-
     if (!elGrid) return;
 
-
-
     var all = getBadgeProgressList();
-
     var unlockedCount = 0;
-
     for (var i = 0; i < all.length; i += 1) {
-
       if (all[i].isUnlocked) unlockedCount += 1;
-
     }
-
     var pct = Math.round((unlockedCount / all.length) * 100);
-
     if (elSummary) {
-
       elSummary.textContent = unlockedCount + " of " + all.length + " Badges Unlocked (" + pct + "%) · Best Streak: " + state.maxStreak + "x";
-
     }
 
-
+    var maxDoors = Math.max(state.clearedDoors, loadClearedDoors());
+    var elCertBanner = byId("badge-cert-banner");
+    if (elCertBanner) {
+      if (maxDoors >= 3 || state.phase === "complete") {
+        elCertBanner.classList.add("is-unlocked");
+      } else {
+        elCertBanner.classList.remove("is-unlocked");
+      }
+    }
 
     clearChildren(elGrid);
-
     for (var b = 0; b < all.length; b += 1) {
-
       (function (badge) {
-
         var card = document.createElement("article");
-
         card.className = "badge-item-card tier-" + badge.tier + (badge.isUnlocked ? " is-unlocked" : " is-locked");
 
-
-
         var topRow = document.createElement("div");
-
         topRow.className = "badge-item-top";
 
+        var leftTop = document.createElement("div");
+        leftTop.className = "badge-item-top-left";
 
+        var iconWrap = document.createElement("span");
+        iconWrap.className = "badge-item-icon-wrap tier-" + badge.tier;
+        var iconSvg = createSvgUseIcon(badge.icon || "#icon-shield-check", "badge-item-svg", 14, 14);
+        iconWrap.appendChild(iconSvg);
+        leftTop.appendChild(iconWrap);
 
         var tierTag = document.createElement("span");
-
         tierTag.className = "badge-tier-pill tier-" + badge.tier;
-
         tierTag.textContent = badge.tier.toUpperCase();
+        leftTop.appendChild(tierTag);
 
-        topRow.appendChild(tierTag);
-
-
+        topRow.appendChild(leftTop);
 
         var statusTag = document.createElement("span");
-
         statusTag.className = "badge-status-text " + (badge.isUnlocked ? "text-safe" : "text-muted");
-
         statusTag.textContent = badge.isUnlocked ? "✓ UNLOCKED" : "LOCKED (" + badge.currentProgress + "/" + badge.maxProgress + ")";
-
         topRow.appendChild(statusTag);
 
         card.appendChild(topRow);
 
-
-
         var titleH3 = document.createElement("h3");
-
         titleH3.className = "badge-item-title";
-
         titleH3.textContent = badge.title;
-
         card.appendChild(titleH3);
 
-
-
         var descP = document.createElement("p");
-
         descP.className = "badge-item-desc";
-
         descP.textContent = badge.description;
-
         card.appendChild(descP);
-
-
 
         var progWrap = document.createElement("div");
         progWrap.className = "badge-progress-wrap";
@@ -4007,33 +4182,21 @@
         footDiv.appendChild(previewBtn);
 
         card.appendChild(footDiv);
-
         elGrid.appendChild(card);
-
       })(all[b]);
-
     }
 
-
-
-    if (activePreviewBadge) {
-
+    if (activePreviewMode === "certificate") {
+      renderMissionCertificateCanvas();
+    } else if (activePreviewBadge) {
       for (var p = 0; p < all.length; p += 1) {
-
         if (all[p].id === activePreviewBadge.id) {
-
           activePreviewBadge = all[p];
-
           renderCredentialCardCanvas(activePreviewBadge);
-
           break;
-
         }
-
       }
-
     }
-
   }
 
 
@@ -5116,6 +5279,19 @@
 
     elFeedbackPanel.classList.remove("feedback-correct", "feedback-wrong");
 
+    if (elFeedbackVerdict) elFeedbackVerdict.textContent = "";
+
+    if (elFeedbackSubtitle) elFeedbackSubtitle.textContent = "";
+
+    if (elFeedbackTip) elFeedbackTip.textContent = "";
+
+    var curDeltaChip = byId("feedback-delta-chip");
+    if (curDeltaChip) curDeltaChip.textContent = "";
+
+    if (elTerminalView) {
+      elTerminalView.classList.remove("has-feedback");
+    }
+
 
 
     elBtnPhishing.disabled = false;
@@ -5334,20 +5510,7 @@
     }
 
     elFailedNote.textContent =
-
-      "Retrying restarts Door " +
-
-      state.level +
-
-      " from the beginning with a new message order, 120 seconds, " +
-
-      INITIAL_LIVES +
-
-      " lives, and a fresh hint. Your score returns to " +
-
-      state.levelStartScore +
-
-      ".";
+      "↺ RETRY RESET: 120s timer · 3 shields restored · fresh hint ready · reshuffled threat queue";
 
 
 
@@ -5425,11 +5588,16 @@
       if (masteredCats.length > 0) {
         var mLabel = document.createElement("span");
         mLabel.className = "mastery-tag-label";
-        mLabel.textContent = "PATTERNS NEUTRALIZED: ";
+        mLabel.textContent = "PATTERNS NEUTRALIZED:";
         elMastery.appendChild(mLabel);
-        var mContent = document.createElement("span");
+        var mContent = document.createElement("div");
         mContent.className = "mastery-tag-list";
-        mContent.textContent = masteredCats.slice(0, 3).join(" · ");
+        for (var mc = 0; mc < Math.min(4, masteredCats.length); mc += 1) {
+          var chip = document.createElement("span");
+          chip.className = "mastery-chip";
+          chip.textContent = "✓ " + masteredCats[mc];
+          mContent.appendChild(chip);
+        }
         elMastery.appendChild(mContent);
       }
     }
@@ -5439,14 +5607,13 @@
     if (state.level < LEVEL_COUNT) {
 
       elUnlockedNote.textContent =
-
-        "Door " + state.level + " is open. Door " + (state.level + 1) + " is now available.";
+        "✓ ACCESS GRANTED: Door " + state.level + " blast door override complete. Security relay to Door " + (state.level + 1) + " is open.";
 
       setButtonLabel(elUnlockedNext, "NEXT DOOR · DOOR " + (state.level + 1), "[ENTER]");
 
     } else {
 
-      elUnlockedNote.textContent = "The final door is open. Your debrief is ready.";
+      elUnlockedNote.textContent = "✓ ACCESS GRANTED: All containment blast doors overridden. Final clearance debrief ready.";
 
       setButtonLabel(elUnlockedNext, "FINAL DEBRIEF", "[ENTER]");
 
@@ -5853,6 +6020,10 @@
 
     elFeedbackPanel.classList.add(isCorrect ? "feedback-correct" : "feedback-wrong");
 
+    if (elTerminalView) {
+      elTerminalView.classList.add("has-feedback");
+    }
+
 
 
     var verdictHeadline = isCorrect
@@ -6068,10 +6239,10 @@
 
 
     announce(verdictHeadline + ". " + actualNature + " Tip: " + msg.tip);
-    if (window.innerWidth <= 640 && elFeedbackPanel && typeof elFeedbackPanel.scrollIntoView === "function") {
+    if (window.innerWidth <= 768 && elFeedbackPanel && typeof elFeedbackPanel.scrollIntoView === "function") {
       setTimeout(function () {
         elFeedbackPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }, 60);
+      }, 50);
     }
 
     focusElement(elBtnContinue);
@@ -7567,6 +7738,22 @@
 
     if (elEndBadgesBtn) elEndBadgesBtn.addEventListener("click", openBadgesModal);
 
+    var elEndCertBtn = byId("end-cert-btn");
+    if (elEndCertBtn) {
+      elEndCertBtn.addEventListener("click", function () {
+        openBadgesModal();
+        previewCertificate();
+      });
+    }
+
+    var elPreviewCertBtn = byId("preview-cert-btn");
+    if (elPreviewCertBtn) {
+      elPreviewCertBtn.addEventListener("click", function () {
+        playSoundInspect();
+        previewCertificate();
+      });
+    }
+
 
 
     var elBadgesClose = byId("badges-close-btn");
@@ -7617,13 +7804,13 @@
     var elCallsignInput = byId("agent-callsign-input");
 
     if (elCallsignInput) {
-
       elCallsignInput.addEventListener("input", function () {
-
-        if (activePreviewBadge) renderCredentialCardCanvas(activePreviewBadge);
-
+        if (activePreviewMode === "certificate") {
+          renderMissionCertificateCanvas();
+        } else if (activePreviewBadge) {
+          renderCredentialCardCanvas(activePreviewBadge);
+        }
       });
-
     }
 
 
